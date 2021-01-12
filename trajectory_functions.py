@@ -160,17 +160,20 @@ def jacob_init(traj, sys, if_transp = False):
                 the 2D numpy array for the jacobian of a dynamical system given
                 at a specified location of the trajectory
         """
+        # convert to time domain
+        curve = traj.modes2curve(traj.mode_array)
+        
         # test for input
         if i%1 != 0:
             raise TypeError("Inputs are not of the correct type!")
-        if i >= traj.shape[1]:
+        if i >= np.shape(curve)[1]:
             raise ValueError("Input index is too large!")
 
         # make sure index is integer
         i = int(i)
 
         # state at index
-        state = traj[:, i]
+        state = curve[:, i]
 
         # the jocobian for that state
         if if_transp == True:

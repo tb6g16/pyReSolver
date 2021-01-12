@@ -118,8 +118,7 @@ class Trajectory:
 
     def __rmul__(self, factor):
         return self.__mul__(factor)
-    
-    # MAYBE DON'T NEED NEW_CURVE VARIABLE????
+
     def __matmul__(self, factor):
         if type(factor) == np.ndarray:
             curve = self.modes2curve(self.mode_array)
@@ -128,10 +127,9 @@ class Trajectory:
         elif hasattr(factor, '__call__'):
             curve = self.modes2curve(self.mode_array)
             shape = np.shape(curve)
-            new_curve = np.zeros(shape)
             for i in range(shape[1]):
-                new_curve[:, i] = np.matmul(factor(i), curve[:, i])
-            return Trajectory(self.curve2modes(new_curve))
+                curve[:, i] = np.matmul(factor(i), curve[:, i])
+            return Trajectory(self.curve2modes(curve))
         else:
             raise TypeError("Inputs are not of the correct type!")
 

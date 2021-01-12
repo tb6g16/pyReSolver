@@ -75,10 +75,10 @@ class TestTrajectoryMethods(unittest.TestCase):
         mat_func_t2s2 = traj_funcs.jacob_init(self.traj2, self.sys2)
 
         # random index
-        # rind_t1s1 = int(rand.uniform(0, 64))
-        # rind_t2s1 = int(rand.uniform(0, 64))
-        # rind_t1s2 = int(rand.uniform(0, 64))
-        # rind_t2s2 = int(rand.uniform(0, 64))
+        rind_t1s1 = int(rand.uniform(0, 64))
+        rind_t2s1 = int(rand.uniform(0, 64))
+        rind_t1s2 = int(rand.uniform(0, 64))
+        rind_t2s2 = int(rand.uniform(0, 64))
 
         # calculate product via magin method
         matmul_t1s1 = mat_func_t1s1 @ self.traj1
@@ -93,29 +93,34 @@ class TestTrajectoryMethods(unittest.TestCase):
         self.assertIsInstance(matmul_t2s2, Trajectory)
 
         # outputs are correct size
-        # self.assertEqual(matmul_t1s1.shape, self.traj1.shape)
-        # self.assertEqual(matmul_t2s1.shape, self.traj2.shape)
-        # self.assertEqual(matmul_t1s2.shape, self.traj1.shape)
-        # self.assertEqual(matmul_t2s2.shape, self.traj2.shape)
+        self.assertEqual(matmul_t1s1.shape, self.traj1.shape)
+        self.assertEqual(matmul_t2s1.shape, self.traj2.shape)
+        self.assertEqual(matmul_t1s2.shape, self.traj1.shape)
+        self.assertEqual(matmul_t2s2.shape, self.traj2.shape)
 
         # outputs are real numbers
-        # temp = True
-        # if matmul_t1s1.mode_array.dtype != np.int64 and matmul_t1s1.mode_array.dtype != np.float64:
-        #     temp = False
-        # if matmul_t2s1.mode_array.dtype != np.int64 and matmul_t2s1.mode_array.dtype != np.float64:
-        #     temp = False
-        # if matmul_t1s2.mode_array.dtype != np.int64 and matmul_t1s2.mode_array.dtype != np.float64:
-        #     temp = False
-        # if matmul_t2s2.mode_array.dtype != np.int64 and matmul_t2s2.mode_array.dtype != np.float64:
-        #     temp = False
-        # self.assertTrue(temp)
+        temp = True
+        if matmul_t1s1.mode_array.dtype != np.complex128:
+            temp = False
+        if matmul_t2s1.mode_array.dtype != np.complex128:
+            temp = False
+        if matmul_t1s2.mode_array.dtype != np.complex128:
+            temp = False
+        if matmul_t2s2.mode_array.dtype != np.complex128:
+            temp = False
+        self.assertTrue(temp)
 
-        # CONVERT BOTH TO TIME AND COMPARE!!!
         # correct values at random vector
-        # self.assertTrue(np.allclose(matmul_t1s1[:, rind_t1s1], mat_func_t1s1(rind_t1s1) @ self.traj1[:, rind_t1s1]))
-        # self.assertTrue(np.allclose(matmul_t2s1[:, rind_t2s1], mat_func_t2s1(rind_t2s1) @ self.traj2[:, rind_t2s1]))
-        # self.assertTrue(np.allclose(matmul_t1s2[:, rind_t1s2], mat_func_t1s2(rind_t1s2) @ self.traj1[:, rind_t1s2]))
-        # self.assertTrue(np.allclose(matmul_t2s2[:, rind_t2s2], mat_func_t2s2(rind_t2s2) @ self.traj2[:, rind_t2s2]))
+        curve_traj1 = self.traj1.modes2curve(self.traj1.mode_array)
+        curve_traj2 = self.traj1.modes2curve(self.traj2.mode_array)
+        matmul_t1s1_curve = matmul_t1s1.modes2curve(matmul_t1s1.mode_array)
+        matmul_t2s1_curve = matmul_t2s1.modes2curve(matmul_t2s1.mode_array)
+        matmul_t1s2_curve = matmul_t1s2.modes2curve(matmul_t1s2.mode_array)
+        matmul_t2s2_curve = matmul_t2s2.modes2curve(matmul_t2s2.mode_array)
+        self.assertTrue(np.allclose(matmul_t1s1_curve[:, rind_t1s1], mat_func_t1s1(rind_t1s1) @ curve_traj1[:, rind_t1s1]))
+        self.assertTrue(np.allclose(matmul_t2s1_curve[:, rind_t2s1], mat_func_t2s1(rind_t2s1) @ curve_traj2[:, rind_t2s1]))
+        self.assertTrue(np.allclose(matmul_t1s2_curve[:, rind_t1s2], mat_func_t1s2(rind_t1s2) @ curve_traj1[:, rind_t1s2]))
+        self.assertTrue(np.allclose(matmul_t2s2_curve[:, rind_t2s2], mat_func_t2s2(rind_t2s2) @ curve_traj2[:, rind_t2s2]))
 
     # def test_eq(self):
     #     self.assertTrue(self.traj1 + self.traj1 == 2*self.traj1)
