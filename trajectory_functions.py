@@ -22,22 +22,18 @@ def traj_grad(traj):
         grad: Trajectory object
             the gradient of the input trajectory
     """
-    # number of discretised time locations
-    time_disc = traj.shape[1]
-
-    # FFT along the time dimension
-    mode_array = np.fft.rfft(traj.curve_array, axis = 1)
+    # initialise array for new modes
+    new_modes = np.zeros(traj.shape, dtype = np.complex)
 
     # loop over time and multiply modes by modifiers
-    for k in range(time_disc//2):
-        mode_array[:, k] *= 1j*k
+    for k in range(traj.shape[1]):
+        new_modes[:, k] = 1j*k*traj.mode_array[:, k]
     
     # force zero mode if symmetric
-    if time_disc % 2 == 0:
-        mode_array[:, time_disc//2] = 0
-    
-    # IFFT to get discrete time gradients
-    return Trajectory(np.fft.irfft(mode_array, axis = 1))
+    if traj.shape[1] % 2 == 0:
+        new_modes[:, traj.shape[1]//2] = 0
+
+    return Trajectory(new_modes)
 
 def average_over_s(traj):
     """
