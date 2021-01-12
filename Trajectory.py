@@ -121,9 +121,7 @@ class Trajectory:
 
     def __matmul__(self, factor):
         if type(factor) == np.ndarray:
-            curve = self.modes2curve(self.mode_array)
-            curve = np.matmul(factor, curve)
-            return Trajectory(self.curve2modes(curve))
+            return Trajectory(np.matmul(factor, self.mode_array))
         elif hasattr(factor, '__call__'):
             curve = self.modes2curve(self.mode_array)
             shape = np.shape(curve)
@@ -138,8 +136,8 @@ class Trajectory:
 
     def __pow__(self, exponent):
         # perform element-by-element exponentiation
-        # return Trajectory(self.curve_array ** exponent)
-        pass
+        curve = self.modes2curve(self.mode_array)
+        return Trajectory(self.curve2modes(curve ** exponent))
 
     def __eq__(self, other_traj, rtol = 1e-6, atol = 1e-6):
         if not isinstance(other_traj, Trajectory):
