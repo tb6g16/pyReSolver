@@ -1,5 +1,5 @@
 # This file contains the tests for the Trajectory class and its associated
-# methods
+# methods.
 
 import sys
 sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\Code\Approach B")

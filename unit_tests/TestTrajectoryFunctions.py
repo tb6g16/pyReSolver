@@ -236,23 +236,6 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(np.array_equal(output3, np.transpose(sys1_jac_true)))
         self.assertTrue(np.array_equal(output4, np.transpose(sys2_jac_true)))
 
-    def test_average_over_s(self):
-        traj1_av = traj_funcs.average_over_s(self.traj1)
-        traj2_av = traj_funcs.average_over_s(self.traj2)
-        traj3_av = traj_funcs.average_over_s(self.traj3)
-
-        # outputs are numbers
-        self.assertEqual(traj1_av.shape, (2,))
-        self.assertEqual(traj2_av.shape, (2,))
-        self.assertEqual(traj3_av.shape, (2,))
-
-        # zero average for circle and ellipse
-        self.assertTrue(np.allclose(traj1_av, np.zeros(traj1_av.shape)))
-        self.assertTrue(np.allclose(traj2_av, np.zeros(traj2_av.shape)))
-
-        # non-zero average for offset circle
-        self.assertTrue(np.allclose(traj3_av, np.ones(traj3_av.shape)))
-
 
 if __name__ == "__main__":
     unittest.main()

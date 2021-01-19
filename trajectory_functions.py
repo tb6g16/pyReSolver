@@ -35,35 +35,6 @@ def traj_grad(traj):
 
     return Trajectory(new_modes)
 
-def average_over_s(traj):
-    """
-        This function calculates the average of a trajectory over its time
-        domain, for each dimension separately.
-
-        Parameters
-        ----------
-        traj: Trajectory object
-            the trajectory for which the integration will be taken
-        
-        Returns
-        -------
-        integ_vec: numpy array
-            a 1D numpy array (vector) containing the average of the trajectory
-            over s for each of its dimensions
-    """
-    # make trajectory truly periodic
-    integ_traj = np.concatenate((traj.curve_array, traj[:, 0:1]), axis = 1)
-    
-    # initialise vector to hold integration results
-    traj_disc = np.linspace(0, 2*np.pi, np.shape(integ_traj)[1])
-    integ_vec = np.zeros([traj.shape[0]])
-
-    # loop over each dimension to evaluate the integration
-    for i in range(np.shape(integ_traj)[0]):
-        integ_vec[i] = (1/(2*np.pi))*integ.trapz(integ_traj[i, :], traj_disc)
-    
-    return integ_vec
-
 def traj_inner_prod(traj1, traj2):
     """
         This function calculates the Euclidean inner product of two
