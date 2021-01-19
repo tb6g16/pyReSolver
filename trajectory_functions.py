@@ -85,15 +85,15 @@ def traj_response(traj, func):
             the response at each location of the trajectory, given as an
             instance of the Trajectory class
     """
-    # initialise arrays
-    array_size = traj.shape
-    response_array = np.zeros(array_size)
-    
-    # evaluate response
-    for i in range(array_size[1]):
-        response_array[:, i] = func(traj[:, i])
-    
-    return Trajectory(response_array)
+    # convert trajectory to time domain
+    curve = traj.modes2curve(traj.mode_array)
+
+    # evaluate response in time domain
+    for i in range(np.shape(curve)[1]):
+        curve[:, i] = func(curve[:, i])
+
+    # convert back to frequency domain and return
+    return Trajectory(traj.curve2modes(curve))
 
 def jacob_init(traj, sys, if_transp = False):
     """
