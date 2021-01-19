@@ -28,13 +28,15 @@ class TestTrajectoryFunctions(unittest.TestCase):
         del self.sys1
         del self.sys2
 
-    def est_traj_inner_prod(self):
+    def test_traj_inner_prod(self):
         traj1_traj1_prod = traj_funcs.traj_inner_prod(self.traj1, self.traj1)
         traj2_traj2_prod = traj_funcs.traj_inner_prod(self.traj2, self.traj2)
         traj1_traj2_prod = traj_funcs.traj_inner_prod(self.traj1, self.traj2)
         traj2_traj1_prod = traj_funcs.traj_inner_prod(self.traj2, self.traj1)
 
         # output is of the Trajectory class
+        self.assertIsInstance(traj1_traj1_prod, Trajectory)
+        self.assertIsInstance(traj2_traj2_prod, Trajectory)
         self.assertIsInstance(traj1_traj2_prod, Trajectory)
         self.assertIsInstance(traj2_traj1_prod, Trajectory)
 
@@ -42,15 +44,15 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertEqual(traj1_traj2_prod, traj2_traj1_prod)
 
         # inner product equal to norm
-        traj1_norm = np.ones([1, self.traj1.shape[1]])
-        traj1_norm = Trajectory(traj1_norm)
-        traj2_norm = np.zeros([1, self.traj2.shape[1]])
-        for i in range(self.traj2.shape[1]):
-            s = ((2*np.pi)/self.traj2.shape[1])*i
+        t1t1_prod_time = self.traj1.modes2curve(traj1_traj1_prod.mode_array)
+        t2t2_prod_time = self.traj2.modes2curve(traj2_traj2_prod.mode_array)
+        traj1_norm = np.ones([1, np.shape(t1t1_prod_time)[1]])
+        traj2_norm = np.zeros([1, np.shape(t2t2_prod_time)[1]])
+        for i in range(np.shape(t1t1_prod_time)[1]):
+            s = ((2*np.pi)/np.shape(t1t1_prod_time)[1])*i
             traj2_norm[0, i] = (4*(np.cos(s)**2)) + (np.sin(s)**2)
-        traj2_norm = Trajectory(traj2_norm)
-        self.assertEqual(traj1_norm, traj1_traj1_prod)
-        self.assertEqual(traj2_norm, traj2_traj2_prod)
+        self.assertTrue(np.allclose(traj1_norm, t1t1_prod_time))
+        self.assertTrue(np.allclose(traj2_norm, t2t2_prod_time))
 
         # single number at each index
         temp1 = True
@@ -62,15 +64,17 @@ class TestTrajectoryFunctions(unittest.TestCase):
                 temp1 = False
         self.assertTrue(temp1)
 
-        # outputs are numbers
-        # temp2 = True
-        # if traj1_traj2_prod.curve_array.dtype != np.int64 and \
-        #     traj1_traj2_prod.curve_array.dtype != np.float64:
-        #     temp2 = False
-        # if traj2_traj1_prod.curve_array.dtype != np.int64 and \
-        #     traj2_traj1_prod.curve_array.dtype != np.float64:
-        #     temp2 = False
-        # self.assertTrue(temp2)
+        # outputs are complex numbers
+        temp2 = True
+        if traj1_traj1_prod.mode_array.dtype != np.complex128:
+            temp2 = False
+        if traj2_traj2_prod.mode_array.dtype != np.complex128:
+            temp2 = False
+        if traj1_traj2_prod.mode_array.dtype != np.complex128:
+            temp2 = False
+        if traj2_traj1_prod.mode_array.dtype != np.complex128:
+            temp2 = False
+        self.assertTrue(temp2)
 
     def test_gradient(self):
         traj1_grad = traj_funcs.traj_grad(self.traj1)

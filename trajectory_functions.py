@@ -53,17 +53,19 @@ def traj_inner_prod(traj1, traj2):
             the inner product of the two trajectories at each location along
             their domains, s
     """
-    # number of time locations
-    disc_size = traj1.shape[1]
+    # convert to time domain
+    curve1 = traj1.modes2curve(traj1.mode_array)
+    curve2 = traj2.modes2curve(traj2.mode_array)
 
-    # initialise output array
-    product_array = np.zeros([1, disc_size])
+    # initialise new array
+    prod_curve = np.zeros([1, np.shape(curve1)[1]])
 
-    # calculate inner product at each location s
-    for i in range(disc_size):
-        product_array[0, i] = np.dot(traj1[:, i], traj2[:, i])
-    
-    return Trajectory(product_array)
+    # evaluate inner product in time domain
+    for i in range(np.shape(curve1)[1]):
+        prod_curve[:, i] = np.dot(curve1[:, i], curve2[:, i])
+
+    # convert back to frequency domain and return
+    return Trajectory(traj1.curve2modes(prod_curve))
 
 def traj_response(traj, func):
     """
