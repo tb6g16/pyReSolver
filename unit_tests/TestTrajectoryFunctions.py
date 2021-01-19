@@ -72,7 +72,7 @@ class TestTrajectoryFunctions(unittest.TestCase):
         #     temp2 = False
         # self.assertTrue(temp2)
 
-    def st_gradient(self):
+    def test_gradient(self):
         traj1_grad = traj_funcs.traj_grad(self.traj1)
         traj2_grad = traj_funcs.traj_grad(self.traj2)
 
@@ -80,29 +80,27 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertEqual(self.traj1.shape, traj1_grad.shape)
         self.assertEqual(self.traj2.shape, traj2_grad.shape)
 
-        # outputs are real numbers
-        # temp = True
-        # if traj1_grad.curve_array.dtype != np.int64 and \
-        #     traj1_grad.curve_array.dtype != np.float64:
-        #     temp = False
-        # if traj2_grad.curve_array.dtype != np.int64 and \
-        #     traj2_grad.curve_array.dtype != np.float64:
-        #     temp = False
-        # self.assertTrue(temp)
+        # outputs are complex numbers
+        temp = True
+        if traj1_grad.mode_array.dtype != np.complex128:
+            temp = False
+        if traj2_grad.mode_array.dtype != np.complex128:
+            temp = False
+        self.assertTrue(temp)
 
         # correct values
-        traj1_grad_true = np.zeros(self.traj1.shape)
-        traj2_grad_true = np.zeros(self.traj2.shape)
-        for i in range(self.traj2.shape[1]):
-            s = ((2*np.pi)/self.traj2.shape[1])*i
+        traj1_grad_time = self.traj1.modes2curve(traj1_grad.mode_array)
+        traj2_grad_time = self.traj2.modes2curve(traj2_grad.mode_array)
+        traj1_grad_true = np.zeros(traj1_grad_time.shape)
+        traj2_grad_true = np.zeros(traj2_grad_time.shape)
+        for i in range(traj2_grad_time.shape[1]):
+            s = ((2*np.pi)/traj2_grad_time.shape[1])*i
             traj1_grad_true[0, i] = -np.sin(s)
             traj1_grad_true[1, i] = -np.cos(s)
             traj2_grad_true[0, i] = -2*np.sin(s)
             traj2_grad_true[1, i] = -np.cos(s)
-        traj1_grad_true = Trajectory(traj1_grad_true)
-        traj2_grad_true = Trajectory(traj2_grad_true)
-        self.assertEqual(traj1_grad_true, traj1_grad)
-        self.assertEqual(traj2_grad_true, traj2_grad)
+        self.assertTrue(np.allclose(traj1_grad_true, traj1_grad_time))
+        self.assertTrue(np.allclose(traj2_grad_true, traj2_grad_time))
 
     def test_traj_response(self):
         # response to full system
@@ -147,7 +145,7 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(temp1)
         self.assertTrue(temp2)
 
-        # same response for trajectories at crossing points
+        # same response for trajectories at crossing points in time domain
         t1r1_time = self.traj1.modes2curve(traj1_response1.mode_array)
         t1r2_time = self.traj1.modes2curve(traj1_response2.mode_array)
         t2r1_time = self.traj2.modes2curve(traj2_response1.mode_array)
