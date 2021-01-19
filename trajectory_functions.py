@@ -1,5 +1,5 @@
 # This file contains the function definitions for some trajectory-trajectory
-# and trajectory-system interactions
+# and trajectory-system interactions.
 
 import numpy as np
 import scipy.integrate as integ

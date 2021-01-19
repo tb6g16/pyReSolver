@@ -1,5 +1,5 @@
 # This file contains the testing methods for the functions defined in
-# trajectory_functions
+# trajectory_functions.
 
 import sys
 sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\Code\Approach B")
@@ -185,7 +185,7 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(np.allclose(traj1_cross1_nl2, traj2_cross1_nl2))
         self.assertTrue(np.allclose(traj1_cross2_nl2, traj2_cross2_nl2))
 
-    def est_jacob_init(self):
+    def test_jacob_init(self):
         self.sys1.parameters['mu'] = 1
         self.sys2.parameters['mu'] = 1
         sys1_jac = traj_funcs.jacob_init(self.traj1, self.sys1)
@@ -214,8 +214,10 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(temp2)
 
         # correct values
-        rstate1 = self.traj1[:, rindex1]
-        rstate2 = self.traj2[:, rindex2]
+        traj1_time = self.traj1.modes2curve(self.traj1.mode_array)
+        traj2_time = self.traj2.modes2curve(self.traj2.mode_array)
+        rstate1 = traj1_time[:, rindex1]
+        rstate2 = traj2_time[:, rindex2]
         sys1_jac_true = vpd.jacobian(rstate1)
         sys2_jac_true = vis.jacobian(rstate2)
         self.assertTrue(np.allclose(output1, sys1_jac_true))
