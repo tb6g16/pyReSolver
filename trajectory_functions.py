@@ -6,6 +6,14 @@ import scipy.integrate as integ
 from Trajectory import Trajectory
 from System import System
 
+def swap_tf(object):
+    if hasattr(object, 'mode_array'):
+        return np.fft.irfft(object.mode_array, axis = 1)
+    elif type(object) == np.ndarray:
+        return np.fft.rfft(object, axis = 1)
+    else:
+        raise TypeError("Input is not of correct type!")
+
 def traj_grad(traj):
     """
         This function calculates the gradient vectors of a given trajectory and
@@ -54,8 +62,8 @@ def traj_inner_prod(traj1, traj2):
             their domains, s
     """
     # convert to time domain
-    curve1 = traj1.swap_tf(traj1)
-    curve2 = traj2.swap_tf(traj2)
+    curve1 = swap_tf(traj1)
+    curve2 = swap_tf(traj2)
 
     # initialise new array
     prod_curve = np.zeros([1, np.shape(curve1)[1]])
@@ -65,7 +73,7 @@ def traj_inner_prod(traj1, traj2):
         prod_curve[:, i] = np.dot(curve1[:, i], curve2[:, i])
 
     # convert back to frequency domain and return
-    return Trajectory(traj1.swap_tf(prod_curve))
+    return Trajectory(swap_tf(prod_curve))
 
 def traj_response(traj, func):
     """
@@ -88,14 +96,14 @@ def traj_response(traj, func):
             instance of the Trajectory class
     """
     # convert trajectory to time domain
-    curve = traj.swap_tf(traj)
+    curve = swap_tf(traj)
 
     # evaluate response in time domain
     for i in range(np.shape(curve)[1]):
         curve[:, i] = func(curve[:, i])
 
     # convert back to frequency domain and return
-    return Trajectory(traj.swap_tf(curve))
+    return Trajectory(swap_tf(curve))
 
 def jacob_init(traj, sys, if_transp = False):
     """
@@ -134,7 +142,7 @@ def jacob_init(traj, sys, if_transp = False):
                 at a specified location of the trajectory
         """
         # convert to time domain
-        curve = traj.swap_tf(traj)
+        curve = swap_tf(traj)
         
         # test for input
         if i%1 != 0:

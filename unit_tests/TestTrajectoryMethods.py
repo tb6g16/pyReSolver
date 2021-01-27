@@ -60,8 +60,8 @@ class TestTrajectoryMethods(unittest.TestCase):
 
         # correct elements
         for i in range(self.traj1.shape[1]):
-            self.assertTrue(np.allclose(mat_mul1[:, i], rand1 @ self.traj1[:, i], rtol = 1e-12))
-            self.assertTrue(np.allclose(mat_mul2[:, i], rand2 @ self.traj2[:, i], rtol = 1e-12))
+            self.assertTrue(np.allclose(mat_mul1[:, i], rand1 @ self.traj1[:, i]))
+            self.assertTrue(np.allclose(mat_mul2[:, i], rand2 @ self.traj2[:, i]))
 
         # check commutativity (__rmatmul__)
         self.assertEqual(mat_mul1, self.traj1 @ rand1)
@@ -111,12 +111,12 @@ class TestTrajectoryMethods(unittest.TestCase):
         self.assertTrue(temp)
 
         # correct values at random vector
-        curve_traj1 = self.traj1.swap_tf(self.traj1)
-        curve_traj2 = self.traj2.swap_tf(self.traj2)
-        matmul_t1s1_curve = matmul_t1s1.swap_tf(matmul_t1s1)
-        matmul_t2s1_curve = matmul_t2s1.swap_tf(matmul_t2s1)
-        matmul_t1s2_curve = matmul_t1s2.swap_tf(matmul_t1s2)
-        matmul_t2s2_curve = matmul_t2s2.swap_tf(matmul_t2s2)
+        curve_traj1 = traj_funcs.swap_tf(self.traj1)
+        curve_traj2 = traj_funcs.swap_tf(self.traj2)
+        matmul_t1s1_curve = traj_funcs.swap_tf(matmul_t1s1)
+        matmul_t2s1_curve = traj_funcs.swap_tf(matmul_t2s1)
+        matmul_t1s2_curve = traj_funcs.swap_tf(matmul_t1s2)
+        matmul_t2s2_curve = traj_funcs.swap_tf(matmul_t2s2)
         self.assertTrue(np.allclose(matmul_t1s1_curve[:, rind_t1s1], mat_func_t1s1(rind_t1s1) @ curve_traj1[:, rind_t1s1]))
         self.assertTrue(np.allclose(matmul_t2s1_curve[:, rind_t2s1], mat_func_t2s1(rind_t2s1) @ curve_traj2[:, rind_t2s1]))
         self.assertTrue(np.allclose(matmul_t1s2_curve[:, rind_t1s2], mat_func_t1s2(rind_t1s2) @ curve_traj1[:, rind_t1s2]))

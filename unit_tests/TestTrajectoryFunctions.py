@@ -44,8 +44,8 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertEqual(traj1_traj2_prod, traj2_traj1_prod)
 
         # inner product equal to norm
-        t1t1_prod_time = self.traj1.swap_tf(traj1_traj1_prod)
-        t2t2_prod_time = self.traj2.swap_tf(traj2_traj2_prod)
+        t1t1_prod_time = traj_funcs.swap_tf(traj1_traj1_prod)
+        t2t2_prod_time = traj_funcs.swap_tf(traj2_traj2_prod)
         traj1_norm = np.ones([1, np.shape(t1t1_prod_time)[1]])
         traj2_norm = np.zeros([1, np.shape(t2t2_prod_time)[1]])
         for i in range(np.shape(t1t1_prod_time)[1]):
@@ -93,8 +93,8 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(temp)
 
         # correct values
-        traj1_grad_time = self.traj1.swap_tf(traj1_grad)
-        traj2_grad_time = self.traj2.swap_tf(traj2_grad)
+        traj1_grad_time = traj_funcs.swap_tf(traj1_grad)
+        traj2_grad_time = traj_funcs.swap_tf(traj2_grad)
         traj1_grad_true = np.zeros(traj1_grad_time.shape)
         traj2_grad_true = np.zeros(traj2_grad_time.shape)
         for i in range(traj2_grad_time.shape[1]):
@@ -150,10 +150,10 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(temp2)
 
         # same response for trajectories at crossing points in time domain
-        t1r1_time = self.traj1.swap_tf(traj1_response1)
-        t1r2_time = self.traj1.swap_tf(traj1_response2)
-        t2r1_time = self.traj2.swap_tf(traj2_response1)
-        t2r2_time = self.traj2.swap_tf(traj2_response2)
+        t1r1_time = traj_funcs.swap_tf(traj1_response1)
+        t1r2_time = traj_funcs.swap_tf(traj1_response2)
+        t2r1_time = traj_funcs.swap_tf(traj2_response1)
+        t2r2_time = traj_funcs.swap_tf(traj2_response2)
         cross_i1 = int(((np.shape(t1r1_time)[1])/(2*np.pi))*(np.pi/2))
         cross_i2 = int(((np.shape(t1r1_time)[1])/(2*np.pi))*((3*np.pi)/2))
         traj1_cross1_resp1 = t1r1_time[:, cross_i1]
@@ -168,10 +168,10 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(np.allclose(traj1_cross2_resp1, traj2_cross2_resp1))
         self.assertTrue(np.allclose(traj1_cross1_resp2, traj2_cross1_resp2))
         self.assertTrue(np.allclose(traj1_cross2_resp2, traj2_cross2_resp2))
-        t1nl1_time = self.traj1.swap_tf(traj1_nl1)
-        t1nl2_time = self.traj1.swap_tf(traj1_nl2)
-        t2nl1_time = self.traj2.swap_tf(traj1_nl1)
-        t2nl2_time = self.traj2.swap_tf(traj2_nl2)
+        t1nl1_time = traj_funcs.swap_tf(traj1_nl1)
+        t1nl2_time = traj_funcs.swap_tf(traj1_nl2)
+        t2nl1_time = traj_funcs.swap_tf(traj1_nl1)
+        t2nl2_time = traj_funcs.swap_tf(traj2_nl2)
         traj1_cross1_nl1 = t1nl1_time[:, cross_i1]
         traj2_cross1_nl1 = t2nl1_time[:, cross_i1]
         traj1_cross2_nl1 = t1nl1_time[:, cross_i2]
@@ -214,8 +214,8 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(temp2)
 
         # correct values
-        traj1_time = self.traj2.swap_tf(self.traj1)
-        traj2_time = self.traj2.swap_tf(self.traj2)
+        traj1_time = traj_funcs.swap_tf(self.traj1)
+        traj2_time = traj_funcs.swap_tf(self.traj2)
         rstate1 = traj1_time[:, rindex1]
         rstate2 = traj2_time[:, rindex2]
         sys1_jac_true = vpd.jacobian(rstate1)

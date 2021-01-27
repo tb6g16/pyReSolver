@@ -78,21 +78,13 @@ class Trajectory:
             time_disc: positive integer
                 number of discrete time locations to use
         """
+        # import trajectory_functions as traj_funcs
         disc = 2*(modes - 1)
         curve_array = np.zeros([np.shape(curve_func(0))[0], disc])
         t = np.linspace(0, 2*np.pi*(1 - 1/disc), disc)
         for i in range(disc):
             curve_array[:, i] = curve_func(t[i])
-        return self.swap_tf(curve_array)
-
-    @staticmethod
-    def swap_tf(object):
-        if hasattr(object, 'mode_array'):
-            return np.fft.irfft(object.mode_array, axis = 1)
-        elif type(object) == np.ndarray:
-            return np.fft.rfft(object, axis = 1)
-        else:
-            raise TypeError("Input is not of correct type!")
+        return np.fft.rfft(curve_array, axis = 1)
 
     def __add__(self, other_traj):
         if not isinstance(other_traj, Trajectory):
@@ -119,10 +111,10 @@ class Trajectory:
         if type(factor) == np.ndarray:
             return Trajectory(np.matmul(factor, self.mode_array))
         elif hasattr(factor, '__call__'):
-            curve = self.swap_tf(self)
+            curve = np.fft.irfft(self.mode_array, axis = 1)
             for i in range(np.shape(curve)[1]):
                 curve[:, i] = np.matmul(factor(i), curve[:, i])
-            return Trajectory(self.swap_tf(curve))
+            return Trajectory(np.fft.rfft(curve, axis = 1))
         else:
             raise TypeError("Inputs are not of the correct type!")
 
@@ -131,8 +123,8 @@ class Trajectory:
 
     def __pow__(self, exponent):
         # perform element-by-element exponentiation
-        curve = self.swap_tf(self)
-        return Trajectory(self.swap_tf(curve ** exponent))
+        curve = np.fft.irfft(self.mode_array, axis = 1)
+        return Trajectory(np.fft.rfft(curve**exponent, axis = 1))
 
     def __eq__(self, other_traj, rtol = 1e-6, atol = 1e-6):
         if not isinstance(other_traj, Trajectory):
@@ -157,7 +149,7 @@ class Trajectory:
         
         if self.shape[0] == 2:
             # convert to time domain
-            curve = self.swap_tf(self)
+            curve = traj_funcs.swap_tf(self)
 
             # plotting trajectory
             fig = plt.figure()
@@ -169,7 +161,7 @@ class Trajectory:
             # add gradient
             if gradient != None:
                 grad = traj_funcs.traj_grad(self)
-                grad = self.swap_tf(grad)
+                grad = traj_funcs.swap_tf(grad)
                 for i in range(0, curve.shape[1], int(1/gradient)):
                     ax.quiver(curve[0, i], curve[1, i], grad[0, i], grad[1, i])
             plt.show()
