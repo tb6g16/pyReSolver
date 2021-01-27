@@ -54,8 +54,8 @@ def traj_inner_prod(traj1, traj2):
             their domains, s
     """
     # convert to time domain
-    curve1 = traj1.modes2curve(traj1.mode_array)
-    curve2 = traj2.modes2curve(traj2.mode_array)
+    curve1 = traj1.swap_tf(traj1)
+    curve2 = traj2.swap_tf(traj2)
 
     # initialise new array
     prod_curve = np.zeros([1, np.shape(curve1)[1]])
@@ -65,7 +65,7 @@ def traj_inner_prod(traj1, traj2):
         prod_curve[:, i] = np.dot(curve1[:, i], curve2[:, i])
 
     # convert back to frequency domain and return
-    return Trajectory(traj1.curve2modes(prod_curve))
+    return Trajectory(traj1.swap_tf(prod_curve))
 
 def traj_response(traj, func):
     """
@@ -88,14 +88,14 @@ def traj_response(traj, func):
             instance of the Trajectory class
     """
     # convert trajectory to time domain
-    curve = traj.modes2curve(traj.mode_array)
+    curve = traj.swap_tf(traj)
 
     # evaluate response in time domain
     for i in range(np.shape(curve)[1]):
         curve[:, i] = func(curve[:, i])
 
     # convert back to frequency domain and return
-    return Trajectory(traj.curve2modes(curve))
+    return Trajectory(traj.swap_tf(curve))
 
 def jacob_init(traj, sys, if_transp = False):
     """
@@ -134,7 +134,7 @@ def jacob_init(traj, sys, if_transp = False):
                 at a specified location of the trajectory
         """
         # convert to time domain
-        curve = traj.modes2curve(traj.mode_array)
+        curve = traj.swap_tf(traj)
         
         # test for input
         if i%1 != 0:

@@ -36,6 +36,7 @@ class Trajectory:
     __slots__ = ['mode_array', 'curve_func', 'shape']
     __array_priority__ = 1e16
 
+    # change disc to modes
     def __init__(self, curve, disc = 64):
         """
             Initialise an instance of the Trajectory object, with either a
@@ -84,16 +85,16 @@ class Trajectory:
         t = np.linspace(0, 2*np.pi*(1 - 1/disc), disc)
         for i in range(disc):
             curve_array[:, i] = curve_func(t[i])
-        mode_array = np.fft.rfft(curve_array, axis = 1)
-        return mode_array
+        return self.swap_tf(curve_array)
 
     @staticmethod
-    def curve2modes(curve):
-        return np.fft.rfft(curve, axis = 1)
-
-    @staticmethod
-    def modes2curve(modes):
-        return np.fft.irfft(modes, axis = 1)
+    def swap_tf(object):
+        if hasattr(object, 'mode_array'):
+            return np.fft.irfft(object.mode_array, axis = 1)
+        elif type(object) == np.ndarray:
+            return np.fft.rfft(object, axis = 1)
+        else:
+            raise TypeError("Input is not of correct type!")
 
     def __add__(self, other_traj):
         if not isinstance(other_traj, Trajectory):
@@ -120,11 +121,10 @@ class Trajectory:
         if type(factor) == np.ndarray:
             return Trajectory(np.matmul(factor, self.mode_array))
         elif hasattr(factor, '__call__'):
-            curve = self.modes2curve(self.mode_array)
-            shape = np.shape(curve)
-            for i in range(shape[1]):
+            curve = self.swap_tf(self)
+            for i in range(np.shape(curve)[1]):
                 curve[:, i] = np.matmul(factor(i), curve[:, i])
-            return Trajectory(self.curve2modes(curve))
+            return Trajectory(self.swap_tf(curve))
         else:
             raise TypeError("Inputs are not of the correct type!")
 
@@ -133,8 +133,8 @@ class Trajectory:
 
     def __pow__(self, exponent):
         # perform element-by-element exponentiation
-        curve = self.modes2curve(self.mode_array)
-        return Trajectory(self.curve2modes(curve ** exponent))
+        curve = self.swap_tf(self)
+        return Trajectory(self.swap_tf(curve ** exponent))
 
     def __eq__(self, other_traj, rtol = 1e-6, atol = 1e-6):
         if not isinstance(other_traj, Trajectory):
@@ -159,7 +159,7 @@ class Trajectory:
         
         if self.shape[0] == 2:
             # convert to time domain
-            curve = self.modes2curve(self.mode_array)
+            curve = self.swap_tf(self)
 
             # plotting trajectory
             fig = plt.figure()
@@ -171,7 +171,7 @@ class Trajectory:
             # add gradient
             if gradient != None:
                 grad = traj_funcs.traj_grad(self)
-                grad = self.modes2curve(grad.mode_array)
+                grad = self.swap_tf(grad)
                 for i in range(0, curve.shape[1], int(1/gradient)):
                     ax.quiver(curve[0, i], curve[1, i], grad[0, i], grad[1, i])
             plt.show()
