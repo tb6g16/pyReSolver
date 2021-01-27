@@ -5,7 +5,6 @@ import numpy as np
 import scipy.integrate as integ
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-
 from System import System
 
 class Trajectory:
@@ -36,8 +35,7 @@ class Trajectory:
     __slots__ = ['mode_array', 'curve_func', 'shape']
     __array_priority__ = 1e16
 
-    # change disc to modes
-    def __init__(self, curve, disc = 64):
+    def __init__(self, curve, modes = 33):
         """
             Initialise an instance of the Trajectory object, with either a
             continuous of discrete time function.
@@ -58,16 +56,15 @@ class Trajectory:
             else:
                 raise AttributeError("The trajectory array has to 2D (only \
                 rows and columns)!")
-        elif hasattr(curve, '__call__'):    
-            self.mode_array = self.func2array(curve, disc = disc)
+        elif hasattr(curve, '__call__'):
+            self.mode_array = self.func2array(curve, modes)
             self.curve_func = curve
             self.shape = np.shape(self.mode_array)
         else:
             raise TypeError("Curve variable has to be either a function or a \
             2D numpy array!")
 
-    # MAKE SURE NUMBER OF MODES ARE ALWAYS EVEN
-    def func2array(self, curve_func, disc = 64):
+    def func2array(self, curve_func, modes):
         """
             Discretise a continuous time representation of a function (given
             as a python function) to a discrete time representation (as a
@@ -81,6 +78,7 @@ class Trajectory:
             time_disc: positive integer
                 number of discrete time locations to use
         """
+        disc = 2*(modes - 1)
         curve_array = np.zeros([np.shape(curve_func(0))[0], disc])
         t = np.linspace(0, 2*np.pi*(1 - 1/disc), disc)
         for i in range(disc):

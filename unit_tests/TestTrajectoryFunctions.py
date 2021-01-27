@@ -17,8 +17,8 @@ from test_cases import viswanath as vis
 class TestTrajectoryFunctions(unittest.TestCase):
 
     def setUp(self):
-        self.traj1 = Trajectory(uc.x, disc = 64)
-        self.traj2 = Trajectory(elps.x, disc = 64)
+        self.traj1 = Trajectory(uc.x, modes = 33)
+        self.traj2 = Trajectory(elps.x, modes = 33)
         self.sys1 = System(vpd)
         self.sys2 = System(vis)
 
