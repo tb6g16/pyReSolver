@@ -22,11 +22,17 @@ def traj2vec(traj, freq):
         opt_vector: numpy array
             the optimisation vector defined by the trajectory frequency pair
     """
-    dofs = (traj.shape[0]*traj.shape[1]) + 1
-    vector = np.zeros([dofs])
-    for j in range(traj.shape[1]):
+    dofs = (2*traj.shape[0]*(traj.shape[1] - 1)) + 1
+    vector = np.zeros(dofs)
+    a = 0
+    for j in range(traj.shape[1] - 1):
         for i in range(traj.shape[0]):
-            vector[i + j*traj.shape[0]] = traj[i, j]
+            for k in range(2):
+                if k == 0:
+                    vector[i + j*traj.shape[0] + a] = np.real(traj[i, j + 1])
+                else:
+                    a += 1
+                    vector[i + j*traj.shape[0] + a] = np.imag(traj[i, j + 1])
     vector[-1] = freq
     return vector
 
@@ -52,8 +58,10 @@ def vec2traj(opt_vector, dim):
     """
     vec_size = np.shape(opt_vector)[0]
     if (vec_size - 1)/dim % 1 != 0:
-        raise ValueError("Vector length not compatible with dim!")
-    traj_array = np.zeros([dim, int((vec_size - 1)/dim)])
-    for i in range(vec_size - 1):
-        traj_array[i - dim*int(i/dim), int(i/dim)] = opt_vector[i]
-    return Trajectory(traj_array), opt_vector[-1]
+        raise ValueError("Vector length not compatible with dimensions!")
+    traj_modes = np.zeros([dim, int((vec_size - 1)/(2*dim)) + 1], dtype = complex)
+    a = 0
+    for i in range(int((vec_size - 1)/2)):
+        traj_modes[i - dim*int(i/dim), int(i/dim) + 1] = opt_vector[a] + 1j*opt_vector[a + 1]
+        a += 2
+    return Trajectory(traj_modes), opt_vector[-1]

@@ -2,7 +2,7 @@
 # required to perform the optimisation.
 
 import sys
-sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\Code\RA Dynamical System")
+sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\Code\Approach B")
 import unittest
 import numpy as np
 from Trajectory import Trajectory
@@ -16,82 +16,49 @@ from test_cases import viswanath as vis
 class TestTraj2Vec(unittest.TestCase):
     
     def setUp(self):
-        self.traj1 = Trajectory(uc.x)
-        self.traj2 = Trajectory(elps.x)
-        self.freq1 = rand.uniform(-10, 10)
-        self.freq2 = rand.uniform(-10, 10)
-        self.t1f1_vec = t2v.traj2vec(self.traj1, self.freq1)
-        self.t1f2_vec = t2v.traj2vec(self.traj1, self.freq2)
-        self.t2f1_vec = t2v.traj2vec(self.traj2, self.freq1)
-        self.t2f2_vec = t2v.traj2vec(self.traj2, self.freq2)
+        temp = np.random.rand(rand.randint(1, 5), rand.randint(1, 256))
+        temp[:, 0] = 0
+        self.traj = Trajectory(temp)
+        self.freq = rand.uniform(-10, 10)
+        self.vec = t2v.traj2vec(self.traj, self.freq)
 
     def tearDown(self):
-        del self.traj1
-        del self.traj2
-        del self.freq1
-        del self.freq2
-        del self.t1f1_vec
-        del self.t1f2_vec
-        del self.t2f1_vec
-        del self.t2f2_vec
+        del self.traj
+        del self.freq
+        del self.vec
 
     def test_traj2vec(self):
         # correct size
-        dofs = (self.traj1.shape[0]*self.traj1.shape[1]) + 1
-        self.assertEqual(np.shape(self.t1f1_vec), (dofs,))
-        self.assertEqual(np.shape(self.t1f2_vec), (dofs,))
-        self.assertEqual(np.shape(self.t2f1_vec), (dofs,))
-        self.assertEqual(np.shape(self.t2f2_vec), (dofs,))
+        dofs = (2*self.traj.shape[0]*(self.traj.shape[1] - 1)) + 1
+        self.assertEqual(np.shape(self.vec), (dofs,))
 
         # last element always frequency
-        self.assertEqual(self.t1f1_vec[-1], self.freq1)
-        self.assertEqual(self.t1f2_vec[-1], self.freq2)
-        self.assertEqual(self.t2f1_vec[-1], self.freq1)
-        self.assertEqual(self.t2f2_vec[-1], self.freq2)
+        self.assertEqual(self.vec[-1], self.freq)
 
         # correct values
-        t1f1_vec_true = np.zeros([dofs])
-        t1f2_vec_true = np.zeros([dofs])
-        t2f1_vec_true = np.zeros([dofs])
-        t2f2_vec_true = np.zeros([dofs])
+        vec_true = np.zeros(dofs)
+        a = 2*self.traj.shape[0]
         for i in range(dofs - 1):
-            if i % 2 == 0:
-                t1f1_vec_true[i] = self.traj1[0, i//2]
-                t1f2_vec_true[i] = self.traj1[0, i//2]
-                t2f1_vec_true[i] = self.traj2[0, i//2]
-                t2f2_vec_true[i] = self.traj2[0, i//2]
-            else:
-                t1f1_vec_true[i] = self.traj1[1, i//2]
-                t1f2_vec_true[i] = self.traj1[1, i//2]
-                t2f1_vec_true[i] = self.traj2[1, i//2]
-                t2f2_vec_true[i] = self.traj2[1, i//2]
-        t1f1_vec_true[-1] = self.freq1
-        t1f2_vec_true[-1] = self.freq2
-        t2f1_vec_true[-1] = self.freq1
-        t2f2_vec_true[-1] = self.freq2
-        
-        self.assertTrue(np.array_equal(self.t1f1_vec, t1f1_vec_true))
-        self.assertTrue(np.array_equal(self.t1f2_vec, t1f2_vec_true))
-        self.assertTrue(np.array_equal(self.t2f1_vec, t2f1_vec_true))
-        self.assertTrue(np.array_equal(self.t2f2_vec, t2f2_vec_true))
+            if i % a == 0:
+                b = 0
+            for j in range(a):
+                if (i - j) % a == 0:
+                    if i % 2 == 0:
+                        vec_true[i] = np.real(self.traj[b, 1 + int((i - j)/a)])
+                    elif i % 2 == 1:
+                        vec_true[i] = np.imag(self.traj[b, 1 + int((i - j)/a)])
+                        b += 1
+        vec_true[-1] = self.freq
+        self.assertTrue(np.array_equal(self.vec, vec_true))
 
     def test_vec2traj(self):
-        traj_t1f1, freq_t1f1 = t2v.vec2traj(self.t1f1_vec, 2)
-        traj_t1f2, freq_t1f2 = t2v.vec2traj(self.t1f2_vec, 2)
-        traj_t2f1, freq_t2f1 = t2v.vec2traj(self.t2f1_vec, 2)
-        traj_t2f2, freq_t2f2 = t2v.vec2traj(self.t2f2_vec, 2)
+        traj, freq = t2v.vec2traj(self.vec, self.traj.shape[0])
 
         # check vec2traj returns correct trajectory
-        self.assertEqual(traj_t1f1, self.traj1)
-        self.assertEqual(traj_t1f2, self.traj1)
-        self.assertEqual(traj_t2f1, self.traj2)
-        self.assertEqual(traj_t2f2, self.traj2)
+        self.assertEqual(traj, self.traj)
 
         # check vec2traj returns correct frequency
-        self.assertEqual(freq_t1f1, self.freq1)
-        self.assertEqual(freq_t1f2, self.freq2)
-        self.assertEqual(freq_t2f1, self.freq1)
-        self.assertEqual(freq_t2f2, self.freq2)
+        self.assertEqual(freq, self.freq)
 
 
 if __name__ == "__main__":
