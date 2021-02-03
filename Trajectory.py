@@ -32,7 +32,7 @@ class Trajectory:
         plot()
     """
 
-    __slots__ = ['mode_array', 'curve_func', 'shape']
+    __slots__ = ['modes', 'shape']
     __array_priority__ = 1e16
 
     def __init__(self, curve, modes = 33):
@@ -50,16 +50,13 @@ class Trajectory:
             if len(np.shape(curve)) == 1:
                 curve = np.expand_dims(curve, axis = 0)
             if len(np.shape(curve)) == 2:
-                self.mode_array = curve
-                self.curve_func = None
+                self.modes = curve
                 self.shape = np.shape(curve)
             else:
-                raise AttributeError("The trajectory array has to 2D (only \
-                rows and columns)!")
+                raise AttributeError("The mode array has to 2D (only rows and columns)!")
         elif hasattr(curve, '__call__'):
-            self.mode_array = self.func2array(curve, modes)
-            self.curve_func = curve
-            self.shape = np.shape(self.mode_array)
+            self.modes = self.func2array(curve, modes)
+            self.shape = np.shape(self.modes)
         else:
             raise TypeError("Curve variable has to be either a function or a \
             2D numpy array!")
@@ -78,7 +75,6 @@ class Trajectory:
             time_disc: positive integer
                 number of discrete time locations to use
         """
-        # import trajectory_functions as traj_funcs
         disc = 2*(modes - 1)
         curve_array = np.zeros([np.shape(curve_func(0))[0], disc])
         t = np.linspace(0, 2*np.pi*(1 - 1/disc), disc)
@@ -89,18 +85,18 @@ class Trajectory:
     def __add__(self, other_traj):
         if not isinstance(other_traj, Trajectory):
             raise TypeError("Inputs are not of the correct type!")
-        return Trajectory(self.mode_array + other_traj.mode_array)
+        return Trajectory(self.modes + other_traj.modes)
 
     def __sub__(self, other_traj):
         if not isinstance(other_traj, Trajectory):
             raise TypeError("Inputs are not of the correct type!")
-        return Trajectory(self.mode_array - other_traj.mode_array)
+        return Trajectory(self.modes - other_traj.modes)
 
     def __mul__(self, factor):
         # scalar multiplication
         if type(factor) == float or type(factor) == int or \
             type(factor) == np.float64 or type(factor) == np.int64:
-            return Trajectory(factor*self.mode_array)
+            return Trajectory(factor*self.modes)
         else:
             raise TypeError("Inputs are not of the correct type!")
 
@@ -109,9 +105,9 @@ class Trajectory:
 
     def __matmul__(self, factor):
         if type(factor) == np.ndarray:
-            return Trajectory(np.matmul(factor, self.mode_array))
+            return Trajectory(np.matmul(factor, self.modes))
         elif hasattr(factor, '__call__'):
-            curve = np.fft.irfft(self.mode_array, axis = 1)
+            curve = np.fft.irfft(self.modes, axis = 1)
             for i in range(np.shape(curve)[1]):
                 curve[:, i] = np.matmul(factor(i), curve[:, i])
             return Trajectory(np.fft.rfft(curve, axis = 1))
@@ -123,22 +119,21 @@ class Trajectory:
 
     def __pow__(self, exponent):
         # perform element-by-element exponentiation
-        curve = np.fft.irfft(self.mode_array, axis = 1)
+        curve = np.fft.irfft(self.modes, axis = 1)
         return Trajectory(np.fft.rfft(curve**exponent, axis = 1))
 
     def __eq__(self, other_traj, rtol = 1e-6, atol = 1e-6):
         if not isinstance(other_traj, Trajectory):
             raise TypeError("Inputs are not of the correct type!")
-        return np.allclose(self.mode_array, other_traj.mode_array, \
-            rtol = rtol, atol = atol)
+        return np.allclose(self.modes, other_traj.modes, rtol = rtol, atol = atol)
 
     def __getitem__(self, key):
         i, j = key
-        return self.mode_array[i, j]
+        return self.modes[i, j]
 
     def __setitem__(self, key, value):
         i, j = key
-        self.mode_array[i, j] = value
+        self.modes[i, j] = value
 
     def plot(self, gradient = None):
         """
@@ -154,8 +149,7 @@ class Trajectory:
             # plotting trajectory
             fig = plt.figure()
             ax = fig.gca()
-            ax.plot(np.append(curve[0], curve[0, 0]), np.append(curve[1], \
-                curve[1, 0]))
+            ax.plot(np.append(curve[0], curve[0, 0]), np.append(curve[1], curve[1, 0]))
             ax.set_aspect('equal')
 
             # add gradient
@@ -164,6 +158,12 @@ class Trajectory:
                 grad = traj_funcs.swap_tf(grad)
                 for i in range(0, curve.shape[1], int(1/gradient)):
                     ax.quiver(curve[0, i], curve[1, i], grad[0, i], grad[1, i])
+            
+            # plt.xlabel("$x$")
+            # plt.ylabel("$\dot{x}$")
+            # plt.xlim([-2.2, 2.2])
+            # plt.ylim([-4, 4])
+            # plt.grid()
             plt.show()
         else:
             raise ValueError("Can't plot!")

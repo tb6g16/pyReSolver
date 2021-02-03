@@ -7,8 +7,8 @@ from Trajectory import Trajectory
 from System import System
 
 def swap_tf(object):
-    if hasattr(object, 'mode_array'):
-        return np.fft.irfft(object.mode_array, axis = 1)
+    if hasattr(object, 'modes'):
+        return np.fft.irfft(object.modes, axis = 1)
     elif type(object) == np.ndarray:
         return np.fft.rfft(object, axis = 1)
     else:
@@ -35,7 +35,7 @@ def traj_grad(traj):
 
     # loop over time and multiply modes by modifiers
     for k in range(traj.shape[1]):
-        new_modes[:, k] = 1j*k*traj.mode_array[:, k]
+        new_modes[:, k] = 1j*k*traj.modes[:, k]
     
     # force zero mode if symmetric
     if traj.shape[1] % 2 == 0:
@@ -143,7 +143,7 @@ def jacob_init(traj, sys, if_transp = False):
         """
         # convert to time domain
         curve = swap_tf(traj)
-        
+
         # test for input
         if i%1 != 0:
             raise TypeError("Inputs are not of the correct type!")

@@ -18,9 +18,9 @@ class TestTrajectoryMethods(unittest.TestCase):
     
     def setUp(self):
         self.traj1 = Trajectory(uc.x, modes = 33)
-        self.freq1 = 1
+        self.freq1 = rand.uniform(-10, 10)
         self.traj2 = Trajectory(elps.x, modes = 33)
-        self.freq2 = 1
+        self.freq2 = rand.uniform(-10, 10)
         self.sys1 = System(vpd)
         self.sys2 = System(vis)
 
@@ -100,13 +100,13 @@ class TestTrajectoryMethods(unittest.TestCase):
 
         # outputs are real numbers
         temp = True
-        if matmul_t1s1.mode_array.dtype != np.complex128:
+        if matmul_t1s1.modes.dtype != np.complex128:
             temp = False
-        if matmul_t2s1.mode_array.dtype != np.complex128:
+        if matmul_t2s1.modes.dtype != np.complex128:
             temp = False
-        if matmul_t1s2.mode_array.dtype != np.complex128:
+        if matmul_t1s2.modes.dtype != np.complex128:
             temp = False
-        if matmul_t2s2.mode_array.dtype != np.complex128:
+        if matmul_t2s2.modes.dtype != np.complex128:
             temp = False
         self.assertTrue(temp)
 

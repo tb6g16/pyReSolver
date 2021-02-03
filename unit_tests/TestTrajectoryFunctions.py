@@ -66,13 +66,13 @@ class TestTrajectoryFunctions(unittest.TestCase):
 
         # outputs are complex numbers
         temp2 = True
-        if traj1_traj1_prod.mode_array.dtype != np.complex128:
+        if traj1_traj1_prod.modes.dtype != np.complex128:
             temp2 = False
-        if traj2_traj2_prod.mode_array.dtype != np.complex128:
+        if traj2_traj2_prod.modes.dtype != np.complex128:
             temp2 = False
-        if traj1_traj2_prod.mode_array.dtype != np.complex128:
+        if traj1_traj2_prod.modes.dtype != np.complex128:
             temp2 = False
-        if traj2_traj1_prod.mode_array.dtype != np.complex128:
+        if traj2_traj1_prod.modes.dtype != np.complex128:
             temp2 = False
         self.assertTrue(temp2)
 
@@ -86,9 +86,9 @@ class TestTrajectoryFunctions(unittest.TestCase):
 
         # outputs are complex numbers
         temp = True
-        if traj1_grad.mode_array.dtype != np.complex128:
+        if traj1_grad.modes.dtype != np.complex128:
             temp = False
-        if traj2_grad.mode_array.dtype != np.complex128:
+        if traj2_grad.modes.dtype != np.complex128:
             temp = False
         self.assertTrue(temp)
 
@@ -129,22 +129,22 @@ class TestTrajectoryFunctions(unittest.TestCase):
 
         # outputs are complex numbers
         temp1 = True
-        if traj1_response1.mode_array.dtype != np.complex128:
+        if traj1_response1.modes.dtype != np.complex128:
             temp1 = False
-        if traj1_response2.mode_array.dtype != np.complex128:
+        if traj1_response2.modes.dtype != np.complex128:
             temp1 = False
-        if traj2_response1.mode_array.dtype != np.complex128:
+        if traj2_response1.modes.dtype != np.complex128:
             temp1 = False
-        if traj2_response2.mode_array.dtype != np.complex128:
+        if traj2_response2.modes.dtype != np.complex128:
             temp1 = False
         temp2 = True
-        if traj1_nl1.mode_array.dtype != np.complex128:
+        if traj1_nl1.modes.dtype != np.complex128:
             temp2 = False
-        if traj1_nl2.mode_array.dtype != np.complex128:
+        if traj1_nl2.modes.dtype != np.complex128:
             temp2 = False
-        if traj2_nl1.mode_array.dtype != np.complex128:
+        if traj2_nl1.modes.dtype != np.complex128:
             temp2 = False
-        if traj2_nl2.mode_array.dtype != np.complex128:
+        if traj2_nl2.modes.dtype != np.complex128:
             temp2 = False
         self.assertTrue(temp1)
         self.assertTrue(temp2)
