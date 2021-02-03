@@ -61,19 +61,46 @@ def traj_inner_prod(traj1, traj2):
             the inner product of the two trajectories at each location along
             their domains, s
     """
-    # convert to time domain
-    curve1 = swap_tf(traj1)
-    curve2 = swap_tf(traj2)
+    # initialise arrays
+    prod_modes = np.zeros([1, traj1.shape[1]], dtype = complex)
+    # prod_modes = np.zeros([1, 2*(traj1.shape[1] - 1)], dtype = complex)
+    # traj1_full = np.zeros([traj1.shape[0], 2*(traj1.shape[1] - 1)], dtype = complex)
+    # traj2_full = np.zeros([traj2.shape[0], 2*(traj2.shape[1] - 1)], dtype = complex)
 
-    # initialise new array
-    prod_curve = np.zeros([1, np.shape(curve1)[1]])
+    # nested loop to perform convolution
+    for n in range(traj1.shape[1]):
+        for m in range(1 - traj1.shape[1], traj1.shape[1]):
+            if m < 0:
+                vec1 = np.conj(traj1[:, -m])
+            else:
+                vec1 = traj1[:, m]
+            if n - m < traj1.shape[1]:
+                if n - m < 0:
+                    vec2 = np.conj(traj2[:, m - n])
+                else:
+                    vec2 = traj2[:, n - m]
+            else:
+                vec2 = np.zeros(traj1.shape[0])
+            prod_modes[:, n] += np.dot(vec1, vec2)
+    
+    # normalise
+    prod_modes = prod_modes/(2*(traj1.shape[1] - 1))
 
-    # evaluate inner product in time domain
-    for i in range(np.shape(curve1)[1]):
-        prod_curve[:, i] = np.dot(curve1[:, i], curve2[:, i])
+    # populate full trajectory modes
+    # for i in range(1 - traj1.shape[1], traj1.shape[1]):
+    #     if i < 0:
+    #         traj1_full[:, i] = np.conj(traj1[:, i])
+    #         traj2_full[:, i] = np.conj(traj2[:, i])
+    #     else:
+    #         traj1_full[:, i] = traj1[:, i]
+    #         traj2_full[:, i] = traj2[:, i]
 
-    # convert back to frequency domain and return
-    return Trajectory(swap_tf(prod_curve))
+    # # use perform convolution
+    # for i in range(traj1.shape[0]):
+    #     prod_modes[0, :] += np.convolve(traj1_full[i, :], traj2_full[i, :], mode = 'same')
+    
+    # return Trajectory(prod_modes[0, traj1.shape[1] - 1:])
+    return(Trajectory(prod_modes))
 
 def traj_response(traj, func):
     """

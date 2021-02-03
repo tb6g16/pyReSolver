@@ -43,17 +43,6 @@ class TestTrajectoryFunctions(unittest.TestCase):
         # does the operation commute
         self.assertEqual(traj1_traj2_prod, traj2_traj1_prod)
 
-        # inner product equal to norm
-        t1t1_prod_time = traj_funcs.swap_tf(traj1_traj1_prod)
-        t2t2_prod_time = traj_funcs.swap_tf(traj2_traj2_prod)
-        traj1_norm = np.ones([1, np.shape(t1t1_prod_time)[1]])
-        traj2_norm = np.zeros([1, np.shape(t2t2_prod_time)[1]])
-        for i in range(np.shape(t1t1_prod_time)[1]):
-            s = ((2*np.pi)/np.shape(t1t1_prod_time)[1])*i
-            traj2_norm[0, i] = (4*(np.cos(s)**2)) + (np.sin(s)**2)
-        self.assertTrue(np.allclose(traj1_norm, t1t1_prod_time))
-        self.assertTrue(np.allclose(traj2_norm, t2t2_prod_time))
-
         # single number at each index
         temp1 = True
         for i in range(traj1_traj2_prod.shape[1]):
@@ -75,6 +64,27 @@ class TestTrajectoryFunctions(unittest.TestCase):
         if traj2_traj1_prod.modes.dtype != np.complex128:
             temp2 = False
         self.assertTrue(temp2)
+
+        # inner product equal to norm
+        t1t1_prod_time = traj_funcs.swap_tf(traj1_traj1_prod)
+        t2t2_prod_time = traj_funcs.swap_tf(traj2_traj2_prod)
+        traj1_norm = np.ones([1, np.shape(t1t1_prod_time)[1]])
+        traj2_norm = np.zeros([1, np.shape(t2t2_prod_time)[1]])
+        for i in range(np.shape(t1t1_prod_time)[1]):
+            s = ((2*np.pi)/np.shape(t1t1_prod_time)[1])*i
+            traj2_norm[0, i] = (4*(np.cos(s)**2)) + (np.sin(s)**2)
+        self.assertTrue(np.allclose(traj1_norm, t1t1_prod_time))
+        self.assertTrue(np.allclose(traj2_norm, t2t2_prod_time))
+
+        # correct values for other inner products
+        t1t2_prod_time = traj_funcs.swap_tf(traj1_traj2_prod)
+        t2t1_prod_time = traj_funcs.swap_tf(traj2_traj1_prod)
+        t1t2_prod_true = np.zeros([1, np.shape(t1t1_prod_time)[1]])
+        for i in range(np.shape(t1t1_prod_time)[1]):
+            s = ((2*np.pi)/np.shape(t1t1_prod_time)[1])*i
+            t1t2_prod_true[0, i] = 2*(np.cos(s)**2) + (np.sin(s)**2)
+        self.assertTrue(np.allclose(t1t2_prod_true, t1t2_prod_time))
+        self.assertTrue(np.allclose(t1t2_prod_true, t2t1_prod_time))
 
     def test_gradient(self):
         traj1_grad = traj_funcs.traj_grad(self.traj1)
