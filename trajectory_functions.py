@@ -63,9 +63,6 @@ def traj_inner_prod(traj1, traj2):
     """
     # initialise arrays
     prod_modes = np.zeros([1, traj1.shape[1]], dtype = complex)
-    # prod_modes = np.zeros([1, 2*(traj1.shape[1] - 1)], dtype = complex)
-    # traj1_full = np.zeros([traj1.shape[0], 2*(traj1.shape[1] - 1)], dtype = complex)
-    # traj2_full = np.zeros([traj2.shape[0], 2*(traj2.shape[1] - 1)], dtype = complex)
 
     # nested loop to perform convolution
     for n in range(traj1.shape[1]):
@@ -86,20 +83,6 @@ def traj_inner_prod(traj1, traj2):
     # normalise
     prod_modes = prod_modes/(2*(traj1.shape[1] - 1))
 
-    # populate full trajectory modes
-    # for i in range(1 - traj1.shape[1], traj1.shape[1]):
-    #     if i < 0:
-    #         traj1_full[:, i] = np.conj(traj1[:, i])
-    #         traj2_full[:, i] = np.conj(traj2[:, i])
-    #     else:
-    #         traj1_full[:, i] = traj1[:, i]
-    #         traj2_full[:, i] = traj2[:, i]
-
-    # # use perform convolution
-    # for i in range(traj1.shape[0]):
-    #     prod_modes[0, :] += np.convolve(traj1_full[i, :], traj2_full[i, :], mode = 'same')
-    
-    # return Trajectory(prod_modes[0, traj1.shape[1] - 1:])
     return(Trajectory(prod_modes))
 
 def traj_response(traj, func):
