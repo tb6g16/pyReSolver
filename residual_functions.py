@@ -1,5 +1,5 @@
 # This file contains the function definitions that calculate the residuals and
-# their associated gradients
+# their associated gradients.
 
 import numpy as np
 import scipy.integrate as integ
@@ -7,7 +7,33 @@ from Trajectory import Trajectory
 from System import System
 import trajectory_functions as traj_funcs
 
-def local_residual(traj, sys, freq):
+def resolvent(n, sys, freq, dim, mean):
+    """
+        This function calculates the resolvent operator for a given mode number
+        n, system, and fundamental frequency.
+
+        Parameters
+        ----------
+        n: positive integer
+            mode number for the resolvent operator
+        sys: System object
+            the dynamical system required to calculate the Jacobian matrix
+        freq: float
+            the frequency of the trajectory
+        dim: positive integer
+            dimension of the dynamical system
+        mean: vector
+            the mean of the state-space trajectory
+        
+        Returns
+        -------
+        resolvent: numpy array
+            the resolvent operator for the given mode number, system, and
+            frequency
+    """
+    return np.linalg.inv((1j*n*freq*np.identity(dim)) - sys.jacobian(mean))
+
+def local_residual(traj, sys, freq, mean):
     """
         This function calculates the local residual of a trajectory through a
         state-space defined by a given dynamical system.
@@ -20,6 +46,8 @@ def local_residual(traj, sys, freq):
             the dynamical system defining the state-space
         freq: float
             the fundamental frequency of the trajectory
+        mean: vector
+            the mean of the state-space trajectory
         
         Returns
         -------
@@ -27,14 +55,18 @@ def local_residual(traj, sys, freq):
             the local residual of the trajectory with respect to the dynamical
             system, given as an instance of the Trajectory class
     """
-    # compute gradient of trajectory
-    traj_grad = traj_funcs.traj_grad(traj)
+    # initialise arrays
+    residual_traj = np.zeros(traj.shape, dtype = complex)
 
-    # evaluate system response at the states of the trajectory
-    response = traj_funcs.traj_response(traj, sys.response)
+    # evaluate response
+    resp = traj_funcs.traj_response(traj, sys.nl_factor)
 
-    # compute and return local residual trajectory
-    return (freq*traj_grad) - response
+    # loop through mode numbers
+    for i in range(1, traj.shape[1]):
+        H_n = resolvent(i, sys, freq, traj.shape[0], mean)
+        residual_traj[:, i] = traj[:, i] - (H_n @ resp[:, i])
+
+    return Trajectory(residual_traj)
 
 def global_residual(traj, sys, freq):
     """
