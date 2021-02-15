@@ -2,8 +2,6 @@
 # Pol equations, the proposed solution curve, and the real solution (limit
 # cycle).
 
-# Thomas Burton - October 2020
-
 import numpy as np
 
 # define optional arguments

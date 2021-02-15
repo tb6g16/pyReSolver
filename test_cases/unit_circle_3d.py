@@ -1,0 +1,16 @@
+# This file will hold the functions that define dynamical system and solution
+# curve for testing purposes.
+
+import numpy as np
+
+# define a test solution
+def x(s):
+
+    # initialise vectors
+    state = np.zeros(3)
+
+    # define function behaviour
+    state[0] = np.cos(s)
+    state[2] = -np.sin(s)
+
+    return state
