@@ -4,6 +4,12 @@
 import numpy as np
 from Trajectory import Trajectory
 
+# Ideal functionality:
+#   - takes in instances of Trajectory class
+#   - makes sure they are compatible (is the matrix multiplication possible)
+#   - performs the convolution and returns a new isntance of Trajectory class
+#   - choice between 'fast' and 'slow'
+
 def conv(traj1, traj2):
     """
         This function calculates the convolution sum of the modes for two
@@ -23,7 +29,7 @@ def conv(traj1, traj2):
             new trajectory)
     """
     # initialise arrays
-    conv_modes = np.zeros([1, traj1.shape[1]], dtype = complex)
+    conv_modes = np.zeros([1, np.shape(traj1)[1]], dtype = complex)
 
     # nested loop to perform convolution
     traj1_zero = traj1[:, 0]
@@ -45,4 +51,4 @@ def conv(traj1, traj2):
     # account for zero mode
     conv_modes[:, 0] = conv_modes[:, 0]*2
 
-    return Trajectory(conv_modes)
+    return conv_modes

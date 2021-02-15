@@ -5,12 +5,12 @@
 import numpy as np
 
 # define optional arguments
-defaults = {'mu': 0}
+parameters = {'mu': 0}
 
-def response(x, defaults = defaults):
+def response(x, parameters = parameters):
 
     # unpack defaults
-    mu = defaults['mu']
+    mu = parameters['mu']
 
     # initialise response vector
     response = np.zeros(np.shape(x))
@@ -21,10 +21,13 @@ def response(x, defaults = defaults):
 
     return response
 
-def jacobian(x, defaults = defaults):
+def response2(traj, parameters = parameters):
+    pass
+
+def jacobian(x, parameters = parameters):
 
     # unpack defaults
-    mu = defaults['mu']
+    mu = parameters['mu']
 
     #initialise jacobian matrix
     jacobian_matrix = np.zeros([np.shape(x)[0], np.shape(x)[0]])
@@ -36,10 +39,13 @@ def jacobian(x, defaults = defaults):
 
     return jacobian_matrix
 
-def nl_factor(x, defaults = defaults):
+def jacobian2(traj, parameters = parameters):
+    pass
+
+def nl_factor(x, parameters = parameters):
 
     # unpack defualts
-    mu = defaults['mu']
+    mu = parameters['mu']
 
     # initialise output vector
     nl_vector = np.zeros(np.shape(x))
@@ -49,14 +55,17 @@ def nl_factor(x, defaults = defaults):
 
     return nl_vector
 
+def nl_factor2(traj, parameters = parameters):
+    pass
+
 # these functions are here because the system has non-quadratic nonlinearity
 def init_nl_con_grads():
 
-    def nl_con_grad1(x, defaults = defaults):
+    def nl_con_grad1(x, parameters = parameters):
         return np.zeros(2)
 
-    def nl_con_grad2(x, defaults = defaults):
-        mu = defaults['mu']
+    def nl_con_grad2(x, parameters = parameters):
+        mu = parameters['mu']
         vec = np.zeros(2)
         vec[0] = -mu*x[0]*x[1]/np.pi
         vec[1] = -(mu/(2*np.pi))*(x[0]**2)

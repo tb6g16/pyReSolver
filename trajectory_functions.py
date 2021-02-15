@@ -55,7 +55,7 @@ def traj_inner_prod(traj1, traj2):
             the inner product of the two trajectories at each location along
             their domains, s
     """
-    return conv(traj1, traj2)
+    return Trajectory(conv(traj1.modes, traj2.modes))
 
 def traj_response(traj, func):
     """
