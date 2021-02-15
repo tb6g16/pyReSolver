@@ -30,50 +30,50 @@ class TestTrajectoryFunctions(unittest.TestCase):
         del self.sys2
 
     def test_traj_inner_prod(self):
-        t1t1_prod1, t1t1_prod2 = traj_funcs.traj_inner_prod(self.traj1, self.traj1)
-        t2t2_prod1, t2t2_prod2 = traj_funcs.traj_inner_prod(self.traj2, self.traj2)
-        t1t2_prod1, t1t2_prod2 = traj_funcs.traj_inner_prod(self.traj1, self.traj2)
-        t2t1_prod1, t2t1_prod2 = traj_funcs.traj_inner_prod(self.traj2, self.traj1)
+        t1t1_prod = traj_funcs.traj_inner_prod(self.traj1, self.traj1)
+        t2t2_prod = traj_funcs.traj_inner_prod(self.traj2, self.traj2)
+        t1t2_prod = traj_funcs.traj_inner_prod(self.traj1, self.traj2)
+        t2t1_prod = traj_funcs.traj_inner_prod(self.traj2, self.traj1)
 
-        self.assertAlmostEqual(t1t1_prod1, t1t1_prod2)
-        self.assertAlmostEqual(t2t2_prod1, t2t2_prod2)
-        self.assertAlmostEqual(t1t2_prod1, t1t2_prod2)
-        self.assertAlmostEqual(t2t1_prod1, t2t1_prod2)
+        # self.assertAlmostEqual(t1t1_prod1, t1t1_prod2)
+        # self.assertAlmostEqual(t2t2_prod1, t2t2_prod2)
+        # self.assertAlmostEqual(t1t2_prod1, t1t2_prod2)
+        # self.assertAlmostEqual(t2t1_prod1, t2t1_prod2)
 
         # output is of the Trajectory class
-        self.assertIsInstance(t1t1_prod1, Trajectory)
-        self.assertIsInstance(t2t2_prod1, Trajectory)
-        self.assertIsInstance(t1t2_prod1, Trajectory)
-        self.assertIsInstance(t2t1_prod1, Trajectory)
+        self.assertIsInstance(t1t1_prod, Trajectory)
+        self.assertIsInstance(t2t2_prod, Trajectory)
+        self.assertIsInstance(t1t2_prod, Trajectory)
+        self.assertIsInstance(t2t1_prod, Trajectory)
 
         # does the operation commute
-        self.assertEqual(t1t2_prod1, t2t1_prod1)
+        self.assertEqual(t1t2_prod, t2t1_prod)
 
         # single number at each index
         temp1 = True
-        for i in range(t1t2_prod1.shape[1]):
-            if t1t2_prod1[:, i].shape[0] != 1:
+        for i in range(t1t2_prod.shape[1]):
+            if t1t2_prod[:, i].shape[0] != 1:
                 temp1 = False
-        for i in range(t2t1_prod1.shape[1]):
-            if t2t1_prod1[:, i].shape[0] != 1:
+        for i in range(t2t1_prod.shape[1]):
+            if t2t1_prod[:, i].shape[0] != 1:
                 temp1 = False
         self.assertTrue(temp1)
 
         # outputs are complex numbers
         temp2 = True
-        if t1t1_prod1.modes.dtype != np.complex128:
+        if t1t1_prod.modes.dtype != np.complex128:
             temp2 = False
-        if t2t2_prod1.modes.dtype != np.complex128:
+        if t2t2_prod.modes.dtype != np.complex128:
             temp2 = False
-        if t1t2_prod1.modes.dtype != np.complex128:
+        if t1t2_prod.modes.dtype != np.complex128:
             temp2 = False
-        if t2t1_prod1.modes.dtype != np.complex128:
+        if t2t1_prod.modes.dtype != np.complex128:
             temp2 = False
         self.assertTrue(temp2)
 
         # inner product equal to norm
-        t1t1_prod_time = my_ifft(t1t1_prod1.modes)
-        t2t2_prod_time = my_ifft(t2t2_prod2.modes)
+        t1t1_prod_time = my_ifft(t1t1_prod.modes)
+        t2t2_prod_time = my_ifft(t2t2_prod.modes)
         t1_norm = np.ones([1, np.shape(t1t1_prod_time)[1]])
         t2_norm = np.zeros([1, np.shape(t2t2_prod_time)[1]])
         for i in range(np.shape(t1t1_prod_time)[1]):
@@ -83,8 +83,8 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(np.allclose(t2_norm, t2t2_prod_time))
 
         # correct values for other inner products
-        t1t2_prod_time = my_ifft(t1t2_prod1.modes)
-        t2t1_prod_time = my_ifft(t2t1_prod1.modes)
+        t1t2_prod_time = my_ifft(t1t2_prod.modes)
+        t2t1_prod_time = my_ifft(t2t1_prod.modes)
         t1t2_prod_true = np.zeros([1, np.shape(t1t1_prod_time)[1]])
         for i in range(np.shape(t1t1_prod_time)[1]):
             s = ((2*np.pi)/np.shape(t1t1_prod_time)[1])*i

@@ -45,23 +45,4 @@ def conv(traj1, traj2):
     # account for zero mode
     conv_modes[:, 0] = conv_modes[:, 0]*2
 
-    # initialise arrays
-    prod_modes = np.zeros([1, traj1.shape[1]], dtype = complex)
-
-    # nested loop to perform convolution
-    for n in range(traj1.shape[1]):
-        for m in range(1 - traj1.shape[1], traj1.shape[1]):
-            if m < 0:
-                vec1 = np.conj(traj1[:, -m])
-            else:
-                vec1 = traj1[:, m]
-            if n - m < traj1.shape[1]:
-                if n - m < 0:
-                    vec2 = np.conj(traj2[:, m - n])
-                else:
-                    vec2 = traj2[:, n - m]
-            else:
-                vec2 = np.zeros(traj1.shape[0])
-            prod_modes[:, n] += np.dot(vec1, vec2)
-
-    return Trajectory(prod_modes), Trajectory(conv_modes)
+    return Trajectory(conv_modes)
