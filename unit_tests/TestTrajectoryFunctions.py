@@ -9,6 +9,7 @@ import random as rand
 from Trajectory import Trajectory
 import trajectory_functions as traj_funcs
 from System import System
+from my_fft import my_fft, my_ifft
 from test_cases import unit_circle as uc
 from test_cases import ellipse as elps
 from test_cases import van_der_pol as vpd
@@ -29,56 +30,61 @@ class TestTrajectoryFunctions(unittest.TestCase):
         del self.sys2
 
     def test_traj_inner_prod(self):
-        traj1_traj1_prod = traj_funcs.traj_inner_prod(self.traj1, self.traj1)
-        traj2_traj2_prod = traj_funcs.traj_inner_prod(self.traj2, self.traj2)
-        traj1_traj2_prod = traj_funcs.traj_inner_prod(self.traj1, self.traj2)
-        traj2_traj1_prod = traj_funcs.traj_inner_prod(self.traj2, self.traj1)
+        t1t1_prod1, t1t1_prod2 = traj_funcs.traj_inner_prod(self.traj1, self.traj1)
+        t2t2_prod1, t2t2_prod2 = traj_funcs.traj_inner_prod(self.traj2, self.traj2)
+        t1t2_prod1, t1t2_prod2 = traj_funcs.traj_inner_prod(self.traj1, self.traj2)
+        t2t1_prod1, t2t1_prod2 = traj_funcs.traj_inner_prod(self.traj2, self.traj1)
+
+        self.assertAlmostEqual(t1t1_prod1, t1t1_prod2)
+        self.assertAlmostEqual(t2t2_prod1, t2t2_prod2)
+        self.assertAlmostEqual(t1t2_prod1, t1t2_prod2)
+        self.assertAlmostEqual(t2t1_prod1, t2t1_prod2)
 
         # output is of the Trajectory class
-        self.assertIsInstance(traj1_traj1_prod, Trajectory)
-        self.assertIsInstance(traj2_traj2_prod, Trajectory)
-        self.assertIsInstance(traj1_traj2_prod, Trajectory)
-        self.assertIsInstance(traj2_traj1_prod, Trajectory)
+        self.assertIsInstance(t1t1_prod1, Trajectory)
+        self.assertIsInstance(t2t2_prod1, Trajectory)
+        self.assertIsInstance(t1t2_prod1, Trajectory)
+        self.assertIsInstance(t2t1_prod1, Trajectory)
 
         # does the operation commute
-        self.assertEqual(traj1_traj2_prod, traj2_traj1_prod)
+        self.assertEqual(t1t2_prod1, t2t1_prod1)
 
         # single number at each index
         temp1 = True
-        for i in range(traj1_traj2_prod.shape[1]):
-            if traj1_traj2_prod[:, i].shape[0] != 1:
+        for i in range(t1t2_prod1.shape[1]):
+            if t1t2_prod1[:, i].shape[0] != 1:
                 temp1 = False
-        for i in range(traj2_traj1_prod.shape[1]):
-            if traj2_traj1_prod[:, i].shape[0] != 1:
+        for i in range(t2t1_prod1.shape[1]):
+            if t2t1_prod1[:, i].shape[0] != 1:
                 temp1 = False
         self.assertTrue(temp1)
 
         # outputs are complex numbers
         temp2 = True
-        if traj1_traj1_prod.modes.dtype != np.complex128:
+        if t1t1_prod1.modes.dtype != np.complex128:
             temp2 = False
-        if traj2_traj2_prod.modes.dtype != np.complex128:
+        if t2t2_prod1.modes.dtype != np.complex128:
             temp2 = False
-        if traj1_traj2_prod.modes.dtype != np.complex128:
+        if t1t2_prod1.modes.dtype != np.complex128:
             temp2 = False
-        if traj2_traj1_prod.modes.dtype != np.complex128:
+        if t2t1_prod1.modes.dtype != np.complex128:
             temp2 = False
         self.assertTrue(temp2)
 
         # inner product equal to norm
-        t1t1_prod_time = traj_funcs.swap_tf(traj1_traj1_prod)
-        t2t2_prod_time = traj_funcs.swap_tf(traj2_traj2_prod)
-        traj1_norm = np.ones([1, np.shape(t1t1_prod_time)[1]])
-        traj2_norm = np.zeros([1, np.shape(t2t2_prod_time)[1]])
+        t1t1_prod_time = my_ifft(t1t1_prod1.modes)
+        t2t2_prod_time = my_ifft(t2t2_prod2.modes)
+        t1_norm = np.ones([1, np.shape(t1t1_prod_time)[1]])
+        t2_norm = np.zeros([1, np.shape(t2t2_prod_time)[1]])
         for i in range(np.shape(t1t1_prod_time)[1]):
             s = ((2*np.pi)/np.shape(t1t1_prod_time)[1])*i
-            traj2_norm[0, i] = (4*(np.cos(s)**2)) + (np.sin(s)**2)
-        self.assertTrue(np.allclose(traj1_norm, t1t1_prod_time))
-        self.assertTrue(np.allclose(traj2_norm, t2t2_prod_time))
+            t2_norm[0, i] = (4*(np.cos(s)**2)) + (np.sin(s)**2)
+        self.assertTrue(np.allclose(t1_norm, t1t1_prod_time))
+        self.assertTrue(np.allclose(t2_norm, t2t2_prod_time))
 
         # correct values for other inner products
-        t1t2_prod_time = traj_funcs.swap_tf(traj1_traj2_prod)
-        t2t1_prod_time = traj_funcs.swap_tf(traj2_traj1_prod)
+        t1t2_prod_time = my_ifft(t1t2_prod1.modes)
+        t2t1_prod_time = my_ifft(t2t1_prod1.modes)
         t1t2_prod_true = np.zeros([1, np.shape(t1t1_prod_time)[1]])
         for i in range(np.shape(t1t1_prod_time)[1]):
             s = ((2*np.pi)/np.shape(t1t1_prod_time)[1])*i
@@ -103,8 +109,8 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(temp)
 
         # correct values
-        traj1_grad_time = traj_funcs.swap_tf(traj1_grad)
-        traj2_grad_time = traj_funcs.swap_tf(traj2_grad)
+        traj1_grad_time = my_ifft(traj1_grad.modes)
+        traj2_grad_time = my_ifft(traj2_grad.modes)
         traj1_grad_true = np.zeros(traj1_grad_time.shape)
         traj2_grad_true = np.zeros(traj2_grad_time.shape)
         for i in range(traj2_grad_time.shape[1]):
@@ -160,10 +166,10 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(temp2)
 
         # same response for trajectories at crossing points in time domain
-        t1r1_time = traj_funcs.swap_tf(traj1_response1)
-        t1r2_time = traj_funcs.swap_tf(traj1_response2)
-        t2r1_time = traj_funcs.swap_tf(traj2_response1)
-        t2r2_time = traj_funcs.swap_tf(traj2_response2)
+        t1r1_time = my_ifft(traj1_response1.modes)
+        t1r2_time = my_ifft(traj1_response2.modes)
+        t2r1_time = my_ifft(traj2_response1.modes)
+        t2r2_time = my_ifft(traj2_response2.modes)
         cross_i1 = int(((np.shape(t1r1_time)[1])/(2*np.pi))*(np.pi/2))
         cross_i2 = int(((np.shape(t1r1_time)[1])/(2*np.pi))*((3*np.pi)/2))
         traj1_cross1_resp1 = t1r1_time[:, cross_i1]
@@ -178,10 +184,10 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(np.allclose(traj1_cross2_resp1, traj2_cross2_resp1))
         self.assertTrue(np.allclose(traj1_cross1_resp2, traj2_cross1_resp2))
         self.assertTrue(np.allclose(traj1_cross2_resp2, traj2_cross2_resp2))
-        t1nl1_time = traj_funcs.swap_tf(traj1_nl1)
-        t1nl2_time = traj_funcs.swap_tf(traj1_nl2)
-        t2nl1_time = traj_funcs.swap_tf(traj1_nl1)
-        t2nl2_time = traj_funcs.swap_tf(traj2_nl2)
+        t1nl1_time = my_ifft(traj1_nl1.modes)
+        t1nl2_time = my_ifft(traj1_nl2.modes)
+        t2nl1_time = my_ifft(traj2_nl1.modes)
+        t2nl2_time = my_ifft(traj2_nl2.modes)
         traj1_cross1_nl1 = t1nl1_time[:, cross_i1]
         traj2_cross1_nl1 = t2nl1_time[:, cross_i1]
         traj1_cross2_nl1 = t1nl1_time[:, cross_i2]
@@ -224,8 +230,8 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(temp2)
 
         # correct values
-        traj1_time = traj_funcs.swap_tf(self.traj1)
-        traj2_time = traj_funcs.swap_tf(self.traj2)
+        traj1_time = my_ifft(self.traj1.modes)
+        traj2_time = my_ifft(self.traj2.modes)
         rstate1 = traj1_time[:, rindex1]
         rstate2 = traj2_time[:, rindex2]
         sys1_jac_true = vpd.jacobian(rstate1)

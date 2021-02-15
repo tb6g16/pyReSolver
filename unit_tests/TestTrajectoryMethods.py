@@ -9,6 +9,7 @@ import random as rand
 from Trajectory import Trajectory
 import trajectory_functions as traj_funcs
 from System import System
+from my_fft import my_fft, my_ifft
 from test_cases import unit_circle as uc
 from test_cases import ellipse as elps
 from test_cases import van_der_pol as vpd
@@ -111,12 +112,12 @@ class TestTrajectoryMethods(unittest.TestCase):
         self.assertTrue(temp)
 
         # correct values at random vector
-        curve_traj1 = traj_funcs.swap_tf(self.traj1)
-        curve_traj2 = traj_funcs.swap_tf(self.traj2)
-        matmul_t1s1_curve = traj_funcs.swap_tf(matmul_t1s1)
-        matmul_t2s1_curve = traj_funcs.swap_tf(matmul_t2s1)
-        matmul_t1s2_curve = traj_funcs.swap_tf(matmul_t1s2)
-        matmul_t2s2_curve = traj_funcs.swap_tf(matmul_t2s2)
+        curve_traj1 = my_ifft(self.traj1.modes)
+        curve_traj2 = my_ifft(self.traj2.modes)
+        matmul_t1s1_curve = my_ifft(matmul_t1s1.modes)
+        matmul_t2s1_curve = my_ifft(matmul_t2s1.modes)
+        matmul_t1s2_curve = my_ifft(matmul_t1s2.modes)
+        matmul_t2s2_curve = my_ifft(matmul_t2s2.modes)
         self.assertTrue(np.allclose(matmul_t1s1_curve[:, rind_t1s1], mat_func_t1s1(rind_t1s1) @ curve_traj1[:, rind_t1s1]))
         self.assertTrue(np.allclose(matmul_t2s1_curve[:, rind_t2s1], mat_func_t2s1(rind_t2s1) @ curve_traj2[:, rind_t2s1]))
         self.assertTrue(np.allclose(matmul_t1s2_curve[:, rind_t1s2], mat_func_t1s2(rind_t1s2) @ curve_traj1[:, rind_t1s2]))
