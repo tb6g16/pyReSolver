@@ -45,8 +45,8 @@ def conv(traj1, traj2):
             else:
                 factor2_sum = traj2[:, n + m]
             conv_modes[:, n] += np.dot(traj1[:, m], factor2_diff) + \
-                                np.dot(np.conj(traj1[:, m]), factor2_sum) + \
-                                np.dot(traj1_zero, traj2_at_n)
+                                np.dot(np.conj(traj1[:, m]), factor2_sum)
+        conv_modes[:, n] += np.dot(traj1_zero, traj2_at_n)
 
     # account for zero mode
     conv_modes[:, 0] = conv_modes[:, 0]*2
