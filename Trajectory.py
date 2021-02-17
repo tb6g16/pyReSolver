@@ -107,23 +107,13 @@ class Trajectory:
         if type(key) == int or type(key) == slice:
             return self.mode_list[key]
         else:
-            i, j = key
-        return self.mode_list[i][j]
+            return self.mode_list[key[0]][key[1:]]
 
     def __setitem__(self, key, value):
         if type(key) == int or type(key) == slice:
             self.mode_list[key] = value
         else:
-            i, j = key
-        self.mode_list[i][j] = value
-
-    def transpose(self):
-        for i in range(len(self.mode_list)):
-            self.mode_list[i] = np.transpose(self.mode_list[i])
-
-    def conj(self):
-        for i in range(len(self.mode_list)):
-            self.mode_list[i] = np.conj(self.mode_list[i])
+            return self.mode_list[key[0]][key[1:]]
 
     def plot(self, gradient = None):
         """

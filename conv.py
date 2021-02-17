@@ -11,23 +11,7 @@ from Trajectory import Trajectory
 #   - choice between 'fast' and 'slow'
 
 def conv(traj1, traj2):
-    """
-        This function calculates the convolution sum of the modes for two
-        trajectories (corresponding to multiplication in the time domain).
 
-        Parameters
-        ----------
-        traj1: Trajectory object
-            the first trajectory to evaluate the sum over
-        traj2: Trajectory object
-            the second trajectory to evaluate the sum over
-        
-        Returns
-        -------
-        conv_sum: Trajectory object
-            the resulting modes from the convolution sum (corresponding to a
-            new trajectory)
-    """
     # initialise arrays
     conv_modes = np.zeros([1, np.shape(traj1)[1]], dtype = complex)
 
@@ -45,8 +29,8 @@ def conv(traj1, traj2):
             else:
                 factor2_sum = traj2[:, n + m]
             conv_modes[:, n] += np.dot(traj1[:, m], factor2_diff) + \
-                                np.dot(np.conj(traj1[:, m]), factor2_sum) + \
-                                np.dot(traj1_zero, traj2_at_n)
+                                np.dot(np.conj(traj1[:, m]), factor2_sum)
+        conv_modes[:, n] += np.dot(traj1_zero, traj2_at_n)
 
     # account for zero mode
     conv_modes[:, 0] = conv_modes[:, 0]*2

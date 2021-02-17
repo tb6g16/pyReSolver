@@ -6,7 +6,20 @@ import scipy.integrate as integ
 from Trajectory import Trajectory
 from System import System
 from my_fft import my_fft, my_ifft
+from traj_util import array2list, list2array
 from conv import conv
+
+def transpose(traj):
+    new_traj = array2list(np.zeros(traj.shape, dtype = complex))
+    for i in range(len(traj.mode_list)):
+        new_traj[i] = np.transpose(traj.mode_list[i])
+    return Trajectory(new_traj)
+
+def conj(traj):
+    new_traj = array2list(np.zeros(traj.shape, dtype = complex))
+    for i in range(len(traj.mode_list)):
+        new_traj[i] = np.conj(traj.mode_list[i])
+    return Trajectory(new_traj)
 
 def traj_grad(traj):
     """

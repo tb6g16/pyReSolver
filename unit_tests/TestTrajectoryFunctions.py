@@ -10,6 +10,7 @@ from Trajectory import Trajectory
 import trajectory_functions as traj_funcs
 from System import System
 from my_fft import my_fft, my_ifft
+from traj_util import array2list, list2array
 from test_cases import unit_circle as uc
 from test_cases import ellipse as elps
 from test_cases import van_der_pol as vpd
@@ -29,7 +30,7 @@ class TestTrajectoryFunctions(unittest.TestCase):
         del self.sys1
         del self.sys2
 
-    def test_traj_inner_prod(self):
+    def est_traj_inner_prod(self):
         t1t1_prod = traj_funcs.traj_inner_prod(self.traj1, self.traj1)
         t2t2_prod = traj_funcs.traj_inner_prod(self.traj2, self.traj2)
         t1t2_prod = traj_funcs.traj_inner_prod(self.traj1, self.traj2)
@@ -92,7 +93,7 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(np.allclose(t1t2_prod_true, t1t2_prod_time))
         self.assertTrue(np.allclose(t1t2_prod_true, t2t1_prod_time))
 
-    def test_gradient(self):
+    def est_gradient(self):
         traj1_grad = traj_funcs.traj_grad(self.traj1)
         traj2_grad = traj_funcs.traj_grad(self.traj2)
 
@@ -122,7 +123,7 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(np.allclose(traj1_grad_true, traj1_grad_time))
         self.assertTrue(np.allclose(traj2_grad_true, traj2_grad_time))
 
-    def test_traj_response(self):
+    def est_traj_response(self):
         # response to full system
         traj1_response1 = traj_funcs.traj_response(self.traj1, self.sys1.response)
         traj1_response2 = traj_funcs.traj_response(self.traj1, self.sys2.response)
@@ -201,7 +202,7 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(np.allclose(traj1_cross1_nl2, traj2_cross1_nl2))
         self.assertTrue(np.allclose(traj1_cross2_nl2, traj2_cross2_nl2))
 
-    def test_jacob_init(self):
+    def est_jacob_init(self):
         self.sys1.parameters['mu'] = 1
         self.sys2.parameters['mu'] = 1
         sys1_jac = traj_funcs.jacob_init(self.traj1, self.sys1)
@@ -244,6 +245,72 @@ class TestTrajectoryFunctions(unittest.TestCase):
         output4 = sys2_jac_tran(rindex2)
         self.assertTrue(np.array_equal(output3, np.transpose(sys1_jac_true)))
         self.assertTrue(np.array_equal(output4, np.transpose(sys2_jac_true)))
+
+    def test_transpose(self):
+        # set up random trajectories
+        i1 = rand.randint(1, 100)
+        i2 = rand.randint(1, 10)
+        i3 = rand.randint(1, 10)
+        array1_real = np.random.rand(i1, i2, i3)
+        array2_real = np.random.rand(i1, i2, i3)
+        array3_real = np.random.rand(i1, i2, i3)
+        array1_imag = np.random.rand(i1, i2, i3)
+        array2_imag = np.random.rand(i1, i2, i3)
+        array3_imag = np.random.rand(i1, i2, i3)
+        traj1 = Trajectory(array2list(array1_real + 1j*array1_imag))
+        traj2 = Trajectory(array2list(array2_real + 1j*array2_imag))
+        traj3 = Trajectory(array2list(array3_real + 1j*array3_imag))
+
+        # take transpose
+        traj1_tran = traj_funcs.transpose(traj1)
+        traj2_tran = traj_funcs.transpose(traj2)
+        traj3_tran = traj_funcs.transpose(traj3)
+
+        # double application same as original
+        self.assertEqual(traj1, traj_funcs.transpose(traj1_tran))
+        self.assertEqual(traj2, traj_funcs.transpose(traj2_tran))
+        self.assertEqual(traj3, traj_funcs.transpose(traj3_tran))
+
+        # swapped indices match
+        for i in range(traj1.shape[0]):
+            for j in range(traj1.shape[1]):
+                for k in range(traj1.shape[2]):
+                    self.assertEqual(traj1[i, j, k], traj1_tran[i, k, j])
+                    self.assertEqual(traj2[i, j, k], traj2_tran[i, k, j])
+                    self.assertEqual(traj3[i, j, k], traj3_tran[i, k, j])
+
+    def test_conj(self):
+        # set up random trajectories
+        i1 = rand.randint(1, 100)
+        i2 = rand.randint(1, 10)
+        i3 = rand.randint(1, 10)
+        array1_real = np.random.rand(i1, i2, i3)
+        array2_real = np.random.rand(i1, i2, i3)
+        array3_real = np.random.rand(i1, i2, i3)
+        array1_imag = np.random.rand(i1, i2, i3)
+        array2_imag = np.random.rand(i1, i2, i3)
+        array3_imag = np.random.rand(i1, i2, i3)
+        traj1 = Trajectory(array2list(array1_real + 1j*array1_imag))
+        traj2 = Trajectory(array2list(array2_real + 1j*array2_imag))
+        traj3 = Trajectory(array2list(array3_real + 1j*array3_imag))
+
+        # take conjugate
+        traj1_conj = traj_funcs.conj(traj1)
+        traj2_conj = traj_funcs.conj(traj2)
+        traj3_conj = traj_funcs.conj(traj3)
+
+        # double application same as original
+        self.assertEqual(traj1, traj_funcs.conj(traj1_conj))
+        self.assertEqual(traj2, traj_funcs.conj(traj2_conj))
+        self.assertEqual(traj3, traj_funcs.conj(traj3_conj))
+
+        # swapped indices match
+        for i in range(traj1.shape[0]):
+            for j in range(traj1.shape[1]):
+                for k in range(traj1.shape[2]):
+                    self.assertEqual(traj1[i, j, k], np.conj(traj1_conj[i, j, k]))
+                    self.assertEqual(traj2[i, j, k], np.conj(traj2_conj[i, j, k]))
+                    self.assertEqual(traj3[i, j, k], np.conj(traj3_conj[i, j, k]))
 
 
 if __name__ == "__main__":

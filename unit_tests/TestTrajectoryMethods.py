@@ -7,9 +7,8 @@ import unittest
 import numpy as np
 import random as rand
 from Trajectory import Trajectory
-import trajectory_functions as traj_funcs
-from System import System
 from my_fft import my_fft, my_ifft
+from traj_util import array2list, list2array
 from test_cases import unit_circle as uc
 from test_cases import ellipse as elps
 from test_cases import van_der_pol as vpd
@@ -22,14 +21,10 @@ class TestTrajectoryMethods(unittest.TestCase):
         self.freq1 = rand.uniform(-10, 10)
         self.traj2 = Trajectory(elps.x, modes = 33)
         self.freq2 = rand.uniform(-10, 10)
-        self.sys1 = System(vpd)
-        self.sys2 = System(vis)
 
     def tearDown(self):
         del self.traj1
         del self.traj2
-        del self.sys1
-        del self.sys2
 
     def test_mul_float(self):
         # random numbers to multiply by
@@ -72,10 +67,10 @@ class TestTrajectoryMethods(unittest.TestCase):
         self.assertTrue(self.traj1 + self.traj1 == 2*self.traj1)
         self.assertTrue(self.traj2 + self.traj2 == 2*self.traj2)
 
-    def test_transpose(self):
+    def test_getitem(self):
         pass
 
-    def test_conj(self):
+    def test_setitem(self):
         pass
 
 
