@@ -68,64 +68,15 @@ class TestTrajectoryMethods(unittest.TestCase):
         self.assertEqual(mat_mul1, self.traj1 @ rand1)
         self.assertEqual(mat_mul2, self.traj2 @ rand2)
 
-    def test_matmul_func(self):
-        # initialise jacobian matrices
-        mat_func_t1s1 = traj_funcs.jacob_init(self.traj1, self.sys1)
-        mat_func_t2s1 = traj_funcs.jacob_init(self.traj2, self.sys1)
-        mat_func_t1s2 = traj_funcs.jacob_init(self.traj1, self.sys2)
-        mat_func_t2s2 = traj_funcs.jacob_init(self.traj2, self.sys2)
-
-        # random index
-        rind_t1s1 = int(rand.uniform(0, 64))
-        rind_t2s1 = int(rand.uniform(0, 64))
-        rind_t1s2 = int(rand.uniform(0, 64))
-        rind_t2s2 = int(rand.uniform(0, 64))
-
-        # calculate product via magin method
-        matmul_t1s1 = mat_func_t1s1 @ self.traj1
-        matmul_t2s1 = mat_func_t2s1 @ self.traj2
-        matmul_t1s2 = mat_func_t1s2 @ self.traj1
-        matmul_t2s2 = mat_func_t2s2 @ self.traj2
-
-        # outputs are trajectories
-        self.assertIsInstance(matmul_t1s1, Trajectory)
-        self.assertIsInstance(matmul_t2s1, Trajectory)
-        self.assertIsInstance(matmul_t1s2, Trajectory)
-        self.assertIsInstance(matmul_t2s2, Trajectory)
-
-        # outputs are correct size
-        self.assertEqual(matmul_t1s1.shape, self.traj1.shape)
-        self.assertEqual(matmul_t2s1.shape, self.traj2.shape)
-        self.assertEqual(matmul_t1s2.shape, self.traj1.shape)
-        self.assertEqual(matmul_t2s2.shape, self.traj2.shape)
-
-        # outputs are real numbers
-        temp = True
-        if matmul_t1s1.modes.dtype != np.complex128:
-            temp = False
-        if matmul_t2s1.modes.dtype != np.complex128:
-            temp = False
-        if matmul_t1s2.modes.dtype != np.complex128:
-            temp = False
-        if matmul_t2s2.modes.dtype != np.complex128:
-            temp = False
-        self.assertTrue(temp)
-
-        # correct values at random vector
-        curve_traj1 = my_ifft(self.traj1.modes)
-        curve_traj2 = my_ifft(self.traj2.modes)
-        matmul_t1s1_curve = my_ifft(matmul_t1s1.modes)
-        matmul_t2s1_curve = my_ifft(matmul_t2s1.modes)
-        matmul_t1s2_curve = my_ifft(matmul_t1s2.modes)
-        matmul_t2s2_curve = my_ifft(matmul_t2s2.modes)
-        self.assertTrue(np.allclose(matmul_t1s1_curve[:, rind_t1s1], mat_func_t1s1(rind_t1s1) @ curve_traj1[:, rind_t1s1]))
-        self.assertTrue(np.allclose(matmul_t2s1_curve[:, rind_t2s1], mat_func_t2s1(rind_t2s1) @ curve_traj2[:, rind_t2s1]))
-        self.assertTrue(np.allclose(matmul_t1s2_curve[:, rind_t1s2], mat_func_t1s2(rind_t1s2) @ curve_traj1[:, rind_t1s2]))
-        self.assertTrue(np.allclose(matmul_t2s2_curve[:, rind_t2s2], mat_func_t2s2(rind_t2s2) @ curve_traj2[:, rind_t2s2]))
-
     def test_eq(self):
         self.assertTrue(self.traj1 + self.traj1 == 2*self.traj1)
         self.assertTrue(self.traj2 + self.traj2 == 2*self.traj2)
+
+    def test_transpose(self):
+        pass
+
+    def test_conj(self):
+        pass
 
 
 if __name__ == "__main__":
