@@ -5,7 +5,6 @@ import numpy as np
 import scipy.integrate as integ
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from operator import add, sub, mul
 from my_fft import my_rfft, my_irfft
 from traj_util import func2curve, list2array, array2list
 
@@ -67,12 +66,12 @@ class Trajectory:
     def __add__(self, other_traj):
         if not isinstance(other_traj, Trajectory):
             raise TypeError("Inputs are not of the correct type!")
-        return Trajectory(list(map(add, self.mode_list, other_traj.mode_list)))
+        return Trajectory([self.mode_list[i] + other_traj.mode_list[i] for i in range(self.shape[0])])
 
     def __sub__(self, other_traj):
         if not isinstance(other_traj, Trajectory):
             raise TypeError("Inputs are not of the correct type!")
-        return Trajectory(list(map(sub, self.mode_list, other_traj.mode_list)))
+        return Trajectory([self.mode_list[i] + other_traj.mode_list[i] for i in range(self.shape[0])])
 
     def __mul__(self, factor):
         # scalar multiplication
