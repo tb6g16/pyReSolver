@@ -6,9 +6,9 @@ import numpy as np
 def func2curve(curve_func, modes):
     disc = 2*(modes - 1)
     curve_array = np.zeros([disc, np.shape(curve_func(0))[0]])
-    t = np.linspace(0, 2*np.pi*(1 - 1/disc), disc)
+    s = np.linspace(0, 2*np.pi*(1 - 1/disc), disc)
     for i in range(disc):
-        curve_array[i, :] = curve_func(t[i])
+        curve_array[i, :] = curve_func(s[i])
     return curve_array
 
 def list2array(my_list):
@@ -20,5 +20,9 @@ def list2array(my_list):
 def array2list(array):
     my_list = [None]*np.shape(array)[0]
     for i in range(len(my_list)):
-        my_list[i] = array[i]
+        if type(array[i]) != np.ndarray:
+            temp = np.array([array[i]])
+        else:
+            temp = array[i]
+        my_list[i] = temp
     return my_list

@@ -6,7 +6,7 @@ import scipy.integrate as integ
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from operator import add, sub, mul
-from my_fft import my_fft, my_ifft
+from my_fft import my_rfft, my_irfft
 from traj_util import func2curve, list2array, array2list
 
 class Trajectory:
@@ -54,11 +54,11 @@ class Trajectory:
         if type(curve) == list:
             for i in range(len(curve)):
                 if type(curve[i]) != np.ndarray:
-                    raise TypeError("Has to numpy array at each location along trajectory!")
+                    raise TypeError("Has to be numpy array at each location along trajectory!")
             self.mode_list = curve
             self.shape = (len(curve), *np.shape(curve[0]))
         elif hasattr(curve, '__call__'):
-            self.mode_list = array2list(my_fft(func2curve(curve, modes)))
+            self.mode_list = array2list(my_rfft(func2curve(curve, modes)))
             self.shape = (len(self.mode_list), *np.shape(self.mode_list[0]))
         else:
             raise TypeError("Curve variable has to be either a function or a \
@@ -124,7 +124,7 @@ class Trajectory:
         
         if self.shape[1] == 2:
             # convert to time domain
-            curve = my_ifft(list2array(self.mode_list))
+            curve = my_irfft(list2array(self.mode_list))
 
             # plotting trajectory
             fig = plt.figure()
