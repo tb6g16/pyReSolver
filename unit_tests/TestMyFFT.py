@@ -51,7 +51,7 @@ class TestMyFFT(unittest.TestCase):
 
     def test_my_rfft_functions(self):
         # convert random array to maintain rfft symmetries
-        self.array_rand[0] = np.real(self.array_rand[0]) + 1j*0
+        self.array_rand[0] = np.real(self.array_rand[0])
         self.array_rand[-1] = np.real(self.array_rand[0])
 
         # do the random noises convert back and forth properly
