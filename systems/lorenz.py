@@ -6,7 +6,7 @@ import numpy as np
 # define parameters
 parameters = {'rho': 30, 'beta': 8/3, 'sigma': 10}
 
-def response(x, defaults = parameters):
+def response(x: np.ndarray, defaults = parameters):
     
     # unpack defaults
     rho = defaults['rho']
@@ -23,7 +23,7 @@ def response(x, defaults = parameters):
 
     return response
 
-def jacobian(x, defaults = parameters):
+def jacobian(x: np.ndarray, defaults = parameters):
     
     # unpack defaults
     rho = defaults['rho']
@@ -45,7 +45,7 @@ def jacobian(x, defaults = parameters):
 
     return jacobian
 
-def nl_factor(x, defaults = parameters):
+def nl_factor(x: np.ndarray, defaults = parameters):
 
     # initialise output vector
     nl_vector = np.zeros(np.shape(x))
