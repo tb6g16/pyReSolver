@@ -11,6 +11,6 @@ def x(s: float):
 
     # define function behaviour
     state[0] = np.cos(s)
-    state[2] = -np.sin(s)
+    state[1] = -np.sin(s)
 
     return state

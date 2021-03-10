@@ -26,7 +26,7 @@ class System:
         plot()
     """
 
-    __slots__ = ['response', 'jacobian', 'nl_factor', 'nl_con_grads', 'parameters']
+    __slots__ = ['response', 'jacobian', 'nl_factor', 'parameters']
 
     def __init__(self, function_file):
         """
@@ -40,14 +40,13 @@ class System:
                 behaviour of the dynamical system, with optional parameters
                 given as a separate deictionary called "defaults"
         """
-        if ('response' or 'jacobian' or 'nl_factor' or 'init_nl_con_grads') not in dir(function_file):
+        if ('response' or 'jacobian' or 'nl_factor') not in dir(function_file):
             raise AttributeError("The file does not contain the required functions!")
         self.response = function_file.response
         self.jacobian = function_file.jacobian
         self.nl_factor = function_file.nl_factor
-        self.nl_con_grads = function_file.init_nl_con_grads()
-        if 'defaults' in dir(function_file):
-            self.parameters = function_file.defaults
+        if 'parameters' in dir(function_file):
+            self.parameters = function_file.parameters
         else:
             self.parameters = {}
 
@@ -94,8 +93,8 @@ class System:
         return None
 
 if __name__ == "__main__":
-    from test_cases import van_der_pol as vpd
-    from test_cases import viswanath as vis
+    from systems import van_der_pol as vpd
+    from systems import viswanath as vis
 
     system1 = System(vpd)
     system2 = System(vis)

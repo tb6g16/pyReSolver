@@ -2,12 +2,10 @@
 # and trajectory-system interactions.
 
 import numpy as np
-import scipy.integrate as integ
 from Trajectory import Trajectory
-from System import System
-from my_fft import my_fft, my_ifft
+from my_fft import my_rfft, my_irfft
 from traj_util import array2list, list2array
-from conv import conv
+from conv import conv_scalar, conv_array
 
 def transpose(traj):
     new_traj = array2list(np.zeros(traj.shape, dtype = complex))
@@ -38,37 +36,17 @@ def traj_grad(traj):
             the gradient of the input trajectory
     """
     # initialise array for new modes
-    new_modes = np.zeros(traj.shape, dtype = np.complex)
+    # new_modes = np.zeros(traj.shape, dtype = np.complex)
+    new_mode_list = [None]*traj.shape[0]
 
     # loop over time and multiply modes by modifiers
-    for k in range(traj.shape[1]):
-        new_modes[:, k] = 1j*k*traj.modes[:, k]
+    for k in range(traj.shape[0]):
+        new_mode_list[k] = 1j*k*traj.mode_list[k]
     
-    # force zero mode if symmetric
-    if traj.shape[1] % 2 == 0:
-        new_modes[:, traj.shape[1]//2] = 0
+    # force zero mode at end to preserve symmetry
+    new_mode_list[-1][:] = 0
 
-    return Trajectory(new_modes)
-
-def traj_inner_prod(traj1, traj2):
-    """
-        This function calculates the Euclidean inner product of two
-        trajectories at each location along their domains, s.
-
-        Parameters
-        ----------
-        traj1: Trajectory object
-            the first trajectory in the inner product
-        traj2: Trajectory object
-            the second trajectory in the inner product
-        
-        Returns
-        -------
-        traj_prod: Trajectory object
-            the inner product of the two trajectories at each location along
-            their domains, s
-    """
-    return Trajectory(conv(traj1.modes, traj2.modes))
+    return Trajectory(new_mode_list)
 
 def traj_response(traj, func):
     """
@@ -91,69 +69,11 @@ def traj_response(traj, func):
             instance of the Trajectory class
     """
     # convert trajectory to time domain
-    curve = my_ifft(traj.modes)
+    curve = array2list(my_irfft(list2array(traj.mode_list)))
 
     # evaluate response in time domain
-    for i in range(np.shape(curve)[1]):
-        curve[:, i] = func(curve[:, i])
+    for i in range(len(curve)):
+        curve[i] = func(curve[i])
 
     # convert back to frequency domain and return
-    return Trajectory(my_fft(curve))
-
-def jacob_init(traj, sys, if_transp = False):
-    """
-        This function initialises a jacobian function that returns the jacobian
-        matrix for the given system at each location along the domain of the
-        trajectory (through the indexing of the array, i).
-
-        Parameters
-        ----------
-        traj: Trajectory object
-            the trajectory over which the jacobian matrix will be evaluated
-        sys: System object
-            the system for which the jacobian matrix is for
-        
-        Returns
-        -------
-        jacob: function
-            the function that returns the jacobian matrix for a given index of
-            the array defining the trajectory in state-space
-    """
-    def jacobian(i):
-        """
-            This function returns the jacobian matrix for a dynamical system at
-            a specified location along a trajectory through the associated
-            state-space, indexed by i.
-
-            Parameters
-            ----------
-            i: positive integer
-                the discretised location along the trajectory in state-space
-            
-            Returns
-            -------
-            jacobian_matrix: numpy array
-                the 2D numpy array for the jacobian of a dynamical system given
-                at a specified location of the trajectory
-        """
-        # convert to time domain
-        curve = my_ifft(traj.modes)
-
-        # test for input
-        if i%1 != 0:
-            raise TypeError("Inputs are not of the correct type!")
-        if i >= np.shape(curve)[1]:
-            raise ValueError("Input index is too large!")
-
-        # make sure index is integer
-        i = int(i)
-
-        # state at index
-        state = curve[:, i]
-
-        # the jocobian for that state
-        if if_transp == True:
-            return np.transpose(sys.jacobian(state))
-        elif if_transp == False:
-            return sys.jacobian(state)
-    return jacobian
+    return Trajectory(array2list(my_rfft(list2array(curve))))
