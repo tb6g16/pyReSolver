@@ -34,7 +34,7 @@ class Trajectory:
     """
 
     # add type attribute
-    __slots__ = ['mode_list', 'shape']
+    __slots__ = ['mode_list', 'shape', 'type']
     __array_priority__ = 1e100
 
     def __init__(self, curve, modes = 33):
@@ -56,9 +56,11 @@ class Trajectory:
                 raise ValueError("Arrays must all be the same shape!")
             self.mode_list = curve
             self.shape = (len(curve), *np.shape(curve[0]))
+            self.type = type(curve[0])
         elif hasattr(curve, '__call__'):
             self.mode_list = array2list(my_rfft(func2curve(curve, modes)))
             self.shape = (len(self.mode_list), *np.shape(self.mode_list[0]))
+            self.type = type(self.mode_list[0])
         else:
             raise TypeError("Curve variable has to be either a function or a list!")
 
