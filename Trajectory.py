@@ -1,5 +1,5 @@
 # This file contains the class definition for a general trajectory in some
-# vector space. This will most commonly be a periodic state-space trajectory.
+# vector space.
 
 import numpy as np
 import scipy.integrate as integ
@@ -35,10 +35,8 @@ class Trajectory:
 
     # add type attribute
     __slots__ = ['mode_list', 'shape']
-    __array_priority__ = 1e16
+    __array_priority__ = 1e100
 
-    # need extra tests to make sure everything is of the same (not just correct)
-    # type, and all have compatible dimensions (are for the same space)
     def __init__(self, curve, modes = 33):
         """
             Initialise an instance of the Trajectory object, with either a
@@ -51,17 +49,18 @@ class Trajectory:
                 function (continuous) or a numpy array (discrete)
         """
         if type(curve) == list:
-            for i in range(len(curve)):
-                if type(curve[i]) != np.ndarray:
-                    raise TypeError("Has to be numpy array at each location along trajectory!")
+            type_same, shape_same = self.check_type_shape(curve)
+            if type_same == False:
+                raise TypeError("Data types of list elements must all be the same!")
+            if shape_same == False:
+                raise ValueError("Arrays must all be the same shape!")
             self.mode_list = curve
             self.shape = (len(curve), *np.shape(curve[0]))
         elif hasattr(curve, '__call__'):
             self.mode_list = array2list(my_rfft(func2curve(curve, modes)))
             self.shape = (len(self.mode_list), *np.shape(self.mode_list[0]))
         else:
-            raise TypeError("Curve variable has to be either a function or a \
-            2D numpy array!")
+            raise TypeError("Curve variable has to be either a function or a list!")
 
     def __add__(self, other_traj):
         if not isinstance(other_traj, Trajectory):
@@ -86,21 +85,25 @@ class Trajectory:
 
     def __matmul__(self, factor):
         if type(factor) == np.ndarray:
-            return Trajectory([np.matmul(factor, self.mode_list[i]) \
+            return Trajectory([np.matmul(self.mode_list[i], factor) \
                                for i in range(len(self.mode_list))])
         else:
             raise TypeError("Inputs are not of the correct type!")
 
     def __rmatmul__(self, factor):
-        return self.__matmul__(factor)
+        if type(factor) == np.ndarray:
+            return Trajectory([np.matmul(factor, self.mode_list[i]) \
+                               for i in range(len(self.mode_list))])
+        else:
+            raise TypeError("Inputs are not of the correct type!")
 
     def __eq__(self, other_traj, rtol = 1e-6, atol = 1e-6):
         if not isinstance(other_traj, Trajectory):
             raise TypeError("Inputs are not of the correct type!")
-        if_eq = [False]*self.shape[0]
         for i in range(self.shape[0]):
-            if_eq[i] = np.allclose(self.mode_list[i], other_traj.mode_list[i], rtol, atol)
-        return all(if_eq)
+            if not np.allclose(self.mode_list[i], other_traj.mode_list[i], rtol, atol):
+                return False
+        return True
 
     def __getitem__(self, key):
         if type(key) == int or type(key) == slice:
@@ -112,14 +115,37 @@ class Trajectory:
         if type(key) == int or type(key) == slice:
             self.mode_list[key] = value
         else:
-            return self.mode_list[key[0]][key[1:]]
+            self.mode_list[key[0]][key[1:]] = value
+
+    def __round__(self, decimals = 6):
+        traj_round = [None]*self.shape[0]
+        for i in range(self.shape[0]):
+            traj_round[i] = np.round(self[i], decimals = decimals)
+        return Trajectory(traj_round)
+
+    @staticmethod
+    def check_type_shape(list):
+        """
+            This function takes a list and returns true if all the elements of
+            said list is of the same type, otherwise returns false.
+        """
+        type_same = True
+        shape_same = True
+        for i in range(len(list)):
+            if type(list[i]) != type(list[0]):
+                type_same = False
+        if type(list[0]) == np.ndarray:
+            for i in range(len(list)):
+                if np.shape(list[i]) != np.shape(list[0]):
+                    shape_same = False
+        return type_same, shape_same
 
     def plot(self, gradient = None):
         """
             This function is a placeholder and will be used for plotting
             purposes.
         """
-        import trajectory_functions as traj_funcs
+        # import trajectory_functions as traj_funcs
         
         if self.shape[1] == 2:
             # convert to time domain
@@ -148,8 +174,8 @@ class Trajectory:
             raise ValueError("Can't plot!")
 
 if __name__ == '__main__':
-    from test_cases import unit_circle as uc
-    from test_cases import ellipse as elps
+    from trajectory_definitions import unit_circle as uc
+    from trajectory_definitions import ellipse as elps
 
     uc1 = Trajectory(uc.x)
     uc2 = 0.5*Trajectory(uc.x)

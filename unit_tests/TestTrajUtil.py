@@ -6,10 +6,10 @@ import unittest
 import numpy as np
 import random as rand
 from traj_util import func2curve, list2array, array2list
-from test_cases import unit_circle as uc
-from test_cases import unit_circle_3d as uc3d
-from test_cases import ellipse as elps
-from test_cases import van_der_pol as vpd
+from trajectory_definitions import unit_circle as uc
+from trajectory_definitions import unit_circle_3d as uc3d
+from trajectory_definitions import ellipse as elps
+from systems import van_der_pol as vpd
 
 class TestTrajUtil(unittest.TestCase):
 

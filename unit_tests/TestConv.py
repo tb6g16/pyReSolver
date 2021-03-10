@@ -8,8 +8,8 @@ import numpy as np
 import random as rand
 from my_fft import my_fft, my_ifft, my_rfft, my_irfft
 from conv import conv_scalar, conv_array
-from test_cases import unit_circle as uc
-from test_cases import ellipse as elps
+from trajectory_definitions import unit_circle as uc
+from trajectory_definitions import ellipse as elps
 
 class TestConv(unittest.TestCase):
 
@@ -38,13 +38,13 @@ class TestConv(unittest.TestCase):
         sin_modes[1] = -1j*0.5*b
 
         # initialise random arrays to convolve5
-        # REQUIRED PADDING WITH M+1 ZEROS TO AVOID END (ALIASING) EFFECTS
+        # REQUIRED PADDING WITH M ZEROS TO AVOID END (ALIASING) EFFECTS
         rand1 = np.random.rand(self.modes) + 1j*np.random.rand(self.modes)
         rand1[0] = np.real(rand1[0])
-        rand1 = np.append(rand1, [0]*(self.modes + 1))
+        rand1 = np.append(rand1, [0]*self.modes)
         rand2 = np.random.rand(self.modes) + 1j*np.random.rand(self.modes)
         rand2[0] = np.real(rand2[0])
-        rand2 = np.append(rand2, [0]*(self.modes + 1))
+        rand2 = np.append(rand2, [0]*self.modes)
 
         # perform convolutions
         conv_cos_cos = conv_scalar(cos_modes, cos_modes)
