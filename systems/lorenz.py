@@ -4,7 +4,7 @@
 import numpy as np
 
 # define parameters
-parameters = {'rho': 30, 'beta': 8/3, 'sigma': 10}
+parameters = {'rho': 28, 'beta': 8/3, 'sigma': 10}
 
 def response(x: np.ndarray, defaults = parameters):
     # unpack defaults

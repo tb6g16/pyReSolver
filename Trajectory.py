@@ -88,14 +88,18 @@ class Trajectory:
     def __matmul__(self, factor):
         if type(factor) == np.ndarray:
             return Trajectory([np.matmul(self.mode_list[i], factor) \
-                               for i in range(len(self.mode_list))])
+                               for i in range(self.shape[0])])
+        elif type(factor) == Trajectory:
+            return Trajectory([np.matmul(self.mode_list[i], factor.mode_list[i]) for i in range(self.shape[0])])
         else:
             raise TypeError("Inputs are not of the correct type!")
 
     def __rmatmul__(self, factor):
         if type(factor) == np.ndarray:
             return Trajectory([np.matmul(factor, self.mode_list[i]) \
-                               for i in range(len(self.mode_list))])
+                               for i in range(self.shape[0])])
+        elif type(factor) == Trajectory:
+            return Trajectory([np.matmul(self.mode_list[i], factor.mode_list[i]) for i in range(self.shape[0])])
         else:
             raise TypeError("Inputs are not of the correct type!")
 
