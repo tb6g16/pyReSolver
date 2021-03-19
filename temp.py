@@ -8,7 +8,7 @@ from traj_util import list2array, array2list
 
 traj = np.zeros([10, 3], dtype = complex)
 traj = Trajectory(array2list(traj))
-traj[1] = [4+2j, 6+2j, 0]
+traj[1] = np.array([4+2j, 6+2j, 0])
 # traj[4] = [1j, -3, 4+7j]
 mean = [0, 0, 25]
 freq = (2*np.pi)/2.1
@@ -16,6 +16,6 @@ sys = System(lorenz)
 
 # print(np.shape(my_irfft(list2array(traj.mode_list))))
 
-print(local_residual(traj, sys, freq, mean)[1])
+print(local_residual(traj, sys, freq, mean)[2])
 # print(global_residual(traj, sys, freq, mean))
 # print(global_residual_grad(traj, sys, freq, mean)[0].modes[0])

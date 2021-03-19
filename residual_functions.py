@@ -6,7 +6,8 @@ from Trajectory import Trajectory
 from System import System
 import trajectory_functions as traj_funcs
 
-def resolvent(modes, freq, jac_at_mean):
+# CHANGE DOWN THE LINE FOR DIFFERENT RESIDUAL FUNCTION
+def resolvent_inv(modes, freq, jac_at_mean):
     """
         This function calculates the resolvent operator for a given mode number
         n, system, and fundamental frequency.
@@ -34,16 +35,17 @@ def resolvent(modes, freq, jac_at_mean):
     dim = np.shape(jac_at_mean)[0]
 
     # initialise the resolvent list
-    resolvent = [None]*modes
+    resolvent_inv = [None]*modes
 
     # loop over calculating the value at each wavenumber
     for n in range(modes):
-        resolvent[n] = np.linalg.inv((1j*n*freq*np.identity(dim)) - jac_at_mean)
+        # resolvent[n] = np.linalg.inv((1j*n*freq*np.identity(dim)) - jac_at_mean)
+        resolvent_inv[n] = (1j*n*freq*np.identity(dim)) - jac_at_mean
 
     # set mean mode resolvent to array of zeros
-    resolvent[0] = np.zeros([dim, dim], dtype = complex)
+    resolvent_inv[0] = np.zeros_like(resolvent_inv[1])
 
-    return Trajectory(resolvent)
+    return Trajectory(resolvent_inv)
 
 def local_residual(traj, sys, freq, mean):
     """
@@ -67,21 +69,38 @@ def local_residual(traj, sys, freq, mean):
             the local residual of the trajectory with respect to the dynamical
             system, given as an instance of the Trajectory class
     """
+    # local_res = np.zeros_like(traj.modes)
+
+    # L = sys.jacobian(mean)
+    # L_prod = L @ traj
+    # resp = traj_funcs.traj_response(traj, sys.nl_factor)
+
+    # local_res[:, 0] = -sys.response(mean) - resp[:, 0]
+    # for i in range(1, np.shape(local_res)[1]):
+    #     local_res[:, i] = (freq*grad[:, i]) - L_prod[:, i] - resp[:, i]
+
+    # return Trajectory(local_res)
+
     # evaluate jacobian at the mean
     jac_at_mean = sys.jacobian(mean)
 
-    # evaluate the resolvents
-    H = resolvent(traj.shape[0], freq, jac_at_mean)
+    # evaluate the resolvents (and invert!!!)
+    H_n_inv = resolvent_inv(traj.shape[0], freq, jac_at_mean)
+    # for i in range(1, H_n.shape[0]):
+    #     H_n[i] = np.linalg.inv(H_n[i])
 
     # evaluate response and multiply by resolvent at every mode
     resp = traj_funcs.traj_response(traj, sys.nl_factor)
-    H_resp_mult = H @ resp
+    # H_resp_mult = H_n @ resp
+    # print(resp[1])
 
     # evaluate local residual trajectory for all modes
-    local_res = traj - H_resp_mult
+    H_inv_traj_mult = H_n_inv @ traj
+    local_res = H_inv_traj_mult - resp
+    # local_res = traj - H_resp_mult
 
     # reassign the mean mode to the second constraint
-    local_res[0] = sys.response(mean) - resp[0]
+    local_res[0] = -sys.response(mean) - resp[0]
 
     return local_res
 

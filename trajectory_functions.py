@@ -70,9 +70,10 @@ def traj_response(traj, func):
     """
     # convert trajectory to time domain
     curve = array2list(my_irfft(list2array(traj.mode_list)))
+    mode_no = len(curve)
 
     # evaluate response in time domain
-    for i in range(len(curve)):
+    for i in range(mode_no):
         curve[i] = func(curve[i])
 
     # convert back to frequency domain and return
