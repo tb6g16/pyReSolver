@@ -4,6 +4,8 @@
 import numpy as np
 from Trajectory import Trajectory
 from System import System
+from conv import conv_array
+from traj_util import list2array, array2list
 import trajectory_functions as traj_funcs
 
 # CHANGE DOWN THE LINE FOR DIFFERENT RESIDUAL FUNCTION
@@ -123,16 +125,20 @@ def global_residual(traj, sys, freq, mean):
         global_res: float
             the global residual of the trajectory-system pair
     """
-    # obtain set of local residual vectors
-    local_res = local_residual(traj, sys, freq)
+    # calcualte the local residual
+    local_res = local_residual(traj, sys, freq, mean)
 
-    # take norm of the local residual vectors
-    local_res_norm_sq = traj_funcs.traj_inner_prod(local_res, local_res)
+    # initialise and sum the norms of the complex residual vectors
+    sum = 0
+    for n in range(1, local_res.shape[0]):
+        sum += np.dot(np.conj(local_res[n]), local_res[n])
 
-    # integrate over the discretised time
-    return 0.5*traj_funcs.average_over_s(local_res_norm_sq)[0]
+    # add the zero mode for the mean constraint
+    sum += 0.5*np.dot(np.conj(local_res[0]), local_res[0])
 
-def global_residual_grad(traj, sys, freq, mean):
+    return np.real(sum)
+
+def gr_traj_grad(traj, sys, freq, mean):
     """
         This function calculates the gradient of the global residual with
         respect to the trajectory and the associated fundamental frequency for
@@ -156,25 +162,31 @@ def global_residual_grad(traj, sys, freq, mean):
             the gradient of the global residual with respect to the trajectory
     """
     # calculate local residual trajectory
-    local_res = local_residual(traj, sys, freq)
+    local_res = local_residual(traj, sys, freq, mean)
 
     # calculate trajectory gradients
-    traj_grad = traj_funcs.traj_grad(traj)
     res_grad = traj_funcs.traj_grad(local_res)
 
-    # initialise jacobian function
-    jacob_func = traj_funcs.jacob_init(traj, sys, if_transp = True)
+    # initialise jacobian function and take transpose
+    traj[0] = np.array(mean, dtype = complex)
+    jac = traj_funcs.traj_response(traj, sys.jacobian)
+    traj[0] = 0
+    jac = traj_funcs.transpose(jac)
 
-    # take norm of trajectory
-    traj_grad_norm_sq = traj_funcs.traj_inner_prod(traj_grad, traj_grad)
-
-    # take response of trajectory to dynamical system
-    traj_resp = traj_funcs.traj_response(traj, sys.response)
-
-    # define integrand trajectory to be integrated
-    int_traj = (freq*traj_grad_norm_sq) - \
-        (traj_funcs.traj_inner_prod(traj_grad, traj_resp))
+    # perform convolution
+    jac_res_conv = Trajectory(array2list(conv_array(list2array(jac.mode_list), list2array(local_res.mode_list))))
 
     # calculate and return gradients w.r.t trajectory and frequency respectively
-    return ((-freq*res_grad) - (jacob_func @ local_res))*(1/(40*np.pi)), \
-        traj_funcs.average_over_s(int_traj)[0]
+    return (-freq*res_grad) - jac_res_conv
+
+def gr_freq_grad(traj, sys, freq, mean):
+    # calculate local residual
+    local_res = local_residual(traj, sys, freq, mean)
+
+    # initialise sum and loop over modes
+    sum = 0
+    for n in range(1, traj.shape[0]):
+        sum += n*np.imag(np.dot(np.conj(traj[n]), local_res[n]))
+    sum = 2*sum
+
+    return sum
