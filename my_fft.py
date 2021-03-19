@@ -45,4 +45,4 @@ def my_irfft(array):
         traj_time: np.ndarray
             the time domain representation of the input trajectory instance
     """
-    return np.fft.irfft(array*2*(np.shape(array)[0] - 1), axis = 0)
+    return np.fft.irfft(array*(2*np.shape(array)[0] - 1), 2*np.shape(array)[0] - 1, axis = 0)
