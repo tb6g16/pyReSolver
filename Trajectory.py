@@ -72,13 +72,13 @@ class Trajectory:
     def __sub__(self, other_traj):
         if not isinstance(other_traj, Trajectory):
             raise TypeError("Inputs are not of the correct type!")
-        return Trajectory([self.mode_list[i] + other_traj.mode_list[i] for i in range(self.shape[0])])
+        return Trajectory([self.mode_list[i] - other_traj.mode_list[i] for i in range(self.shape[0])])
 
     def __mul__(self, factor):
         # scalar multiplication
         if type(factor) == float or type(factor) == int or \
             type(factor) == np.float64 or type(factor) == np.int64:
-            return Trajectory([self.mode_list[i]*factor for i in range(len(self.mode_list))])
+            return Trajectory([self.mode_list[i]*factor for i in range(self.shape[0])])
         else:
             raise TypeError("Inputs are not of the correct type!")
 
