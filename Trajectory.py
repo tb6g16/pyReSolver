@@ -146,38 +146,77 @@ class Trajectory:
                     shape_same = False
         return type_same, shape_same
 
-    def plot(self, gradient = None):
+    def plot(self, **kwargs):
         """
             This function is a placeholder and will be used for plotting
             purposes.
         """
-        # import trajectory_functions as traj_funcs
-        
-        if self.shape[1] == 2:
-            # convert to time domain
-            curve = my_irfft(list2array(self.mode_list))
+        # unpack keyword arguments
+        title = kwargs.get('title', None)
+        time_disc = kwargs.get('disc', None)
+        mean = kwargs.get('mean', None)
+        show = kwargs.get('show', True)
+        proj = kwargs.get('proj', None)
+        aspect = kwargs.get('aspect', None)
 
+        # pad with zeros to increase resolution
+        temp = list2array(self.mode_list)
+        if time_disc != None:
+            tot_modes = int(time_disc/2) + 1
+            pad_len = tot_modes - self.shape[0]
+            if pad_len >= 0:
+                modes_padded = np.pad(temp, ((0, 0), (0, pad_len)), 'constant')
+            else:
+                modes_padded = temp[:, 0:(tot_modes + 1)]
+        else:
+            modes_padded = temp
+
+        # adding in mean
+        if type(mean) == np.ndarray:
+            modes_padded[:, 0] = mean
+
+        # convert to time domain
+        curve = my_irfft(modes_padded)
+
+        if self.shape[1] == 2:
             # plotting trajectory
             fig = plt.figure()
             ax = fig.gca()
             ax.plot(np.append(curve[:, 0], curve[0, 0]), np.append(curve[:, 1], curve[0, 1]))
-            ax.set_aspect('equal')
+            if aspect != None:
+                ax.set_aspect(aspect)
 
-            # add gradient
-            # if gradient != None:
-            #     grad = traj_funcs.traj_grad(self)
-            #     grad = my_ifft(list2array(grad.mode_list))
-            #     for i in range(0, curve.shape[1], int(1/gradient)):
-            #         ax.quiver(curve[0, i], curve[1, i], grad[0, i], grad[1, i])
-            
-            # plt.xlabel("$x$")
-            # plt.ylabel("$\dot{x}$")
-            # plt.xlim([-2.2, 2.2])
-            # plt.ylim([-4, 4])
-            # plt.grid()
-            plt.show()
+        elif self.shape[1] == 3:
+            # plotting trajectory
+            if proj == None:
+                fig = plt.figure()
+                ax = fig.gca(projection = "3d")
+                ax.plot(np.append(curve[:, 0], curve[0, 0]), np.append(curve[:, 1], curve[0, 1]), np.append(curve[:, 2], curve[0, 2]))
+                ax.set_xlabel('x'), ax.set_ylabel('y'), ax.set_zlabel('z')
+                fig.suptitle(title)
+            elif proj == 'xy' or proj == 'yx':
+                fig = plt.figure()
+                ax = fig.gca()
+                ax.plot(np.append(curve[:, 0], curve[0, 0]), np.append(curve[:, 1], curve[0, 1]))
+                if aspect != None:
+                    ax.set_aspect(aspect)
+            elif proj == 'xz' or proj == 'zx':
+                fig = plt.figure()
+                ax = fig.gca()
+                ax.plot(np.append(curve[:, 0], curve[0, 0]), np.append(curve[:, 2], curve[0, 2]))
+                if aspect != None:
+                    ax.set_aspect(aspect)
+            elif proj == 'yz' or proj == 'zy':
+                fig = plt.figure()
+                ax = fig.gca()
+                ax.plot(np.append(curve[:, 1], curve[0, 1]), np.append(curve[:, 2], curve[0, 2]))
+                if aspect != None:
+                    ax.set_aspect(aspect)
         else:
             raise ValueError("Can't plot!")
+
+        if show == True:
+            plt.show()
 
 if __name__ == '__main__':
     from trajectory_definitions import unit_circle as uc
@@ -188,8 +227,8 @@ if __name__ == '__main__':
 
     uc3 = np.pi*uc1 + uc2
 
-    uc1.plot(gradient = 16/64)
-    uc3.plot(gradient = 16/64)
+    uc1.plot()
+    uc3.plot()
     
     ellipse = Trajectory(elps.x)
-    ellipse.plot(gradient = 16/64)
+    ellipse.plot()
