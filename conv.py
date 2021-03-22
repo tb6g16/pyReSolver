@@ -18,7 +18,7 @@ def conv_scalar_fast(scalar1, scalar2):
 
     return conv_array
 
-def conv_scalar(scalar1, scalar2):
+def conv_scalar(scalar1, scalar2, method = "sum"):
     # initialise arrays
     conv_array = np.zeros_like(scalar1)
 
@@ -39,7 +39,7 @@ def conv_scalar(scalar1, scalar2):
     
     return conv_array
 
-def conv_array(array1, array2):
+def conv_array(array1, array2, method = "sum"):
     # initialise arrays
     matmul_temp = np.matmul(array1[0], array2[0])
     conv_array = np.zeros([np.shape(array1)[0], *np.shape(matmul_temp)], dtype = complex)
