@@ -122,6 +122,8 @@ class Trajectory:
             self.mode_list[key] = value
         else:
             self.mode_list[key[0]][key[1:]] = value
+        if not self.check_type_shape(self.mode_list):
+            raise ValueError("Invalid assignment!")
 
     def __round__(self, decimals = 6):
         traj_round = [None]*self.shape[0]
@@ -173,7 +175,7 @@ class Trajectory:
 
         # adding in mean
         if type(mean) == np.ndarray:
-            modes_padded[:, 0] = mean
+            modes_padded[0] = mean
 
         # convert to time domain
         curve = my_irfft(modes_padded)

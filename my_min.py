@@ -95,23 +95,3 @@ def my_min(traj, freq, sys, mean, **kwargs):
     op_traj, op_freq = vec2traj(op_vec, dim)
 
     return op_traj, op_freq, traces, sol
-
-if __name__ == "__main__":
-    from trajectory_definitions import unit_circle as uc
-    from systems import van_der_pol as vpd
-
-    sys = System(vpd)
-    sys.parameters['mu'] = 2
-    init_traj = 2*Trajectory(uc.x, modes = 33)
-    init_freq = 1
-    mean = [0, 0]
-
-    op_traj, op_freq, traces, sol = my_min(init_traj, init_freq, sys, mean)
-
-    print(sol.message)
-    print("Number of iterations: " + str(sol.nit))
-
-    print("Period of orbit: " + str((2*np.pi)/op_freq))
-    print("Global residual before: " + str(res_funcs.global_residual(init_traj, sys, init_freq, mean)))
-    print("Global residual after: " + str(res_funcs.global_residual(op_traj, sys, op_freq, mean)))
-    op_traj.plot(aspect = 1)
