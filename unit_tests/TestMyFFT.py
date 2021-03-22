@@ -13,13 +13,14 @@ from trajectory_definitions import ellipse as elps
 class TestMyFFT(unittest.TestCase):
 
     def setUp(self):
-        self.modes = rand.randint(2, 50)*2
+        self.modes = rand.randint(2, 256)
+        dim = rand.randint(1, 5)
         array1_time = func2curve(uc.x, self.modes)
         self.array1 = np.fft.fft(array1_time, axis = 0)/np.shape(array1_time)[0]
         array2_time = func2curve(elps.x, self.modes)
         self.array2 = np.fft.fft(array2_time, axis = 0)/np.shape(array2_time)[0]
-        self.array_rand = np.random.rand(self.modes, 3) + 1j*np.random.rand(self.modes, 3)
-        self.rand_time = np.random.rand(self.modes, 4)
+        self.array_rand = np.random.rand(self.modes, dim) + 1j*np.random.rand(self.modes, dim)
+        self.rand_time = np.random.rand(rand.randrange(3, 511, 2), dim)
 
     def tearDown(self):
         del self.modes
