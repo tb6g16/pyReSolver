@@ -122,7 +122,7 @@ class Trajectory:
             self.mode_list[key] = value
         else:
             self.mode_list[key[0]][key[1:]] = value
-        if not self.check_type_shape(self.mode_list):
+        if not self.check_type_shape(self.mode_list)[0]:
             raise ValueError("Invalid assignment!")
 
     def __round__(self, decimals = 6):
@@ -229,8 +229,8 @@ if __name__ == '__main__':
 
     uc3 = np.pi*uc1 + uc2
 
-    uc1.plot()
-    uc3.plot()
-    
+    uc1.plot(aspect = 1)
+    uc3.plot(aspect = 1)
+
     ellipse = Trajectory(elps.x)
-    ellipse.plot()
+    ellipse.plot(aspect = 1)

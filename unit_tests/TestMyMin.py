@@ -12,7 +12,7 @@ from System import System
 from traj2vec import traj2vec, vec2traj
 from my_min import init_opt_funcs
 import residual_functions as res_funcs
-from traj_util import list2array, array2list
+from traj_util import array2list
 from systems import van_der_pol as vpd
 from systems import lorenz
 

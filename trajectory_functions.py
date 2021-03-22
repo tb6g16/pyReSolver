@@ -5,7 +5,7 @@ import numpy as np
 from Trajectory import Trajectory
 from my_fft import my_rfft, my_irfft
 from traj_util import array2list, list2array
-from conv import conv_scalar, conv_array
+from conv import conv_array
 
 def transpose(traj):
     new_traj = array2list(np.zeros(traj.shape, dtype = complex))
@@ -18,6 +18,15 @@ def conj(traj):
     for i in range(len(traj.mode_list)):
         new_traj[i] = np.conj(traj.mode_list[i])
     return Trajectory(new_traj)
+
+def traj_rfft(array):
+    return Trajectory(array2list(my_rfft(array)))
+
+def traj_irfft(traj):
+    return my_irfft(list2array(traj.mode_list))
+
+def traj_conv(traj1, traj2):
+    return Trajectory(array2list(conv_array(list2array(traj1.mode_list), list2array(traj2.mode_list))))
 
 def traj_grad(traj):
     """
@@ -69,7 +78,7 @@ def traj_response(traj, func):
             instance of the Trajectory class
     """
     # convert trajectory to time domain
-    curve = array2list(my_irfft(list2array(traj.mode_list)))
+    curve = array2list(traj_irfft(traj))
     mode_no = len(curve)
 
     # evaluate response in time domain
@@ -77,4 +86,4 @@ def traj_response(traj, func):
         curve[i] = func(curve[i])
 
     # convert back to frequency domain and return
-    return Trajectory(array2list(my_rfft(list2array(curve))))
+    return traj_rfft(list2array(curve))

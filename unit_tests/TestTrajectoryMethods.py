@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 import random as rand
 from Trajectory import Trajectory
-from traj_util import array2list, list2array
+from traj_util import array2list
 
 class TestTrajectoryMethods(unittest.TestCase):
     

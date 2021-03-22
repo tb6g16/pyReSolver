@@ -8,7 +8,6 @@ import scipy.integrate as integ
 from Trajectory import Trajectory
 from System import System
 from traj2vec import traj2vec, vec2traj
-import trajectory_functions as traj_funcs
 import residual_functions as res_funcs
 
 def init_opt_funcs(sys, dim, mean):

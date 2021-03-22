@@ -3,9 +3,6 @@
 
 import numpy as np
 from Trajectory import Trajectory
-from System import System
-from conv import conv_array
-from traj_util import list2array, array2list
 import trajectory_functions as traj_funcs
 
 # CHANGE DOWN THE LINE FOR DIFFERENT RESIDUAL FUNCTION
@@ -174,7 +171,7 @@ def gr_traj_grad(traj, sys, freq, mean):
     jac = traj_funcs.transpose(jac)
 
     # perform convolution
-    jac_res_conv = Trajectory(array2list(conv_array(list2array(jac.mode_list), list2array(local_res.mode_list))))
+    jac_res_conv = traj_funcs.traj_conv(jac, local_res)
 
     # calculate and return gradients w.r.t trajectory and frequency respectively
     return (-freq*res_grad) - jac_res_conv
