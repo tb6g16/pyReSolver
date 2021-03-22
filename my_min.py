@@ -10,7 +10,7 @@ from System import System
 from traj2vec import traj2vec, vec2traj
 import residual_functions as res_funcs
 
-def init_opt_funcs(sys, dim, mean):
+def init_opt_funcs(sys, dim, mean, conv_method = "sum"):
     """
         This functions initialises the optimisation vectors for a specific
         system.
@@ -37,7 +37,7 @@ def init_opt_funcs(sys, dim, mean):
         traj, freq = vec2traj(opt_vector, dim)
 
         # calculate global residual gradients
-        gr_traj_grad = res_funcs.gr_traj_grad(traj, sys, freq, mean)
+        gr_traj_grad = res_funcs.gr_traj_grad(traj, sys, freq, mean, conv_method = conv_method)
         gr_freq_grad = res_funcs.gr_freq_grad(traj, sys, freq, mean)
 
         # convert back to vector and return
@@ -51,10 +51,11 @@ def my_min(traj, freq, sys, mean, **kwargs):
     if_quiet = kwargs.get('quiet', False)
     maxiter = kwargs.get('iter', None)
     traces = kwargs.get('traces', None)
+    conv_method = kwargs.get('conv_method', 'sum')
 
     # setup the problem
     dim = traj.shape[1]
-    res_func, jac_func = init_opt_funcs(sys, dim, mean)
+    res_func, jac_func = init_opt_funcs(sys, dim, mean, conv_method = conv_method)
 
     # define varaibles to be tracked using callback
     if traces == None:
