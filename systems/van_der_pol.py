@@ -7,7 +7,7 @@ import numpy as np
 # define optional arguments
 parameters = {'mu': 0}
 
-def response(x: np.ndarray, parameters = parameters):
+def response(x, parameters = parameters):
     # unpack defaults
     mu = parameters['mu']
 
@@ -20,7 +20,7 @@ def response(x: np.ndarray, parameters = parameters):
 
     return response
 
-def jacobian(x: np.ndarray, parameters = parameters):
+def jacobian(x, parameters = parameters):
     # unpack defaults
     mu = parameters['mu']
 
@@ -34,7 +34,7 @@ def jacobian(x: np.ndarray, parameters = parameters):
 
     return jacobian_matrix
 
-def nl_factor(x: np.ndarray, parameters = parameters):
+def nl_factor(x, parameters = parameters):
     # unpack defualts
     mu = parameters['mu']
 
@@ -47,6 +47,6 @@ def nl_factor(x: np.ndarray, parameters = parameters):
     return nl_vector
 
 # set dimension attributes for functions
-setattr(response, 'dim', 2)
-setattr(jacobian, 'dim', 2)
-setattr(nl_factor, 'dim', 2)
+# setattr(response, 'dim', 2)
+# setattr(jacobian, 'dim', 2)
+# setattr(nl_factor, 'dim', 2)
