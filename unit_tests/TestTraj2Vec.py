@@ -18,9 +18,10 @@ class TestTraj2Vec(unittest.TestCase):
     
     def setUp(self):
         modes = rand.randint(1, 256)
-        dim1 = rand.randint(1, 5)
-        traj = np.random.rand(modes, dim1) + 1j*np.random.rand(modes, dim1)
+        dim = rand.randint(1, 5)
+        traj = np.random.rand(modes, dim) + 1j*np.random.rand(modes, dim)
         traj[0] = 0
+        traj[-1] = 0
         self.traj = Trajectory(array2list(traj))
         self.freq = rand.uniform(-10, 10)
         self.vec = t2v.traj2vec(self.traj, self.freq)
@@ -32,7 +33,7 @@ class TestTraj2Vec(unittest.TestCase):
 
     def test_traj2vec(self):
         # correct size
-        dofs = (2*self.traj.shape[1]*(self.traj.shape[0] - 1)) + 1
+        dofs = (2*self.traj.shape[1]*(self.traj.shape[0] - 2)) + 1
         self.assertEqual(np.shape(self.vec), (dofs,))
 
         # correct values

@@ -22,10 +22,10 @@ def traj2vec(traj, freq):
         opt_vector: numpy array
             the optimisation vector defined by the trajectory frequency pair
     """
-    dofs = (2*traj.shape[1]*(traj.shape[0] - 1)) + 1
+    dofs = (2*traj.shape[1]*(traj.shape[0] - 2)) + 1
     vector = np.zeros(dofs)
     a = 0
-    for i in range(traj.shape[0] - 1):
+    for i in range(traj.shape[0] - 2):
         for j in range(traj.shape[1]):
             for k in range(2):
                 if k == 0:
@@ -59,9 +59,10 @@ def vec2traj(opt_vector, dim):
     dofs = np.shape(opt_vector)[0]
     if (dofs - 1)/dim % 1 != 0:
         raise ValueError("Vector length not compatible with dimensions!")
-    traj_list = [None]*(int((dofs - 1)/(2*dim)) + 1)
+    traj_list = [None]*(int((dofs - 1)/(2*dim)) + 2)
     mode_vector = np.zeros(dim, dtype = complex)
     traj_list[0] = np.zeros(dim, dtype = complex)
+    traj_list[-1] = np.zeros(dim, dtype = complex)
     a = 0
     for i in range(int((dofs - 1)/2)):
         mode_vector[i - dim*int(i/dim)] = opt_vector[a] + 1j*opt_vector[a + 1]
