@@ -170,7 +170,7 @@ def gr_traj_grad(traj, sys, freq, mean):
     # initialise jacobian function and take transpose
     traj[0] = np.array(mean, dtype = complex)
     jac = traj_funcs.traj_response(traj, sys.jacobian)
-    traj[0] = 0
+    traj[0] = np.zeros_like(traj[1])
     jac = traj_funcs.transpose(jac)
 
     # perform convolution
@@ -189,4 +189,6 @@ def gr_freq_grad(traj, sys, freq, mean):
         sum += n*np.imag(np.dot(np.conj(traj[n]), local_res[n]))
     sum = 2*sum
 
-    return sum
+    # return sum
+    # return 0.001*sum
+    return 0
