@@ -6,7 +6,7 @@ sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\Code\Approach B")
 import unittest
 import numpy as np
 import random as rand
-from my_fft import my_fft, my_ifft, my_rfft, my_irfft
+from my_fft import my_rfft, my_irfft
 from conv import conv_scalar, conv_array
 from trajectory_definitions import unit_circle as uc
 from trajectory_definitions import ellipse as elps
@@ -20,15 +20,6 @@ class TestConv(unittest.TestCase):
         del self.modes
 
     def test_conv_scalar(self):
-        # define function to perform convolution via FFT
-        def conv_FFT(scalar1, scalar2):
-            scalar1_time = my_irfft(scalar1)
-            scalar2_time = my_irfft(scalar2)
-            prod = np.zeros_like(scalar1_time)
-            for i in range(np.shape(scalar1_time)[0]):
-                prod[i] = scalar1_time[i]*scalar2_time[i]
-            return my_rfft(prod)
-
         # initialise arrays with known convolutions
         a = rand.uniform(0, 10)
         b = rand.uniform(0, 10)
@@ -38,7 +29,7 @@ class TestConv(unittest.TestCase):
         sin_modes[1] = -1j*0.5*b
 
         # initialise random arrays to convolve5
-        # REQUIRED PADDING WITH M ZEROS TO AVOID END (ALIASING) EFFECTS
+        # REQUIRED PADDING WITH M ZEROS TO AVOID END EFFECTS
         rand1 = np.random.rand(self.modes) + 1j*np.random.rand(self.modes)
         rand1[0] = np.real(rand1[0])
         rand1 = np.append(rand1, [0]*self.modes)
@@ -47,18 +38,28 @@ class TestConv(unittest.TestCase):
         rand2 = np.append(rand2, [0]*self.modes)
 
         # perform convolutions
-        conv_cos_cos = conv_scalar(cos_modes, cos_modes)
-        conv_cos_sin = conv_scalar(cos_modes, sin_modes)
-        conv_sin_cos = conv_scalar(sin_modes, cos_modes)
-        conv_sin_sin = conv_scalar(sin_modes, sin_modes)
-        conv_rand1_rand1 = conv_scalar(rand1, rand1)
-        conv_rand1_rand2 = conv_scalar(rand1, rand2)
-        conv_rand2_rand1 = conv_scalar(rand2, rand1)
-        conv_rand2_rand2 = conv_scalar(rand2, rand2)
+        conv_cos_cos_sum = conv_scalar(cos_modes, cos_modes, method = "sum")
+        conv_cos_sin_sum = conv_scalar(cos_modes, sin_modes, method = "sum")
+        conv_sin_cos_sum = conv_scalar(sin_modes, cos_modes, method = "sum")
+        conv_sin_sin_sum = conv_scalar(sin_modes, sin_modes, method = "sum")
+        conv_rand1_rand1_sum = conv_scalar(rand1, rand1, method = "sum")
+        conv_rand1_rand2_sum = conv_scalar(rand1, rand2, method = "sum")
+        conv_rand2_rand1_sum = conv_scalar(rand2, rand1, method = "sum")
+        conv_rand2_rand2_sum = conv_scalar(rand2, rand2, method = "sum")
+        conv_cos_cos_fft = conv_scalar(cos_modes, cos_modes, method = "fft")
+        conv_cos_sin_fft = conv_scalar(cos_modes, sin_modes, method = "fft")
+        conv_sin_cos_fft = conv_scalar(sin_modes, cos_modes, method = "fft")
+        conv_sin_sin_fft = conv_scalar(sin_modes, sin_modes, method = "fft")
+        conv_rand1_rand1_fft = conv_scalar(rand1, rand1, method = "fft")
+        conv_rand1_rand2_fft = conv_scalar(rand1, rand2, method = "fft")
+        conv_rand2_rand1_fft = conv_scalar(rand2, rand1, method = "fft")
+        conv_rand2_rand2_fft = conv_scalar(rand2, rand2, method = "fft")
 
         # do they commute
-        self.assertTrue(np.allclose(conv_cos_sin, conv_sin_cos))
-        self.assertTrue(np.allclose(conv_rand1_rand2, conv_rand2_rand1))
+        self.assertTrue(np.allclose(conv_cos_sin_sum, conv_sin_cos_sum))
+        self.assertTrue(np.allclose(conv_rand1_rand2_sum, conv_rand2_rand1_sum))
+        self.assertTrue(np.allclose(conv_cos_sin_fft, conv_sin_cos_fft))
+        self.assertTrue(np.allclose(conv_rand1_rand2_fft, conv_rand2_rand1_fft))
 
         # correct values for known
         conv_cos_cos_true = np.zeros(self.modes, dtype = complex)
@@ -69,29 +70,19 @@ class TestConv(unittest.TestCase):
         conv_sin_sin_true = np.zeros(self.modes, dtype = complex)
         conv_sin_sin_true[0] = (b**2)/2
         conv_sin_sin_true[2] = -(b**2)/4
-        self.assertTrue(np.allclose(conv_cos_cos, conv_cos_cos_true))
-        self.assertTrue(np.allclose(conv_cos_sin, conv_cos_sin_true))
-        self.assertTrue(np.allclose(conv_sin_sin, conv_sin_sin_true))
+        self.assertTrue(np.array_equal(conv_cos_cos_sum, conv_cos_cos_true))
+        self.assertTrue(np.array_equal(conv_cos_sin_sum, conv_cos_sin_true))
+        self.assertTrue(np.array_equal(conv_sin_sin_sum, conv_sin_sin_true))
+        self.assertTrue(np.allclose(conv_cos_cos_fft, conv_cos_cos_true))
+        self.assertTrue(np.allclose(conv_cos_sin_fft, conv_cos_sin_true))
+        self.assertTrue(np.allclose(conv_sin_sin_fft, conv_sin_sin_true))
 
-        # correct values for random
-        conv_rand1_rand1_true = conv_FFT(rand1, rand1)
-        conv_rand1_rand2_true = conv_FFT(rand1, rand2)
-        conv_rand2_rand2_true = conv_FFT(rand2, rand2)
-        self.assertTrue(np.allclose(conv_rand1_rand1, conv_rand1_rand1_true))
-        self.assertTrue(np.allclose(conv_rand1_rand2, conv_rand1_rand2_true))
-        self.assertTrue(np.allclose(conv_rand2_rand2, conv_rand2_rand2_true))
+        # sum and fft same for random values
+        self.assertTrue(np.allclose(conv_rand1_rand1_sum, conv_rand1_rand1_fft))
+        self.assertTrue(np.allclose(conv_rand1_rand2_sum, conv_rand1_rand2_fft))
+        self.assertTrue(np.allclose(conv_rand2_rand2_sum, conv_rand2_rand2_fft))
 
     def test_conv_array(self):
-        # define function to perform array convolution via FFT
-        def conv_array_FFT(array1, array2):
-            array1_time = my_irfft(array1)
-            array2_time = my_irfft(array2)
-            matmul_temp = np.matmul(array1_time[0], array2_time[1])
-            prod = np.zeros([np.shape(array1_time)[0], *np.shape(matmul_temp)])
-            for i in range(np.shape(array1_time)[0]):
-                prod[i] = np.matmul(array1_time[i], array2_time[i])
-            return my_rfft(prod)
-        
         # initialise general ellipse
         a = rand.uniform(0, 10)
         b = rand.uniform(0, 10)
@@ -117,7 +108,7 @@ class TestConv(unittest.TestCase):
         vector[1, 1] = -1j*0.5*b
 
         # initialise random arrays for general matrix convolution
-        # REQUIRED PADDING WITH M ZEROS TO AVOID END (ALIASING) EFFECTS
+        # REQUIRED PADDING WITH M ZEROS TO AVOID END EFFECTS
         dim1 = rand.randint(1, 5)
         dim2 = rand.randint(1, 5)
         dim3 = rand.randint(1, 5)
@@ -129,10 +120,13 @@ class TestConv(unittest.TestCase):
         rand_mat2 = np.append(rand_mat2, np.zeros([self.modes, dim2, dim3], dtype = complex), axis = 0)
 
         # perform convolutions
-        conv_elps = conv_array(elps, elps)
-        conv_matvec = conv_array(matrix, vector)
-        conv_rand_mat12 = conv_array(rand_mat1, rand_mat2)
-        
+        conv_elps_sum = conv_array(elps, elps, method = "sum")
+        conv_matvec_sum = conv_array(matrix, vector, method = "sum")
+        conv_rand_mat12_sum = conv_array(rand_mat1, rand_mat2, method = "sum")
+        conv_elps_fft = conv_array(elps, elps, method = "fft")
+        conv_matvec_fft = conv_array(matrix, vector, method = "fft")
+        conv_rand_mat12_fft = conv_array(rand_mat1, rand_mat2, method = "fft")
+
         # initialise known inner product convolution
         conv_elps_true = np.zeros(self.modes, dtype = complex)
         conv_elps_true[0] = 0.5*(a**2 + b**2)
@@ -145,14 +139,15 @@ class TestConv(unittest.TestCase):
         conv_matvec_true[2, 2] = -1j*a*b*0.5
 
         # check inner product
-        self.assertTrue(np.array_equal(conv_elps, conv_elps_true))
+        self.assertTrue(np.array_equal(conv_elps_sum, conv_elps_true))
+        self.assertTrue(np.allclose(conv_elps_fft, conv_elps_true))
 
         # check matrix vector product
-        self.assertTrue(np.array_equal(conv_matvec, conv_matvec_true))
+        self.assertTrue(np.array_equal(conv_matvec_sum, conv_matvec_true))
+        self.assertTrue(np.allclose(conv_matvec_fft, conv_matvec_true))
 
         # check general matrix multiplication
-        conv_rand_mat12_true = conv_array_FFT(rand_mat1, rand_mat2)
-        self.assertTrue(np.allclose(conv_rand_mat12, conv_rand_mat12_true))
+        self.assertTrue(np.allclose(conv_rand_mat12_sum, conv_rand_mat12_fft))
 
 
 if __name__ == "__main__":
