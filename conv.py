@@ -2,53 +2,61 @@
 # between two real valued Fourier mode pairs.
 
 import numpy as np
-from Trajectory import Trajectory
+from my_fft import my_fft, my_ifft, my_rfft, my_irfft
 
-# Ideal functionality:
-#   - takes in instances of Trajectory class
-#   - makes sure they are compatible (is the matrix multiplication possible)
-#   - performs the convolution and returns a new isntance of Trajectory class
-#   - choice between 'fast' and 'slow'
+def conv_scalar_fast(scalar1, scalar2):
+    # convert to full domain
+    scalar1_full = np.fft.fftshift(my_fft(my_irfft(scalar1)), axes = 0)
+    scalar2_full = np.fft.fftshift(my_fft(my_irfft(scalar2)), axes = 0)
 
-def conv(traj1, traj2):
-    """
-        This function calculates the convolution sum of the modes for two
-        trajectories (corresponding to multiplication in the time domain).
+    # perform convolution
+    conv_array_full = np.convolve(scalar1_full, scalar2_full, mode = 'same')
 
-        Parameters
-        ----------
-        traj1: Trajectory object
-            the first trajectory to evaluate the sum over
-        traj2: Trajectory object
-            the second trajectory to evaluate the sum over
-        
-        Returns
-        -------
-        conv_sum: Trajectory object
-            the resulting modes from the convolution sum (corresponding to a
-            new trajectory)
-    """
+    # truncate to include on rfft outputs
+    conv_array = conv_array_full[np.shape(scalar1)[0]:]
+    conv_array = np.append(conv_array, [conv_array_full[1], conv_array_full[0]])
+
+    return conv_array
+
+def conv_scalar(scalar1, scalar2):
     # initialise arrays
-    conv_modes = np.zeros([1, np.shape(traj1)[1]], dtype = complex)
+    conv_array = np.zeros_like(scalar1)
 
-    # nested loop to perform convolution
-    traj1_zero = traj1[:, 0]
-    for n in range(traj1.shape[1]):
-        traj2_at_n = traj2[:, n]
-        for m in range(traj1.shape[1]):
+    # nested loop to manually perform convolution
+    for n in range(np.shape(scalar1)[0]):
+        for m in range(1 - np.shape(scalar1)[0], np.shape(scalar1)[0]):
+            if m < 0:
+                x_m = np.conj(scalar1[-m])
+            else:
+                x_m = scalar1[m]
             if n - m < 0:
-                factor2_diff = np.conj(traj2[:, n - m])
+                y_nm = np.conj(scalar2[m - n])
+            elif n - m > np.shape(scalar1)[0] - 1:
+                y_nm = 0
             else:
-                factor2_diff = traj2[:, n - m]
-            if n + m > traj1.shape[1] - 1:
-                factor2_sum = np.zeros(traj2.shape[0])
+                y_nm = scalar2[n - m]
+            conv_array[n] += x_m*y_nm
+    
+    return conv_array
+
+def conv_array(array1, array2):
+    # initialise arrays
+    matmul_temp = np.matmul(array1[0], array2[0])
+    conv_array = np.zeros([np.shape(array1)[0], *np.shape(matmul_temp)], dtype = complex)
+
+    # nested loop to manually perform convolution
+    for n in range(np.shape(array1)[0]):
+        for m in range(1 - np.shape(array1)[0], np.shape(array1)[0]):
+            if m < 0:
+                x_m = np.conj(array1[-m])
             else:
-                factor2_sum = traj2[:, n + m]
-            conv_modes[:, n] += np.dot(traj1[:, m], factor2_diff) + \
-                                np.dot(np.conj(traj1[:, m]), factor2_sum)
-        conv_modes[:, n] += np.dot(traj1_zero, traj2_at_n)
+                x_m = array1[m]
+            if n - m < 0:
+                y_nm = np.conj(array2[m - n])
+            elif n - m > np.shape(array1)[0] - 1:
+                y_nm = np.zeros_like(array2[0])
+            else:
+                y_nm = array2[n - m]
+            conv_array[n] += np.matmul(x_m, y_nm)
 
-    # account for zero mode
-    conv_modes[:, 0] = conv_modes[:, 0]*2
-
-    return conv_modes
+    return conv_array

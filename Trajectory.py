@@ -1,12 +1,12 @@
 # This file contains the class definition for a general trajectory in some
-# vector space. This will most commonly be a periodic state-space trajectory.
+# vector space.
 
 import numpy as np
 import scipy.integrate as integ
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from System import System
-from my_fft import my_fft, my_ifft
+from my_fft import my_rfft, my_irfft
+from traj_util import func2curve, list2array, array2list
 
 class Trajectory:
     """
@@ -33,8 +33,9 @@ class Trajectory:
         plot()
     """
 
-    __slots__ = ['modes', 'shape']
-    __array_priority__ = 1e16
+    # add type attribute
+    __slots__ = ['mode_list', 'shape', 'type']
+    __array_priority__ = 1e100
 
     def __init__(self, curve, modes = 33):
         """
@@ -47,57 +48,37 @@ class Trajectory:
                 function defining the trajectory, either given by a python
                 function (continuous) or a numpy array (discrete)
         """
-        if type(curve) == np.ndarray:
-            if len(np.shape(curve)) == 1:
-                curve = np.expand_dims(curve, axis = 0)
-            if len(np.shape(curve)) == 2:
-                self.modes = curve
-                self.shape = np.shape(curve)
-            else:
-                raise AttributeError("The mode array has to 2D (only rows and columns)!")
+        if type(curve) == list:
+            type_same, shape_same = self.check_type_shape(curve)
+            if type_same == False:
+                raise TypeError("Data types of list elements must all be the same!")
+            if shape_same == False:
+                raise ValueError("Arrays must all be the same shape!")
+            self.mode_list = curve
+            self.shape = (len(curve), *np.shape(curve[0]))
+            self.type = type(curve[0])
         elif hasattr(curve, '__call__'):
-            self.modes = self.func2array(curve, modes)
-            self.shape = np.shape(self.modes)
+            self.mode_list = array2list(my_rfft(func2curve(curve, modes)))
+            self.shape = (len(self.mode_list), *np.shape(self.mode_list[0]))
+            self.type = type(self.mode_list[0])
         else:
-            raise TypeError("Curve variable has to be either a function or a \
-            2D numpy array!")
-
-    def func2array(self, curve_func, modes):
-        """
-            Discretise a continuous time representation of a function (given
-            as a python function) to a discrete time representation (as a
-            numpy array).
-
-            Parameters
-            ----------
-            curve_func: function
-                python function that defines the continuous time representation
-                of the trajectory
-            time_disc: positive integer
-                number of discrete time locations to use
-        """
-        disc = 2*(modes - 1)
-        curve_array = np.zeros([np.shape(curve_func(0))[0], disc])
-        t = np.linspace(0, 2*np.pi*(1 - 1/disc), disc)
-        for i in range(disc):
-            curve_array[:, i] = curve_func(t[i])
-        return my_fft(curve_array)
+            raise TypeError("Curve variable has to be either a function or a list!")
 
     def __add__(self, other_traj):
         if not isinstance(other_traj, Trajectory):
             raise TypeError("Inputs are not of the correct type!")
-        return Trajectory(self.modes + other_traj.modes)
+        return Trajectory([self.mode_list[i] + other_traj.mode_list[i] for i in range(self.shape[0])])
 
     def __sub__(self, other_traj):
         if not isinstance(other_traj, Trajectory):
             raise TypeError("Inputs are not of the correct type!")
-        return Trajectory(self.modes - other_traj.modes)
+        return Trajectory([self.mode_list[i] - other_traj.mode_list[i] for i in range(self.shape[0])])
 
     def __mul__(self, factor):
         # scalar multiplication
         if type(factor) == float or type(factor) == int or \
             type(factor) == np.float64 or type(factor) == np.int64:
-            return Trajectory(factor*self.modes)
+            return Trajectory([self.mode_list[i]*factor for i in range(self.shape[0])])
         else:
             raise TypeError("Inputs are not of the correct type!")
 
@@ -106,80 +87,150 @@ class Trajectory:
 
     def __matmul__(self, factor):
         if type(factor) == np.ndarray:
-            return Trajectory(np.matmul(factor, self.modes))
-        elif hasattr(factor, '__call__'):
-            curve = my_ifft(self.modes)
-            for i in range(np.shape(curve)[1]):
-                curve[:, i] = np.matmul(factor(i), curve[:, i])
-            return Trajectory(my_fft(curve))
+            return Trajectory([np.matmul(self.mode_list[i], factor) \
+                               for i in range(self.shape[0])])
+        elif type(factor) == Trajectory:
+            return Trajectory([np.matmul(self.mode_list[i], factor.mode_list[i]) for i in range(self.shape[0])])
         else:
             raise TypeError("Inputs are not of the correct type!")
 
     def __rmatmul__(self, factor):
-        return self.__matmul__(factor)
-
-    def __pow__(self, exponent):
-        # perform element-by-element exponentiation
-        curve = my_ifft(self.modes)
-        return Trajectory(my_fft(curve**exponent))
+        if type(factor) == np.ndarray:
+            return Trajectory([np.matmul(factor, self.mode_list[i]) \
+                               for i in range(self.shape[0])])
+        elif type(factor) == Trajectory:
+            return Trajectory([np.matmul(self.mode_list[i], factor.mode_list[i]) for i in range(self.shape[0])])
+        else:
+            raise TypeError("Inputs are not of the correct type!")
 
     def __eq__(self, other_traj, rtol = 1e-6, atol = 1e-6):
         if not isinstance(other_traj, Trajectory):
             raise TypeError("Inputs are not of the correct type!")
-        return np.allclose(self.modes, other_traj.modes, rtol = rtol, atol = atol)
+        for i in range(self.shape[0]):
+            if not np.allclose(self.mode_list[i], other_traj.mode_list[i], rtol, atol):
+                return False
+        return True
 
     def __getitem__(self, key):
-        i, j = key
-        return self.modes[i, j]
+        if type(key) == int or type(key) == slice:
+            return self.mode_list[key]
+        else:
+            return self.mode_list[key[0]][key[1:]]
 
     def __setitem__(self, key, value):
-        i, j = key
-        self.modes[i, j] = value
+        if type(key) == int or type(key) == slice:
+            self.mode_list[key] = value
+        else:
+            self.mode_list[key[0]][key[1:]] = value
+        if not self.check_type_shape(self.mode_list):
+            raise ValueError("Invalid assignment!")
 
-    def plot(self, gradient = None):
+    def __round__(self, decimals = 6):
+        traj_round = [None]*self.shape[0]
+        for i in range(self.shape[0]):
+            traj_round[i] = np.round(self[i], decimals = decimals)
+        return Trajectory(traj_round)
+
+    @staticmethod
+    def check_type_shape(list):
+        """
+            This function takes a list and returns true if all the elements of
+            said list is of the same type, otherwise returns false.
+        """
+        type_same = True
+        shape_same = True
+        for i in range(len(list)):
+            if type(list[i]) != type(list[0]):
+                type_same = False
+        if type(list[0]) == np.ndarray:
+            for i in range(len(list)):
+                if np.shape(list[i]) != np.shape(list[0]):
+                    shape_same = False
+        return type_same, shape_same
+
+    def plot(self, **kwargs):
         """
             This function is a placeholder and will be used for plotting
             purposes.
         """
-        import trajectory_functions as traj_funcs
-        
-        if self.shape[0] == 2:
-            # convert to time domain
-            curve = my_ifft(self.modes)
+        # unpack keyword arguments
+        title = kwargs.get('title', None)
+        time_disc = kwargs.get('disc', None)
+        mean = kwargs.get('mean', None)
+        show = kwargs.get('show', True)
+        proj = kwargs.get('proj', None)
+        aspect = kwargs.get('aspect', None)
 
+        # pad with zeros to increase resolution
+        temp = list2array(self.mode_list)
+        if time_disc != None:
+            tot_modes = int(time_disc/2) + 1
+            pad_len = tot_modes - self.shape[0]
+            if pad_len >= 0:
+                modes_padded = np.pad(temp, ((0, 0), (0, pad_len)), 'constant')
+            else:
+                modes_padded = temp[:, 0:(tot_modes + 1)]
+        else:
+            modes_padded = temp
+
+        # adding in mean
+        if type(mean) == np.ndarray:
+            modes_padded[0] = mean
+
+        # convert to time domain
+        curve = my_irfft(modes_padded)
+
+        if self.shape[1] == 2:
             # plotting trajectory
             fig = plt.figure()
             ax = fig.gca()
-            ax.plot(np.append(curve[0], curve[0, 0]), np.append(curve[1], curve[1, 0]))
-            ax.set_aspect('equal')
+            ax.plot(np.append(curve[:, 0], curve[0, 0]), np.append(curve[:, 1], curve[0, 1]))
+            if aspect != None:
+                ax.set_aspect(aspect)
 
-            # add gradient
-            if gradient != None:
-                grad = traj_funcs.traj_grad(self)
-                grad = my_ifft(grad.modes)
-                for i in range(0, curve.shape[1], int(1/gradient)):
-                    ax.quiver(curve[0, i], curve[1, i], grad[0, i], grad[1, i])
-            
-            # plt.xlabel("$x$")
-            # plt.ylabel("$\dot{x}$")
-            # plt.xlim([-2.2, 2.2])
-            # plt.ylim([-4, 4])
-            # plt.grid()
-            plt.show()
+        elif self.shape[1] == 3:
+            # plotting trajectory
+            if proj == None:
+                fig = plt.figure()
+                ax = fig.gca(projection = "3d")
+                ax.plot(np.append(curve[:, 0], curve[0, 0]), np.append(curve[:, 1], curve[0, 1]), np.append(curve[:, 2], curve[0, 2]))
+                ax.set_xlabel('x'), ax.set_ylabel('y'), ax.set_zlabel('z')
+                fig.suptitle(title)
+            elif proj == 'xy' or proj == 'yx':
+                fig = plt.figure()
+                ax = fig.gca()
+                ax.plot(np.append(curve[:, 0], curve[0, 0]), np.append(curve[:, 1], curve[0, 1]))
+                if aspect != None:
+                    ax.set_aspect(aspect)
+            elif proj == 'xz' or proj == 'zx':
+                fig = plt.figure()
+                ax = fig.gca()
+                ax.plot(np.append(curve[:, 0], curve[0, 0]), np.append(curve[:, 2], curve[0, 2]))
+                if aspect != None:
+                    ax.set_aspect(aspect)
+            elif proj == 'yz' or proj == 'zy':
+                fig = plt.figure()
+                ax = fig.gca()
+                ax.plot(np.append(curve[:, 1], curve[0, 1]), np.append(curve[:, 2], curve[0, 2]))
+                if aspect != None:
+                    ax.set_aspect(aspect)
         else:
             raise ValueError("Can't plot!")
 
+        if show == True:
+            plt.show()
+
 if __name__ == '__main__':
-    from test_cases import unit_circle as circ
-    from test_cases import ellipse as elps
+    from trajectory_definitions import unit_circle as uc
+    from trajectory_definitions import ellipse as elps
 
-    unit_circle1 = Trajectory(circ.x)
-    unit_circle2 = 0.5*Trajectory(circ.x)
+    uc1 = Trajectory(uc.x)
+    uc2 = 0.5*Trajectory(uc.x)
 
-    unit_circle3 = np.pi*unit_circle1 + unit_circle2
+    uc3 = np.pi*uc1 + uc2
 
-    unit_circle1.plot(gradient = 16/64)
-    unit_circle3.plot(gradient = 16/64)
+    uc1.plot()
+    uc3.plot()
     
     ellipse = Trajectory(elps.x)
-    ellipse.plot(gradient = 16/64)
+    ellipse.plot()

@@ -10,10 +10,12 @@ import random as rand
 from Trajectory import Trajectory
 from System import System
 import residual_functions as res_funcs
-from test_cases import unit_circle as uc
-from test_cases import ellipse as elps
-from test_cases import van_der_pol as vpd
-from test_cases import viswanath as vis
+from trajectory_definitions import unit_circle as uc
+from trajectory_definitions import ellipse as elps
+from trajectory_definitions import unit_circle_3d as uc3
+from systems import van_der_pol as vpd
+from systems import viswanath as vis
+from systems import lorenz
 
 import matplotlib.pyplot as plt
 
@@ -21,20 +23,47 @@ class TestResidualFunctions(unittest.TestCase):
     
     def setUp(self):
         self.traj1 = Trajectory(uc.x)
-        self.freq1 = 1
+        # self.freq1 = 1
         self.traj2 = Trajectory(elps.x)
-        self.freq2 = 1
+        # self.freq2 = 1
+        self.traj3 = Trajectory(uc3.x)
         self.sys1 = System(vpd)
         self.sys2 = System(vis)
+        self.sys3 = System(lorenz)
 
     def tearDown(self):
         del self.traj1
         del self.traj2
+        del self.traj3
         del self.sys1
         del self.sys2
+        del self.sys3
 
     def test_resolvent(self):
-        pass
+        rho = rand.uniform(0, 30)
+        beta = rand.uniform(0, 10)
+        sigma = rand.uniform(0, 30)
+        z_mean = rand.uniform(0, 50)
+        freq = rand.uniform(0, 10)
+        self.sys3.parameters['sigma'] = sigma
+        self.sys3.parameters['beta'] = beta
+        self.sys3.parameters['rho'] = rho
+        jac_at_mean_sys3 = self.sys3.jacobian([0, 0, z_mean])
+        H_sys3 = res_funcs.resolvent(self.traj3.shape[0], freq, jac_at_mean_sys3)
+        H_sys3_true = Trajectory([None]*self.traj3.shape[0])
+        resolvent_true_at_n = np.zeros([3, 3], dtype = complex)
+        for n in range(self.traj3.shape[0]):
+            if n == 0:
+                H_sys3_true[n] = np.copy(resolvent_true_at_n)
+            else:
+                D_n = ((1j*n*freq) + sigma)*((1j*n*freq) + 1) + sigma*(z_mean - rho)
+                resolvent_true_at_n[0, 0] = ((1j*n*freq) + 1)/D_n
+                resolvent_true_at_n[1, 0] = (rho - z_mean)/D_n
+                resolvent_true_at_n[0, 1] = sigma/D_n
+                resolvent_true_at_n[1, 1] = ((1j*n*freq) + sigma)/D_n
+                resolvent_true_at_n[2, 2] = 1/((1j*n*freq) + beta)
+                H_sys3_true[n] = np.copy(resolvent_true_at_n)
+        self.assertEqual(H_sys3, H_sys3_true)
 
     def est_local_residual(self):
         # generating random frequencies and system parameters
@@ -62,10 +91,10 @@ class TestResidualFunctions(unittest.TestCase):
         self.assertIsInstance(lr_traj2_sys2, Trajectory)
 
         # output is of correct shape
-        # self.assertEqual(lr_traj1_sys1.shape, self.traj1.shape)
-        # self.assertEqual(lr_traj2_sys1.shape, self.traj2.shape)
-        # self.assertEqual(lr_traj1_sys2.shape, self.traj1.shape)
-        # self.assertEqual(lr_traj2_sys2.shape, self.traj2.shape)
+        self.assertEqual(lr_traj1_sys1.shape, self.traj1.shape)
+        self.assertEqual(lr_traj2_sys1.shape, self.traj2.shape)
+        self.assertEqual(lr_traj1_sys2.shape, self.traj1.shape)
+        self.assertEqual(lr_traj2_sys2.shape, self.traj2.shape)
 
         # outputs are numbers
         temp = True
@@ -91,15 +120,15 @@ class TestResidualFunctions(unittest.TestCase):
             lr_traj1_sys2_true[0, i] = ((1 - freq1)*np.sin(s)) - (mu2*np.cos(s)*(r - 1))
             lr_traj1_sys2_true[1, i] = ((1 - freq1)*np.cos(s)) + (mu2*np.sin(s)*(r - 1))
         lr_traj1_sys1_true = Trajectory(lr_traj1_sys1_true)
-        lr_traj1_sys2_true = Trajectory(lr_traj1_sys2_true)
+        # lr_traj1_sys2_true = Trajectory(lr_traj1_sys2_true)
         for i in range(self.traj2.shape[1]):
             s = ((2*np.pi)/self.traj1.shape[1])*i
             lr_traj2_sys1_true[0, i] = (1 - (2*freq2))*np.sin(s)
             lr_traj2_sys1_true[1, i] = ((2 - freq2)*np.cos(s)) + (mu1*(1 - (4*(np.cos(s)**2)))*np.sin(s))
             lr_traj2_sys2_true[0, i] = ((1 - (2*freq2))*np.sin(s)) - (2*mu2*np.cos(s)*(r - np.sqrt((4*(np.cos(s)**2)) + (np.sin(s)**2))))
             lr_traj2_sys2_true[1, i] = ((2 - freq2)*np.cos(s)) + (mu2*np.sin(s)*(r - np.sqrt((4*(np.cos(s)**2)) + (np.sin(s)**2))))
-        lr_traj2_sys1_true = Trajectory(lr_traj2_sys1_true)
-        lr_traj2_sys2_true = Trajectory(lr_traj2_sys2_true)
+        # lr_traj2_sys1_true = Trajectory(lr_traj2_sys1_true)
+        # lr_traj2_sys2_true = Trajectory(lr_traj2_sys2_true)
         # self.assertEqual(lr_traj1_sys1, lr_traj1_sys1_true)
         # self.assertEqual(lr_traj2_sys1, lr_traj2_sys1_true)
         # self.assertEqual(lr_traj1_sys2, lr_traj1_sys2_true)

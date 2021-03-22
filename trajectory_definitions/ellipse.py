@@ -4,7 +4,7 @@
 import numpy as np
 
 # define trajectory
-def x(s):
+def x(s: float):
 
     # initialise vectors
     state = np.zeros([2])

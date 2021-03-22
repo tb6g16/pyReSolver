@@ -4,7 +4,13 @@
 
 import numpy as np
 
-def my_fft(traj):
+def my_fft(array):
+    return np.fft.fft(array, axis = 0)/np.shape(array)[0]
+
+def my_ifft(array):
+    return np.fft.ifft(array*np.shape(array)[0], axis = 0)
+
+def my_rfft(array):
     """
         This function takes in a an array of the time domain representation of
         a state-space trajectory and returns an instance of the associated
@@ -12,25 +18,25 @@ def my_fft(traj):
 
         Parameters
         ----------
-        traj: np.ndarray
+        traj_array: np.ndarray
             the array representing the time domain trajectory
         
         Returns
         -------
-        traj_ob: np.ndarray
+        traj_ob: list
             the associated trajectory given as an instance of the trajectory
             object class (and so with Fourier modes)
     """
-    return np.fft.rfft(traj, axis = 1)/np.shape(traj)[1]
+    return np.fft.rfft(array, axis = 0)/np.shape(array)[0]
 
-def my_ifft(traj):
+def my_irfft(array):
     """
         This function takes in an instance of the trajectory object class and
         returns an array of the associated time domain representation.
 
         Parameters
         ----------
-        traj: np.ndarray
+        traj: list
             an instance of the trajectory object class to be transformed into
             the time domain
         
@@ -39,4 +45,4 @@ def my_ifft(traj):
         traj_time: np.ndarray
             the time domain representation of the input trajectory instance
     """
-    return np.fft.irfft(traj*(2*(traj.shape[1] - 1)), axis = 1)
+    return np.fft.irfft(array*(2*np.shape(array)[0] - 1), 2*np.shape(array)[0] - 1, axis = 0)

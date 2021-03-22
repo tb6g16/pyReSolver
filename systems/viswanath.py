@@ -6,7 +6,7 @@ import numpy as np
 # define optional arguments
 defaults = {'mu': 0, 'r': 1}
 
-def response(x, defaults = defaults):
+def response(x: np.ndarray, defaults = defaults):
     
     # unpack default arguments
     mu = defaults['mu']
@@ -21,7 +21,7 @@ def response(x, defaults = defaults):
 
     return response
 
-def jacobian(x, defaults = defaults):
+def jacobian(x: np.ndarray, defaults = defaults):
     
     # unpack defaults
     mu = defaults['mu']
@@ -39,7 +39,7 @@ def jacobian(x, defaults = defaults):
 
     return jacobian
 
-def nl_factor(x, defaults = defaults):
+def nl_factor(x: np.ndarray, defaults = defaults):
     
     # unpack defualts
     mu = defaults['mu']
@@ -53,13 +53,3 @@ def nl_factor(x, defaults = defaults):
     nl_vector[1] = mu*x[1]*r
 
     return nl_vector
-
-def init_nl_con_grads():
-
-    def nl_con_grad1(x, defaults = defaults):
-        pass
-
-    def nl_con_grad2(x, defaults = defaults):
-        pass
-
-    return [nl_con_grad1, nl_con_grad2]

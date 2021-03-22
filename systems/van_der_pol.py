@@ -8,7 +8,6 @@ import numpy as np
 parameters = {'mu': 0}
 
 def response(x, parameters = parameters):
-
     # unpack defaults
     mu = parameters['mu']
 
@@ -21,11 +20,7 @@ def response(x, parameters = parameters):
 
     return response
 
-def response2(traj, parameters = parameters):
-    pass
-
 def jacobian(x, parameters = parameters):
-
     # unpack defaults
     mu = parameters['mu']
 
@@ -39,11 +34,7 @@ def jacobian(x, parameters = parameters):
 
     return jacobian_matrix
 
-def jacobian2(traj, parameters = parameters):
-    pass
-
 def nl_factor(x, parameters = parameters):
-
     # unpack defualts
     mu = parameters['mu']
 
@@ -55,20 +46,7 @@ def nl_factor(x, parameters = parameters):
 
     return nl_vector
 
-def nl_factor2(traj, parameters = parameters):
-    pass
-
-# these functions are here because the system has non-quadratic nonlinearity
-def init_nl_con_grads():
-
-    def nl_con_grad1(x, parameters = parameters):
-        return np.zeros(2)
-
-    def nl_con_grad2(x, parameters = parameters):
-        mu = parameters['mu']
-        vec = np.zeros(2)
-        vec[0] = -mu*x[0]*x[1]/np.pi
-        vec[1] = -(mu/(2*np.pi))*(x[0]**2)
-        return vec
-
-    return [nl_con_grad1, nl_con_grad2]
+# set dimension attributes for functions
+# setattr(response, 'dim', 2)
+# setattr(jacobian, 'dim', 2)
+# setattr(nl_factor, 'dim', 2)

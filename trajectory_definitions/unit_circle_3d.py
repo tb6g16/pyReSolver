@@ -4,13 +4,13 @@
 import numpy as np
 
 # define a test solution
-def x(s):
+def x(s: float):
 
     # initialise vectors
     state = np.zeros(3)
 
     # define function behaviour
     state[0] = np.cos(s)
-    state[2] = -np.sin(s)
+    state[1] = -np.sin(s)
 
     return state

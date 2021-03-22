@@ -4,7 +4,7 @@
 import numpy as np
 
 # define a test solution
-def x(s):
+def x(s: float):
 
     # initialise vectors
     state = np.zeros([2])
