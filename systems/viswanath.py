@@ -4,13 +4,13 @@
 import numpy as np
 
 # define optional arguments
-defaults = {'mu': 0, 'r': 1}
+parameters = {'mu': 0, 'r': 1}
 
-def response(x: np.ndarray, defaults = defaults):
+def response(x, parameters = parameters):
     
-    # unpack default arguments
-    mu = defaults['mu']
-    rlim = defaults['r']
+    # unpack parameters
+    mu = parameters['mu']
+    rlim = parameters['r']
 
     # initialise vectors
     response = np.zeros(np.shape(x))
@@ -21,17 +21,18 @@ def response(x: np.ndarray, defaults = defaults):
 
     return response
 
-def jacobian(x: np.ndarray, defaults = defaults):
+def jacobian(x, parameters = parameters):
     
-    # unpack defaults
-    mu = defaults['mu']
-    rlim = defaults['r']
+    # unpack parameters
+    mu = parameters['mu']
+    rlim = parameters['r']
 
     #initialise jacobian matrix
     jacobian = np.zeros([np.shape(x)[0], np.shape(x)[0]])
 
     # compute jacobian elements
     r = np.sqrt((x[0]**2) + (x[1]**2))
+    print(r)
     jacobian[0, 0] = mu*(rlim - (2*(x[0]**2) + (x[1]**2))/r)
     jacobian[0, 1] = 1 - (mu*x[0]*x[1])/r
     jacobian[1, 0] = -1 - (mu*x[0]*x[1])/r
@@ -39,10 +40,10 @@ def jacobian(x: np.ndarray, defaults = defaults):
 
     return jacobian
 
-def nl_factor(x: np.ndarray, defaults = defaults):
+def nl_factor(x, parameters = parameters):
     
-    # unpack defualts
-    mu = defaults['mu']
+    # unpack parameters
+    mu = parameters['mu']
 
     # initialise output vector
     nl_vector = np.zeros(np.shape(x))
