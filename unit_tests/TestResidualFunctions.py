@@ -2,7 +2,7 @@
 # in the residual_functions file.
 
 import sys
-sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\Code\Approach B")
+sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\Code\ResolventSolver")
 import unittest
 import numpy as np
 import scipy.integrate as integ

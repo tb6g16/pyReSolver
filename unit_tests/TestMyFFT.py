@@ -1,7 +1,7 @@
 # This file contains the unit tests for my_fft functions.
 
 import sys
-sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\Code\Approach B")
+sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\Code\ResolventSolver")
 import unittest
 import numpy as np
 import random as rand
