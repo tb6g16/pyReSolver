@@ -155,7 +155,7 @@ class Trajectory:
         """
         # unpack keyword arguments
         title = kwargs.get('title', None)
-        time_disc = kwargs.get('disc', None)
+        disc = kwargs.get('disc', None)
         mean = kwargs.get('mean', None)
         show = kwargs.get('show', True)
         proj = kwargs.get('proj', None)
@@ -163,18 +163,18 @@ class Trajectory:
 
         # pad with zeros to increase resolution
         temp = list2array(self.mode_list)
-        if time_disc != None:
-            tot_modes = int(time_disc/2) + 1
+        if disc != None:
+            tot_modes = int(disc/2) + 1
             pad_len = tot_modes - self.shape[0]
             if pad_len >= 0:
-                modes_padded = np.pad(temp, ((0, 0), (0, pad_len)), 'constant')
+                modes_padded = np.pad(temp, ((0, pad_len), (0, 0)), 'constant')
             else:
-                modes_padded = temp[:, 0:(tot_modes + 1)]
+                raise ValueError("Cannot reduce resolution!")
         else:
             modes_padded = temp
 
         # adding in mean
-        if type(mean) == np.ndarray:
+        if mean != None:
             modes_padded[0] = mean
 
         # convert to time domain
@@ -185,6 +185,7 @@ class Trajectory:
             fig = plt.figure()
             ax = fig.gca()
             ax.plot(np.append(curve[:, 0], curve[0, 0]), np.append(curve[:, 1], curve[0, 1]))
+            fig.suptitle(title)
             if aspect != None:
                 ax.set_aspect(aspect)
 
@@ -216,6 +217,8 @@ class Trajectory:
                     ax.set_aspect(aspect)
         else:
             raise ValueError("Can't plot!")
+        
+        print(plt.gcf().number)
 
         if show == True:
             plt.show()
@@ -224,12 +227,11 @@ if __name__ == '__main__':
     from trajectory_definitions import unit_circle as uc
     from trajectory_definitions import ellipse as elps
 
-    uc1 = Trajectory(uc.x)
+    uc1 = Trajectory(uc.x, modes = 5)
     uc2 = 0.5*Trajectory(uc.x)
 
     uc3 = np.pi*uc1 + uc2
 
-    uc1.plot(aspect = 1)
     uc3.plot(aspect = 1)
 
     ellipse = Trajectory(elps.x)
