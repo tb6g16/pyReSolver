@@ -10,7 +10,7 @@ from System import System
 from traj2vec import traj2vec, vec2traj
 import residual_functions as res_funcs
 
-def init_opt_funcs(sys, dim, mean, conv_method = "sum"):
+def init_opt_funcs(sys, dim, mean, conv_method = 'fft'):
     """
         This functions initialises the optimisation vectors for a specific
         system.
@@ -51,7 +51,7 @@ def my_min(traj, freq, sys, mean, **kwargs):
     if_quiet = kwargs.get('quiet', False)
     maxiter = kwargs.get('iter', None)
     traces = kwargs.get('traces', None)
-    conv_method = kwargs.get('conv_method', 'sum')
+    conv_method = kwargs.get('conv_method', 'fft')
 
     # setup the problem
     dim = traj.shape[1]

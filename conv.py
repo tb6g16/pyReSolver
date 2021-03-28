@@ -18,8 +18,8 @@ def conv_scalar_fast(scalar1, scalar2):
 
     return conv_array
 
-def conv_scalar(scalar1, scalar2, method = "sum"):
-    if method == "sum":
+def conv_scalar(scalar1, scalar2, method = 'fft'):
+    if method == 'direct':
         # initialise arrays
         conv_array = np.zeros_like(scalar1)
 
@@ -39,7 +39,7 @@ def conv_scalar(scalar1, scalar2, method = "sum"):
                 conv_array[n] += x_m*y_nm
         
         return conv_array
-    elif method == "fft":
+    elif method == 'fft':
         # convert to time domain
         scalar1_time = my_irfft(scalar1)
         scalar2_time = my_irfft(scalar2)
@@ -53,8 +53,8 @@ def conv_scalar(scalar1, scalar2, method = "sum"):
     else:
         raise ValueError("Not a valid method!")
 
-def conv_array(array1, array2, method = "sum"):
-    if method == "sum":
+def conv_array(array1, array2, method = 'fft'):
+    if method == 'direct':
         # initialise arrays
         matmul_temp = np.matmul(array1[0], array2[0])
         conv_array = np.zeros([np.shape(array1)[0], *np.shape(matmul_temp)], dtype = complex)
@@ -75,7 +75,7 @@ def conv_array(array1, array2, method = "sum"):
                 conv_array[n] += np.matmul(x_m, y_nm)
 
         return conv_array
-    elif method == "fft":
+    elif method == 'fft':
         # convert to time domain
         array1_time = my_irfft(array1)
         array2_time = my_irfft(array2)

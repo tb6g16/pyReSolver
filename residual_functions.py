@@ -135,7 +135,7 @@ def global_residual(traj, sys, freq, mean):
 
     return np.real(sum)
 
-def gr_traj_grad(traj, sys, freq, mean, conv_method = "sum"):
+def gr_traj_grad(traj, sys, freq, mean, conv_method = 'fft'):
     """
         This function calculates the gradient of the global residual with
         respect to the trajectory and the associated fundamental frequency for
@@ -174,6 +174,7 @@ def gr_traj_grad(traj, sys, freq, mean, conv_method = "sum"):
     jac_res_conv = traj_funcs.traj_conv(jac, local_res, method = conv_method)
 
     # calculate and return gradients w.r.t trajectory and frequency respectively
+    # return 2*((-freq*res_grad) - jac_res_conv)
     return (-freq*res_grad) - jac_res_conv
 
 def gr_freq_grad(traj, sys, freq, mean):

@@ -218,7 +218,7 @@ class Trajectory:
         else:
             raise ValueError("Can't plot!")
         
-        print(plt.gcf().number)
+        # print(plt.gcf().number)
 
         if show == True:
             plt.show()
