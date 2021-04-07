@@ -6,7 +6,6 @@ import numpy as np
 from scipy.optimize import minimize
 import scipy.integrate as integ
 from Trajectory import Trajectory
-from System import System
 from traj2vec import traj2vec, vec2traj
 import residual_functions as res_funcs
 

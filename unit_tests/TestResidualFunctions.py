@@ -8,7 +8,6 @@ import numpy as np
 import scipy.integrate as integ
 import random as rand
 from Trajectory import Trajectory
-from System import System
 import residual_functions as res_funcs
 from trajectory_definitions import unit_circle as uc
 from trajectory_definitions import ellipse as elps
@@ -27,9 +26,9 @@ class TestResidualFunctions(unittest.TestCase):
         self.traj2 = Trajectory(elps.x)
         # self.freq2 = 1
         self.traj3 = Trajectory(uc3.x)
-        self.sys1 = System(vpd)
-        self.sys2 = System(vis)
-        self.sys3 = System(lorenz)
+        self.sys1 = vpd
+        self.sys2 = vis
+        self.sys3 = lorenz
 
     def tearDown(self):
         del self.traj1
@@ -49,8 +48,8 @@ class TestResidualFunctions(unittest.TestCase):
         self.sys3.parameters['beta'] = beta
         self.sys3.parameters['rho'] = rho
         jac_at_mean_sys3 = self.sys3.jacobian([0, 0, z_mean])
-        H_sys3 = res_funcs.resolvent(self.traj3.shape[0], freq, jac_at_mean_sys3)
-        H_sys3_true = Trajectory([None]*self.traj3.shape[0])
+        H_sys3 = res_funcs.resolvent_inv(self.traj3.shape[0], freq, jac_at_mean_sys3)
+        H_sys3_true = [None]*self.traj3.shape[0]
         resolvent_true_at_n = np.zeros([3, 3], dtype = complex)
         for n in range(self.traj3.shape[0]):
             if n == 0:
@@ -62,7 +61,8 @@ class TestResidualFunctions(unittest.TestCase):
                 resolvent_true_at_n[0, 1] = sigma/D_n
                 resolvent_true_at_n[1, 1] = ((1j*n*freq) + sigma)/D_n
                 resolvent_true_at_n[2, 2] = 1/((1j*n*freq) + beta)
-                H_sys3_true[n] = np.copy(resolvent_true_at_n)
+                H_sys3_true[n] = np.linalg.inv(np.copy(resolvent_true_at_n))
+        H_sys3_true = Trajectory(H_sys3_true)
         self.assertEqual(H_sys3, H_sys3_true)
 
     def est_local_residual(self):
