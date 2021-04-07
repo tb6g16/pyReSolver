@@ -2,13 +2,12 @@
 # trajectory_functions.
 
 import sys
-sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\Code\ResolventSolver")
+sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\ResolventSolver")
 import unittest
 import numpy as np
 import random as rand
 from Trajectory import Trajectory
 import trajectory_functions as traj_funcs
-from System import System
 from traj_util import array2list, list2array
 from trajectory_definitions import unit_circle as uc
 from trajectory_definitions import ellipse as elps
@@ -22,8 +21,8 @@ class TestTrajectoryFunctions(unittest.TestCase):
     def setUp(self):
         self.traj1 = Trajectory(uc.x, modes = 33)
         self.traj2 = Trajectory(elps.x, modes = 33)
-        self.sys1 = System(vpd)
-        self.sys2 = System(vis)
+        self.sys1 = vpd
+        self.sys2 = vis
 
     def tearDown(self):
         del self.traj1
@@ -174,19 +173,19 @@ class TestTrajectoryFunctions(unittest.TestCase):
 
         # same response for trajectories at crossing points in time domain
         t1r1_time = traj_funcs.traj_irfft(traj1_response1)
-        t1r2_time = traj_funcs.traj_irfft(traj1_response2)
-        t2r1_time = traj_funcs.traj_irfft(traj2_response1)
-        t2r2_time = traj_funcs.traj_irfft(traj2_response2)
+        # t1r2_time = traj_funcs.traj_irfft(traj1_response2)
+        # t2r1_time = traj_funcs.traj_irfft(traj2_response1)
+        # t2r2_time = traj_funcs.traj_irfft(traj2_response2)
         cross_i1 = int(((np.shape(t1r1_time)[0])/(2*np.pi))*(np.pi/2))
         cross_i2 = int(((np.shape(t1r1_time)[0])/(2*np.pi))*((3*np.pi)/2))
-        traj1_cross1_resp1 = t1r1_time[cross_i1]
-        traj2_cross1_resp1 = t2r1_time[cross_i1]
-        traj1_cross2_resp1 = t1r1_time[cross_i2]
-        traj2_cross2_resp1 = t2r1_time[cross_i2]
-        traj1_cross1_resp2 = t1r2_time[cross_i1]
-        traj2_cross1_resp2 = t2r2_time[cross_i1]
-        traj1_cross2_resp2 = t1r2_time[cross_i2]
-        traj2_cross2_resp2 = t2r2_time[cross_i2]
+        # traj1_cross1_resp1 = t1r1_time[cross_i1]
+        # traj2_cross1_resp1 = t2r1_time[cross_i1]
+        # traj1_cross2_resp1 = t1r1_time[cross_i2]
+        # traj2_cross2_resp1 = t2r1_time[cross_i2]
+        # traj1_cross1_resp2 = t1r2_time[cross_i1]
+        # traj2_cross1_resp2 = t2r2_time[cross_i1]
+        # traj1_cross2_resp2 = t1r2_time[cross_i2]
+        # traj2_cross2_resp2 = t2r2_time[cross_i2]
         # self.assertTrue(np.allclose(traj1_cross1_resp1, traj2_cross1_resp1))
         # self.assertTrue(np.allclose(traj1_cross2_resp1, traj2_cross2_resp1))
         # self.assertTrue(np.allclose(traj1_cross1_resp2, traj2_cross1_resp2))
@@ -210,7 +209,7 @@ class TestTrajectoryFunctions(unittest.TestCase):
 
         # extra test for matrix function
         traj3 = Trajectory(uc3.x)
-        sys3 = System(lorenz)
+        sys3 = lorenz
         t3_lor_jac = traj_funcs.traj_response(traj3, sys3.jacobian)
         t3_lor_jac_true = np.zeros([traj3.shape[0], 3, 3], dtype = complex)
         t3_lor_jac_true[0, 0, 0] = -sys3.parameters['sigma']

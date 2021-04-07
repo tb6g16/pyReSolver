@@ -68,35 +68,18 @@ def local_residual(traj, sys, freq, mean):
             the local residual of the trajectory with respect to the dynamical
             system, given as an instance of the Trajectory class
     """
-    # local_res = np.zeros_like(traj.modes)
-
-    # L = sys.jacobian(mean)
-    # L_prod = L @ traj
-    # resp = traj_funcs.traj_response(traj, sys.nl_factor)
-
-    # local_res[:, 0] = -sys.response(mean) - resp[:, 0]
-    # for i in range(1, np.shape(local_res)[1]):
-    #     local_res[:, i] = (freq*grad[:, i]) - L_prod[:, i] - resp[:, i]
-
-    # return Trajectory(local_res)
-
     # evaluate jacobian at the mean
     jac_at_mean = sys.jacobian(mean)
 
-    # evaluate the resolvents (and invert!!!)
+    # evaluate the inverse resolvents
     H_n_inv = resolvent_inv(traj.shape[0], freq, jac_at_mean)
-    # for i in range(1, H_n.shape[0]):
-    #     H_n[i] = np.linalg.inv(H_n[i])
 
     # evaluate response and multiply by resolvent at every mode
     resp = traj_funcs.traj_response(traj, sys.nl_factor)
-    # H_resp_mult = H_n @ resp
-    # print(resp[1])
 
     # evaluate local residual trajectory for all modes
     H_inv_traj_mult = H_n_inv @ traj
     local_res = H_inv_traj_mult - resp
-    # local_res = traj - H_resp_mult
 
     # reassign the mean mode to the second constraint
     local_res[0] = -sys.response(mean) - resp[0]
@@ -135,7 +118,7 @@ def global_residual(traj, sys, freq, mean):
 
     return np.real(sum)
 
-def gr_traj_grad(traj, sys, freq, mean, conv_method = "sum"):
+def gr_traj_grad(traj, sys, freq, mean, conv_method = 'fft'):
     """
         This function calculates the gradient of the global residual with
         respect to the trajectory and the associated fundamental frequency for
@@ -174,6 +157,7 @@ def gr_traj_grad(traj, sys, freq, mean, conv_method = "sum"):
     jac_res_conv = traj_funcs.traj_conv(jac, local_res, method = conv_method)
 
     # calculate and return gradients w.r.t trajectory and frequency respectively
+    # return 2*((-freq*res_grad) - jac_res_conv)
     return (-freq*res_grad) - jac_res_conv
 
 def gr_freq_grad(traj, sys, freq, mean):

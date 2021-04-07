@@ -2,13 +2,12 @@
 # objective function, constraints, and all their associated gradients
 
 import sys
-sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\Code\ResolventSolver")
+sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\ResolventSolver")
 import unittest
 import numpy as np
 import random as rand
 from Trajectory import Trajectory
 import trajectory_functions as traj_funcs
-from System import System
 from traj2vec import traj2vec, vec2traj
 from my_min import init_opt_funcs
 import residual_functions as res_funcs
@@ -42,9 +41,9 @@ class TestOptimise(unittest.TestCase):
         self.freq3 = rand.uniform(0, 10)
         self.traj3_vec = traj2vec(self.traj3, self.freq3)
 
-        self.sys1 = System(vpd)
+        self.sys1 = vpd
         self.mean1 = np.random.rand(2)
-        self.sys2 = System(lorenz)
+        self.sys2 = lorenz
         self.mean2 = np.random.rand(3)
 
     def tearDown(self):
