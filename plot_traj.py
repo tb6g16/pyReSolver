@@ -10,6 +10,11 @@ from my_fft import my_irfft
 from TrajPlotObject import TrajPlotObject
 
 def plot_single_traj(plot_object, ax = None, proj = None, show = False):
+    """
+        This function plots a single state-space trajectory (using an instance
+        of the plot_object class) on an axis that may or may not be provided as
+        an argument.
+    """
     # pad with zeros to increase resolution
     temp = list2array(plot_object.traj.mode_list)
     if plot_object.disc != None:
@@ -61,6 +66,10 @@ def plot_single_traj(plot_object, ax = None, proj = None, show = False):
         plt.show()
 
 def plot_traj(*args, **kwargs):
+    """
+        This function plots an arbitrary of state-space trajectories on a single
+        axis with a number of keyword arguments for formatting.
+    """
     # unpack keyword arguments
     title = kwargs.get('title', None)
     aspect = kwargs.get('aspect', None)
@@ -91,21 +100,36 @@ def plot_traj(*args, **kwargs):
     plt.show()
 
 def plot_along_s(*args, **kwargs):
-    pass
+    """
+        This function plots the components of a state-space trajectory against
+        the parameter s from 0 to 2*pi.
+    """
+    # unpack keyword arguments
+    labels = kwargs.get('labels', None)
+    ylim = kwargs.get('ylim', None)
 
-if __name__ == "__main__":
-    from trajectory_definitions import unit_circle as uc
-    from trajectory_definitions import ellipse as elps
-    from trajectory_definitions import unit_circle_3d as uc3
+    # plt.figure(fig_no)
+    plt.figure()
+    ax = plt.gca()
 
-    from Trajectory import Trajectory
+    # loop over given trajectories to plot
+    for arg in args:
+        traj_time = my_irfft(list2array(arg.mode_list))
+        s = np.linspace(0, 2*np.pi, np.shape(traj_time)[0] + 1)
+        for i in range(np.shape(traj_time)[1]):
+            if labels != None:
+                ax.plot(s, np.append(traj_time[:, i], traj_time[0, i]), label = labels[i])
+            else:
+                ax.plot(s, np.append(traj_time[:, i], traj_time[0, i]))
 
-    traj1 = Trajectory(uc.x, modes = 5)
-    traj2 = Trajectory(elps.x)
-    traj3 = Trajectory(uc3.x)
+    # add labels
+    if labels != None:
+        ax.legend()
 
-    # traj1_plot = TrajPlotObject(traj1, disc = 256)
-    # traj2_plot = TrajPlotObject(traj2, mean = [1, 1])
-    # traj3_plot = TrajPlotObject(traj3)
+    # add y-axis limits
+    if ylim != None:
+        plt.ylim(ylim)
 
-    plot_traj(traj3, discs = [1024], means = [[np.e, np.pi, 1]], title = "Test Plot", proj = 'xy', aspect = 0.5)
+    # add grid and show plot
+    ax.grid()
+    plt.show()
