@@ -16,7 +16,7 @@ def response(x: np.ndarray, defaults = parameters):
     response = np.zeros(np.shape(x))
 
     # assign response
-    response[0] = sigma*(x[0] - x[1])
+    response[0] = sigma*(x[1] - x[0])
     response[1] = (rho*x[0]) - x[1] - (x[0]*x[2])
     response[2] = (x[0]*x[1]) - (beta*x[2])
 

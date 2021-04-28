@@ -5,8 +5,7 @@ import numpy as np
 from Trajectory import Trajectory
 import trajectory_functions as traj_funcs
 
-# CHANGE DOWN THE LINE FOR DIFFERENT RESIDUAL FUNCTION
-def resolvent_inv(modes, freq, jac_at_mean):
+def resolvent_inv(no_modes, freq, jac_at_mean):
     """
         This function calculates the resolvent operator for a given mode number
         n, system, and fundamental frequency.
@@ -34,10 +33,10 @@ def resolvent_inv(modes, freq, jac_at_mean):
     dim = np.shape(jac_at_mean)[0]
 
     # initialise the resolvent list
-    resolvent_inv = [None]*modes
+    resolvent_inv = [None]*no_modes
 
     # loop over calculating the value at each wavenumber
-    for n in range(modes):
+    for n in range(no_modes):
         # resolvent[n] = np.linalg.inv((1j*n*freq*np.identity(dim)) - jac_at_mean)
         resolvent_inv[n] = (1j*n*freq*np.identity(dim)) - jac_at_mean
 

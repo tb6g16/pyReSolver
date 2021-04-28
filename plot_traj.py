@@ -29,7 +29,9 @@ def plot_single_traj(plot_object, ax = None, proj = None, show = False):
         modes_padded = temp
 
     # adding mean
-    if plot_object.mean != None:
+    if type(plot_object.mean) == np.ndarray:
+        modes_padded[0] = plot_object.mean
+    elif plot_object.mean != None:
         modes_padded[0] = plot_object.mean
 
     # convert to time domain
