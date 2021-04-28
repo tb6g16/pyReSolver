@@ -90,7 +90,8 @@ class Trajectory:
             return Trajectory([np.matmul(self.mode_list[i], factor) \
                                for i in range(self.shape[0])])
         elif type(factor) == Trajectory:
-            return Trajectory([np.matmul(self.mode_list[i], factor.mode_list[i]) for i in range(self.shape[0])])
+            return Trajectory([np.matmul(self.mode_list[i], factor.mode_list[i]) \
+                               for i in range(self.shape[0])])
         else:
             raise TypeError("Inputs are not of the correct type!")
 
