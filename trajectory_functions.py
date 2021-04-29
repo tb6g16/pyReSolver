@@ -25,7 +25,7 @@ def traj_rfft(array):
 def traj_irfft(traj):
     return my_irfft(list2array(traj.mode_list))
 
-def traj_conv(traj1, traj2, method = "sum"):
+def traj_conv(traj1, traj2, method = 'fft'):
     return Trajectory(array2list(conv_array(list2array(traj1.mode_list), list2array(traj2.mode_list), method = method)))
 
 def traj_grad(traj):
