@@ -74,23 +74,3 @@ def resolvent_modes_inv(res_inv, cut = 0):
 
     # initialise as trajectory instances and return
     return Trajectory(psi), Trajectory(sig), Trajectory(phi)
-
-if __name__ == '__main__':
-    from systems import lorenz
-
-    freq = 1
-    n = range(5)
-    jac_at_mean = lorenz.jacobian([0, 0, 0])
-    B = np.array([[0, 0], [-1, 0], [0, 1]])
-
-    H_n = resolvent(freq, n, jac_at_mean, B)
-
-    cut = 1
-    psi_n, sig_n, phi_n = resolvent_modes(H_n, cut = cut)
-
-    # for i in n:
-    #     print(np.allclose(H_n[i], psi_n[i] @ sig_n[i] @ np.conj(np.transpose(phi_n[i]))))
-
-    a = 1
-    print(H_n[a])
-    print(psi_n[a] @ sig_n[a] @ np.conj(np.transpose(phi_n[a])))

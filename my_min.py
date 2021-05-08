@@ -25,7 +25,7 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
         traj, freq = vec2traj(opt_vector, dim)
 
         # convert to full space if singular matrix is provided
-        if type(psi) == Trajectory:
+        if psi is not None:
             traj = psi @ traj
 
         # calculate global residual and return
@@ -41,7 +41,7 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
         traj, freq = vec2traj(opt_vector, dim)
 
         # convert to full space if singular matrix is provided
-        if type(psi) == Trajectory:
+        if psi is not None:
             traj = psi @ traj
 
         # calculate global residual gradients
@@ -49,7 +49,7 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
         gr_freq_grad = res_funcs.gr_freq_grad(traj, sys, freq, mean)
 
         # convert gradient w.r.t modes to reduced space
-        if type(psi) == Trajectory:
+        if psi is not None:
             gr_traj_grad = transpose(conj(psi)) @ gr_traj_grad
 
         # convert back to vector and return
@@ -59,6 +59,9 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
 
 def my_min(traj, freq, sys, mean, **kwargs):
     # unpack keyword arguments
+    use_jac = kwargs.get('use_jac', True)
+    res_func = kwargs.get('res_func', None)
+    jac_func = kwargs.get('jac_func', None)
     my_method = kwargs.get('method', 'L-BFGS-B')
     if_quiet = kwargs.get('quiet', False)
     maxiter = kwargs.get('iter', None)
@@ -67,12 +70,17 @@ def my_min(traj, freq, sys, mean, **kwargs):
     psi = kwargs.get('psi', None)
 
     # convert to reduced space if singular matrix is provided
-    if type(psi) == Trajectory:
+    if psi is not None:
         traj = transpose(conj(psi)) @ traj
 
     # setup the problem
     dim = traj.shape[1]
-    res_func, jac_func = init_opt_funcs(sys, dim, mean, psi = psi, conv_method = conv_method)
+    if not hasattr(res_func, '__call__') and not hasattr(jac_func, '__call__'):
+        res_func, jac_func = init_opt_funcs(sys, dim, mean, psi = psi, conv_method = conv_method)
+    elif not hasattr(res_func, '__call__'):
+        res_func, _ = init_opt_funcs(sys, dim, mean, psi = psi, conv_method = conv_method)
+    elif not hasattr(jac_func, '__call__'):
+        _, jac_func = init_opt_funcs(sys, dim, mean, psi = psi, conv_method = conv_method)
 
     # define varaibles to be tracked using callback
     if traces == None:
@@ -81,6 +89,10 @@ def my_min(traj, freq, sys, mean, **kwargs):
     # define callback function
     def callback(x):
         cur_traj, cur_freq = vec2traj(x, dim)
+
+        # convert to full space if singular matrix is provided
+        if psi is not None:
+            cur_traj = psi @ cur_traj
 
         traces['traj'].append(cur_traj)
         traces['freq'].append(cur_freq)
@@ -105,11 +117,17 @@ def my_min(traj, freq, sys, mean, **kwargs):
         options['maxiter'] = maxiter
 
     # perform optimisation
-    sol = minimize(res_func, traj_vec, jac = jac_func, method = my_method, callback = callback, options = options)
-    # sol = minimize(res_func, traj_vec, method = my_method, callback = callback, options = options)
+    if use_jac == True:
+        sol = minimize(res_func, traj_vec, jac = jac_func, method = my_method, callback = callback, options = options)
+    elif use_jac == False:
+        sol = minimize(res_func, traj_vec, method = my_method, callback = callback, options = options)
 
     # unpack trajectory from solution
     op_vec = sol.x
     op_traj, op_freq = vec2traj(op_vec, dim)
+
+    # convert to full space if singular matrix is provided
+    if psi is not None:
+        op_traj = psi @ op_traj
 
     return op_traj, op_freq, traces, sol
