@@ -2,9 +2,6 @@
 # vector space.
 
 import numpy as np
-import scipy.integrate as integ
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from my_fft import my_rfft, my_irfft
 from traj_util import func2curve, list2array, array2list
 
