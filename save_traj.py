@@ -12,17 +12,21 @@ def write_traj(base_filename, *args):
     leading_zeros = int(np.log10(len(args))) + 1
 
     # loop through provided trajectories
-    for i, arg in args:
+    for i, arg in enumerate(args):
         # determine filename from base filename
         if len(args) == 1:
             filename = base_filename
         else:
-            filename = base_filename + str(i).zfill(leading_zeros)
+            filename = base_filename + str(i + 1).zfill(leading_zeros)
 
         # open a file
         with open(filename, 'wb') as f:
             # write to the file
             pickle.dump(arg, f)
 
-def read_traj(filename, *args):
-    pass
+def read_traj(filename):
+    # open the file and load its contents
+    with open(filename, 'rb') as f:
+        traj, freq = pickle.load(f)
+
+    return traj, freq
