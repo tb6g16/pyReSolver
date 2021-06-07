@@ -7,27 +7,16 @@ from traj_util import func2curve, list2array, array2list
 
 class Trajectory:
     """
-        A trajectory in some finite-dimensional vector space parameterised with
-        respect to a standard 'time' unit assumed to range from 0 to 2*pi.
+        A trajectory in state-space stored as an array of Fourier modes.
 
         Attributes
         ----------
-        curve_array: numpy.ndarray
-            the discretised trajectory, number of rows equal to the dimension
-            of the vector space and columns equal to the number of 'time' steps
-            taken
-        curve_fun: function
-            function defining the trajectory, given as an input to __init__ to
-            generate curve_array attribute
-        closed: bool
-            prescribing whether the trajectory is closed, i.e. is it periodic
-            in 'time'
-        
-        Methods
-        -------
-        func2array(curve_func, time_disc = 200)
-        gradient()
-        plot()
+        mode_life : ndarray
+            2D array containing data of float type.
+        shape : tuple of int
+            Shape of the trajectory equivelent array.
+        type : type
+            Data type of the contents of the mode_list.
     """
 
     # add type attribute
@@ -36,14 +25,15 @@ class Trajectory:
 
     def __init__(self, curve, modes = 33):
         """
-            Initialise an instance of the Trajectory object, with either a
-            continuous of discrete time function.
+            Initialise a trajectory with a curve definition.
 
             Parameters
             ----------
-            curve: function or numpy.ndarray
-                function defining the trajectory, either given by a python
-                function (continuous) or a numpy array (discrete)
+            curve : function or ndarray
+                Function or list that defines a trajectory in state-space
+            modes : positive int, default=33
+                Number of modes to represent the trajectory, ignored is curve
+                is an array.
         """
         if type(curve) == list:
             type_same, shape_same = self.check_type_shape(curve)
@@ -62,17 +52,19 @@ class Trajectory:
             raise TypeError("Curve variable has to be either a function or a list!")
 
     def __add__(self, other_traj):
+        """Add trajectory to current instance."""
         if not isinstance(other_traj, Trajectory):
             raise TypeError("Inputs are not of the correct type!")
         return Trajectory([self.mode_list[i] + other_traj.mode_list[i] for i in range(self.shape[0])])
 
     def __sub__(self, other_traj):
+        """Substract trajectory from current instance."""
         if not isinstance(other_traj, Trajectory):
             raise TypeError("Inputs are not of the correct type!")
         return Trajectory([self.mode_list[i] - other_traj.mode_list[i] for i in range(self.shape[0])])
 
     def __mul__(self, factor):
-        # scalar multiplication
+        """Multiply current istance by scalar."""
         if type(factor) == float or type(factor) == int or \
             type(factor) == np.float64 or type(factor) == np.int64:
             return Trajectory([self.mode_list[i]*factor for i in range(self.shape[0])])
@@ -83,6 +75,7 @@ class Trajectory:
         return self.__mul__(factor)
 
     def __matmul__(self, factor):
+        """Right muyltiply current instance by array or another trajectory."""
         if type(factor) == np.ndarray:
             return Trajectory([np.matmul(self.mode_list[i], factor) \
                                for i in range(self.shape[0])])
@@ -93,6 +86,7 @@ class Trajectory:
             raise TypeError("Inputs are not of the correct type!")
 
     def __rmatmul__(self, factor):
+        """Left multiply current instance by array or another trajectory."""
         if type(factor) == np.ndarray:
             return Trajectory([np.matmul(factor, self.mode_list[i]) \
                                for i in range(self.shape[0])])
@@ -102,6 +96,7 @@ class Trajectory:
             raise TypeError("Inputs are not of the correct type!")
 
     def __eq__(self, other_traj, rtol = 1e-6, atol = 1e-6):
+        """Evaluate (approximate) equality of trajectory and current instance."""
         if not isinstance(other_traj, Trajectory):
             raise TypeError("Inputs are not of the correct type!")
         for i in range(self.shape[0]):
@@ -110,12 +105,14 @@ class Trajectory:
         return True
 
     def __getitem__(self, key):
+        """Return the element of the mode list indexed by the given key."""
         if type(key) == int or type(key) == slice:
             return self.mode_list[key]
         else:
             return self.mode_list[key[0]][key[1:]]
 
     def __setitem__(self, key, value):
+        """Set the value of the mode list indexed by the given key."""
         if type(key) == int or type(key) == slice:
             self.mode_list[key] = value
         else:
@@ -124,24 +121,39 @@ class Trajectory:
             raise ValueError("Invalid assignment!")
 
     def __round__(self, decimals = 6):
+        """Return a new trajectory with rounded modes."""
         traj_round = [None]*self.shape[0]
         for i in range(self.shape[0]):
             traj_round[i] = np.round(self[i], decimals = decimals)
         return Trajectory(traj_round)
 
     @staticmethod
-    def check_type_shape(list):
+    def check_type_shape(my_list):
         """
-            This function takes a list and returns true if all the elements of
-            said list is of the same type, otherwise returns false.
+            Return whether the elements of a given list are the same shape and
+            type.
+
+            Parameters
+            ----------
+            my_list : list
+
+            Returns
+            -------
+            type_same, shape_same : bool
         """
+        # initialise bools
         type_same = True
         shape_same = True
-        for i in range(len(list)):
-            if type(list[i]) != type(list[0]):
+
+        # loop over elements of the list to check type
+        for i in range(len(my_list)):
+            if type(my_list[i]) != type(my_list[0]):
                 type_same = False
-        if type(list[0]) == np.ndarray:
-            for i in range(len(list)):
-                if np.shape(list[i]) != np.shape(list[0]):
+
+        # check the shape if the list type is ndarray
+        if type(my_list[0]) == np.ndarray:
+            for i in range(len(my_list)):
+                if np.shape(my_list[i]) != np.shape(my_list[0]):
                     shape_same = False
+
         return type_same, shape_same

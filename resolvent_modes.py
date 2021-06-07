@@ -7,6 +7,26 @@ from Trajectory import Trajectory
 from trajectory_functions import transpose, conj
 
 def resolvent(freq, n, jac_at_mean, B = None):
+    """
+        Return the resolvent matrix for a given modenumber n.
+
+        This resolvent array can be modified by left multiplication of an
+        optional array B.
+
+        Parameters
+        ----------
+        freq : float
+        n : positive int
+        jac_at_mean : ndarray
+            2D array containing data of float type.
+        B : ndarray, optional
+            2D array containing data of flaot type.
+
+        Returns
+        -------
+        H_n : ndarray, default=None
+            2D containing data of float type.
+    """
     # evaluate the number of dimensions using the size of the jacobian
     dim = np.shape(jac_at_mean)[0]
 
@@ -26,6 +46,20 @@ def resolvent(freq, n, jac_at_mean, B = None):
     return H_n
 
 def resolvent_modes(resolvent, cut = 0):
+    """
+        Return the SVD of a resolvent array at every mode number.
+
+        Parameters
+        ----------
+        resolvent : Trajectory
+            2D array containing data of float type.
+        cut : positive int, default=0
+            The number of singular modes to exclude.
+        
+        Returns
+        -------
+        psi, sig, phi : Trajectory
+    """
     # perform full svd
     psi, sig, phi = np.linalg.svd(list2array(resolvent.mode_list), full_matrices = False)
 
@@ -44,6 +78,21 @@ def resolvent_modes(resolvent, cut = 0):
     return Trajectory(psi), Trajectory(sig), conj(transpose(Trajectory(phi)))
 
 def resolvent_modes_inv(res_inv, cut = 0):
+    """
+        Return the SVD of a resolvent array using its inverse at every mode
+        number.
+
+        Parameters
+        ----------
+        res_inv : Trajectory
+            The inverse resolvent array.
+        cut : positive int, default=0
+            The number of singular modes to exclude.
+        
+        Returns
+        -------
+        psi, sig, phi : Trajectory
+    """
     # perform full svd
     phi, sig, psi = np.linalg.svd(list2array(res_inv.mode_list))
 

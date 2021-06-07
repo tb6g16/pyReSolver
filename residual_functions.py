@@ -7,27 +7,19 @@ import trajectory_functions as traj_funcs
 
 def resolvent_inv(no_modes, freq, jac_at_mean):
     """
-        This function calculates the resolvent operator for a given mode number
-        n, system, and fundamental frequency.
+        Return the inverse resolvent array at a given number of modes.
 
         Parameters
         ----------
-        n: positive integer
-            mode number for the resolvent operator
-        sys: System object
-            the dynamical system required to calculate the Jacobian matrix
-        freq: float
-            the frequency of the trajectory
-        dim: positive integer
-            dimension of the dynamical system
-        mean: vector
-            the mean of the state-space trajectory
+        no_modes : positive integer
+            The number of modes at which to evaluate the resolvent.
+        freq : float
+        jac_at_mean : ndarray
+            2D array containing data of float type.
         
         Returns
         -------
-        resolvent: numpy array
-            the resolvent operator for the given mode number, system, and
-            frequency
+        Trajectory
     """
     # evaluate the number of dimensions using the size of the jacobian
     dim = np.shape(jac_at_mean)[0]
@@ -47,25 +39,21 @@ def resolvent_inv(no_modes, freq, jac_at_mean):
 
 def local_residual(traj, sys, freq, mean):
     """
-        This function calculates the local residual of a trajectory through a
-        state-space defined by a given dynamical system.
+        Return the local residual of a trajectory in a state-space.
 
         Parameters
         ----------
-        traj: Trajectory object
-            the trajectory through state-space
-        sys: System object
-            the dynamical system defining the state-space
-        freq: float
-            the fundamental frequency of the trajectory
-        mean: vector
-            the mean of the state-space trajectory
+        traj : Trajectory
+        sys : file
+            File containing the necessary function definitions to define the
+            state-space.
+        freq : flaot
+        mean : ndarray
+            1D array containing data of float type.
         
         Returns
         -------
-        residual_traj: Trajectory object
-            the local residual of the trajectory with respect to the dynamical
-            system, given as an instance of the Trajectory class
+        local_res : Trajectory
     """
     # evaluate jacobian at the mean
     jac_at_mean = sys.jacobian(mean)
@@ -87,22 +75,21 @@ def local_residual(traj, sys, freq, mean):
 
 def global_residual(traj, sys, freq, mean):
     """
-        This function calculates the global residual of a trajectory through a
-        state-space defined by a given dynamical system.
+        Return the global residual of a trajectory in a state-space.
 
         Parameters
         ----------
-        traj: Trajectory object
-            the trajectory through state-space
-        sys: System object
-            the dynamical system defining the state-space
-        freq: float
-            the fundamental frequency of the trajectory
+        traj : Trajectory
+        sys : file
+            File containing the necessary function definitions to define the
+            state-space.
+        freq : float
+        mean : ndarray
+            1D array containing data of float type.
         
         Returns
         -------
-        global_res: float
-            the global residual of the trajectory-system pair
+        float
     """
     # calcualte the local residual
     local_res = local_residual(traj, sys, freq, mean)
@@ -119,26 +106,24 @@ def global_residual(traj, sys, freq, mean):
 
 def gr_traj_grad(traj, sys, freq, mean, conv_method = 'fft'):
     """
-        This function calculates the gradient of the global residual with
-        respect to the trajectory and the associated fundamental frequency for
-        a trajectory through a state-space defined by a given dynamical system.
+        Return the gradient of the global residual with respect to a trajectory
+        in state-space.
 
         Parameters
         ----------
-        traj: Trajectory object
-            the trajectory through state-space
-        sys: System object
-            the dynamical system defining the state-space
-        freq: float
-            the fundamental frequency of the trajectory
+        traj : Trajectory
+        sys : file
+            File containing the necessary function definitions to define the
+            state-space.
+        freq : float
+        mean : ndarray
+            1D array containing data of float type.
+        conv_method : {'fft', 'sum'}, default='fft'
+            Method to use for the convolution
         
         Returns
         -------
-        d_gr_wrt_traj: Trajectory object
-            the gradient of the global residual with respect to the trajectory,
-            given as an instance of the Trajectory class
-        d_gr_wrt_freq: float
-            the gradient of the global residual with respect to the trajectory
+        Trajectory
     """
     # calculate local residual trajectory
     local_res = local_residual(traj, sys, freq, mean)
@@ -160,6 +145,24 @@ def gr_traj_grad(traj, sys, freq, mean, conv_method = 'fft'):
     return (-freq*res_grad) - jac_res_conv
 
 def gr_freq_grad(traj, sys, freq, mean):
+    """
+        Return the gradient of the global residual with respect to the
+        frequency of a trajectory in state-space.
+
+        Parameters
+        ----------
+        traj : Trajectory
+        sys : file
+            File containing the necessary function definitions to define the
+            state-space.
+        freq : float
+        mean : ndarray
+            1D array containing data of float type.
+
+        Returns
+        -------
+        float
+    """
     # calculate local residual
     local_res = local_residual(traj, sys, freq, mean)
 

@@ -5,44 +5,65 @@
 import numpy as np
 
 def my_fft(array):
+    """
+        Return the properly normalised FFT of an array.
+
+        Parameters
+        ----------
+        array : ndarray
+            N-D array containing data of float type.
+
+        Returns
+        -------
+        ndarray
+            N-D array containing data of float type.
+    """
     return np.fft.fft(array, axis = 0)/np.shape(array)[0]
 
 def my_ifft(array):
+    """
+        Return the properly normalised inverse FFT of an array.
+
+        Parameters
+        ----------
+        array : ndarray
+            N-D array containing data of float type.
+        
+        Returns
+        -------
+        ndarray
+            N-D array containing data of float type.
+    """
     return np.fft.ifft(array*np.shape(array)[0], axis = 0)
 
 def my_rfft(array):
     """
-        This function takes in a an array of the time domain representation of
-        a state-space trajectory and returns an instance of the associated
-        trajectory object instance.
+        Return the properly normalised real FFT of an array.
 
         Parameters
         ----------
-        traj_array: np.ndarray
-            the array representing the time domain trajectory
+        array : ndarray
+            N-D array containing data of float type.
         
         Returns
         -------
-        traj_ob: list
-            the associated trajectory given as an instance of the trajectory
-            object class (and so with Fourier modes)
+        ndarray
+            N-D array containing data of float type.
     """
     return np.fft.rfft(array, axis = 0)/np.shape(array)[0]
 
 def my_irfft(array):
     """
-        This function takes in an instance of the trajectory object class and
-        returns an array of the associated time domain representation.
+        Return the properly normalise inverse real FFT of an array.
 
         Parameters
         ----------
-        traj: list
-            an instance of the trajectory object class to be transformed into
-            the time domain
-        
+        array : ndarray
+            N-D array containing data of float type.
+
         Returns
         -------
-        traj_time: np.ndarray
-            the time domain representation of the input trajectory instance
+        ndarray
+            N-D array containing data of float type.
     """
     return np.fft.irfft(array*(2*np.shape(array)[0] - 1), 2*np.shape(array)[0] - 1, axis = 0)

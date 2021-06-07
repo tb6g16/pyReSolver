@@ -5,14 +5,31 @@ import numpy as np
 
 class TrajPlotObject():
     """
-        This class definition has all the information required to plot a single
-        trajectory such that any number can easily be looped over in a plotting
-        function.
+        Class for the simple plotting data of a trajectory.
+
+        Attributes
+        ----------
+        traj : Trajectory
+            Trajectory to be plotted.
+        disc : positive int
+            The discretisation of the trajectory to be plotted.
+        mean : ndarray
+            1D array containing data of float type for the mean state of the
+            trajectory.
     """
     
     __slots__ = ['traj', 'disc', 'mean']
 
     def __init__(self, traj, disc = None, mean = None):
+        """
+            Intialisation of TrajPlotObject instance.
+
+            Parameters
+            ----------
+            traj : Trajectory
+            disc : positive int
+            mean : ndarray
+        """
         self.traj = traj
         self.disc = disc
         self.mean = mean

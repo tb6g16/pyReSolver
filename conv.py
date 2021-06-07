@@ -5,6 +5,22 @@ import numpy as np
 from my_fft import my_fft, my_ifft, my_rfft, my_irfft
 
 def conv_scalar_fast(scalar1, scalar2):
+    """
+        Return convolution of two scalar arrays using in-built numpy function.
+
+        Perform a discrete convolution over two sets of scalars using the numpy
+        in-built convolve function.
+
+        Paramaters
+        ----------
+        scalar1, scalar2 : ndarray
+            1D array containing data of float type.
+        
+        Returns
+        -------
+        conv_array: ndarray
+            1D array containing data of float type.
+    """
     # convert to full domain
     scalar1_full = np.fft.fftshift(my_fft(my_irfft(scalar1)), axes = 0)
     scalar2_full = np.fft.fftshift(my_fft(my_irfft(scalar2)), axes = 0)
@@ -19,6 +35,24 @@ def conv_scalar_fast(scalar1, scalar2):
     return conv_array
 
 def conv_scalar(scalar1, scalar2, method = 'fft'):
+    """
+        Return convolution of two scalar arrays.
+
+        Perform a discrete convolution over two sets of scalars using either a
+        direct sum or an indirect FFT approach.
+
+        Parameters
+        ----------
+        scalar1, scalar2 : ndarray
+            1D array containing data of float type.
+        method : {'fft', 'sum'}, default='fft'
+            The method used to perform the convolution.
+        
+        Returns
+        -------
+        ndarray
+            1D array containing data of float type.
+    """
     if method == 'direct':
         # initialise arrays
         conv_array = np.zeros_like(scalar1)
@@ -54,6 +88,26 @@ def conv_scalar(scalar1, scalar2, method = 'fft'):
         raise ValueError("Not a valid method!")
 
 def conv_array(array1, array2, method = 'fft'):
+    """
+        Return convolution of two compatible arrays.
+
+        Perform a discrete convolution over two sets of arrays (which can be
+        multiplied together) using either a direct sum or indirect FFT
+        approach.
+
+        Parameters
+        ----------
+        array1, array2 : ndarray
+            Arrays containing data of float type that can be multiplied
+            together (using 'matmul').
+        method : {'fft', 'sum'}, default='fft'
+            The method used to perform the convolution.
+        
+        Returns
+        -------
+        ndarray
+            Array containing data of float type.
+    """
     if method == 'direct':
         # initialise arrays
         matmul_temp = np.matmul(array1[0], array2[0])

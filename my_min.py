@@ -12,14 +12,45 @@ from trajectory_functions import transpose, conj
 
 def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
     """
-        This functions initialises the optimisation vectors for a specific
-        system.
+        Return the functions to allow the calculation of the global residual
+        and its associated gradients with a vector derived from a trajectory
+        frequency pair.
+
+        Parameters
+        ----------
+        sys : file
+            File containing the necessary function definitions to define the
+            state-space.
+        dim : positive int
+            Dimension of the state-space the trajectory is in so it can be
+            unpacked by the vec2traj function.
+        mean : ndarray
+            1D array containing data of float type.
+        psi : ndarray, default=None
+            2D array containing data of float type, should be multiplicatively
+            compatible with the trajectory.
+        conv_method : {'fft', 'sum'}, default='fft'
+            The convolution method used.
+        
+        Returns
+        -------
+        traj_global_res, traj_global_res_jac : function
+            The global residual and global residual gradient functions
+            respectively.
     """
     def traj_global_res(opt_vector):
         """
-            This function calculates the global residual for a given vector
-            that defines a trajectory frequency pair, for the purpose of
-            optimisation.
+            Return the global residual of a trajectory frequency pair given as
+            a vector.
+
+            Parameters
+            ----------
+            opt_vector : ndarray
+                1D array containing data of float type.
+
+            Returns
+            -------
+            float
         """
         # unpack trajectory
         traj, freq = vec2traj(opt_vector, dim)
@@ -33,9 +64,21 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
 
     def traj_global_res_jac(opt_vector):
         """
-            This function calculates the gradient of the global residual for a
-            given vector that defines a trajectory frequency pair, for the
-            purpose of optimisation.
+            Return the gradient of the global residual with respect to the
+            trajectory and frequency from a trajectory frequency pair given as
+            a vector.
+
+            Parameters
+            ----------
+            opt_vector : ndarray
+                1D array containing data of float type.
+
+            Returns
+            -------
+            traj_global_res : Trajectory
+                Gradient of the global residual with respect to the trajectory.
+            traj_global_res_jac : float
+                Gradient of the global residual with respect to the frequency.
         """
         # unpack trajectory
         traj, freq = vec2traj(opt_vector, dim)
@@ -58,6 +101,48 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
     return traj_global_res, traj_global_res_jac
 
 def my_min(traj, freq, sys, mean, **kwargs):
+    """
+        Return the trajectory that minimises the global residual given the
+        system defining the state-space and the mean of the trajectory.
+
+        Parameters
+        ----------
+        traj : Trajectory
+        freq : float
+        sys : file
+            File containing the necessary function definitions to define the
+            state-space.
+        mean : ndarray
+            1D array containing data of float type.
+        use_jac : bool, default=True
+            Whether or not to use the gradient in the optimisation algorithm.
+        res_func : function, default=None
+            An alternative residual function to use.
+        jac_func : function, default=None
+            An alternative gradient function to use.
+        my_method : str, default='L-BFGS-B'
+            The optimisation algorithm to use.
+        if_quiet : bool, default=False
+            Whether or not to operate the optimise in quiet mode.
+        maxiter : positive int, default None
+            The maximum number of iterations before terminating.
+        traces : dictionary, default=None
+            The dictionary that keeps track of all the important information
+            during the optimisation.
+        conv_method : {'fft', 'sum'}, default='fft'
+            The convolution method used.
+        psi : ndarray, default=None
+            2D array containing data of type float.
+        
+        Returns
+        -------
+        op_traj : Trajectory
+        op_freq : float
+        traces : dictionary
+        sol : OptimizeResult
+            The result of the optimisation, default output for scipy minimize
+            function.
+    """
     # unpack keyword arguments
     use_jac = kwargs.get('use_jac', True)
     res_func = kwargs.get('res_func', None)

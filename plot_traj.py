@@ -11,9 +11,18 @@ from TrajPlotObject import TrajPlotObject
 
 def plot_single_traj(plot_object, ax = None, proj = None, show = False):
     """
-        This function plots a single state-space trajectory (using an instance
-        of the plot_object class) on an axis that may or may not be provided as
-        an argument.
+        Plot a single trajectory on a provided matplotlib axis.
+
+        Parameters
+        ----------
+        plot_object : TrajPlotObject
+        ax : matplotlib.axes
+            The axis on which to plot this trajectory.
+        proj : {'xy', 'yx', 'xz', 'zx', 'yz', 'zy', None}, default=None
+            The projection of the trajectory on the axis, not necessary if the
+            plot is 3D.
+        show : {True, False}, default=False
+            Boolean for whether the resulting plot should be shown.
     """
     # pad with zeros to increase resolution
     temp = list2array(plot_object.traj.mode_list)
@@ -69,8 +78,22 @@ def plot_single_traj(plot_object, ax = None, proj = None, show = False):
 
 def plot_traj(*args, **kwargs):
     """
-        This function plots an arbitrary of state-space trajectories on a single
-        axis with a number of keyword arguments for formatting.
+        Plot and show one or more trajectories on a single axis.
+
+        Parameters
+        ----------
+        *args : Trajectory
+            An arbitrary number of trajectories to be plotted.
+        title : str, defult=None
+            Title of the plot.
+        aspect : positive float, default=None
+            Aspect ratio of the plot.
+        proj : {'xy', 'yx', 'xz', 'zx', 'yz', 'zy', None}, default=None
+            Projection of the trajectories in the plot.
+        discs : list of int, default=list of None
+            The discretisation resolution for all the trajectories.
+        means : list of ndarray, default=list of None
+            The mean values for all the trajectories.
     """
     # unpack keyword arguments
     title = kwargs.get('title', None)
@@ -103,8 +126,18 @@ def plot_traj(*args, **kwargs):
 
 def plot_along_s(*args, **kwargs):
     """
-        This function plots the components of a state-space trajectory against
-        the parameter s from 0 to 2*pi.
+        Plot the values of all the components of a trajectory along their own
+        length (from 0 to 2*pi).
+
+        Parameters
+        ----------
+        *args : Trajectory
+            An arbitrary number of trajectories to be plotted.
+        labels : list of str, default=None
+            List of labels for each component of the trajectories to construct
+            a legend.
+        ylim : list of two floats
+            The limits of the y-axis of the resulting plot.
     """
     # unpack keyword arguments
     labels = kwargs.get('labels', None)

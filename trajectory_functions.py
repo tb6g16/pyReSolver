@@ -8,41 +8,106 @@ from traj_util import array2list, list2array
 from conv import conv_array
 
 def transpose(traj):
+    """
+        Return the transpose of a trajectory.
+
+        Parameters
+        ----------
+        traj : Trajectory
+
+        Returns
+        -------
+        Trajectory
+    """
+    # initialise new trajectory list
     new_traj = array2list(np.zeros(traj.shape, dtype = complex))
+
+    # loop over given traj and transpose it
     for i in range(len(traj.mode_list)):
         new_traj[i] = np.transpose(traj.mode_list[i])
+
     return Trajectory(new_traj)
 
 def conj(traj):
+    """
+        Return the complex conjugate of a trajectory.
+
+        Parameters
+        ----------
+        traj : Trajectory
+
+        Returns
+        -------
+        Trajectory
+    """
+    # initialise new trajectory list
     new_traj = array2list(np.zeros(traj.shape, dtype = complex))
+
+    # loop over given trajectory and take its complex conjugate
     for i in range(len(traj.mode_list)):
         new_traj[i] = np.conj(traj.mode_list[i])
+
     return Trajectory(new_traj)
 
 def traj_rfft(array):
+    """
+        Return the real FFT of an array as a trajectory instance.
+
+        Parameters
+        ----------
+        array : ndarray
+            N-D array containing data of float type.
+        
+        Returns
+        -------
+        Trajectory
+    """
     return Trajectory(array2list(my_rfft(array)))
 
 def traj_irfft(traj):
+    """
+        Return the inverse real FFT of a trajectory as an array.
+
+        Parameters
+        ----------
+        traj : Trajectory
+
+        Returns
+        -------
+        ndarray
+    """
     return my_irfft(list2array(traj.mode_list))
 
 def traj_conv(traj1, traj2, method = 'fft'):
+    """
+        Return the convolution of two trajectories.
+
+        Perform a discrete convolution of two trajectory instances using either
+        a direct sum or indirect FFT approach.
+
+        Parameters
+        ----------
+        traj1, traj2 : Trajectory
+            Trajectories of the same size to be convolved
+        method : {'fft', 'sum'}, default='fft'
+
+        Returns
+        -------
+        Trajectory
+    """
     return Trajectory(array2list(conv_array(list2array(traj1.mode_list), list2array(traj2.mode_list), method = method)))
 
 def traj_grad(traj):
     """
-        This function calculates the gradient vectors of a given trajectory and
-        returns it as an instance of the Trajectory class. The algorithm used
-        is based off of the RFFT
+        Return the gradient of a trajectory.
 
         Parameters
         ----------
-        traj: Trajectory object
-            the trajectory which we will calculate the gradient for
-        
+        traj : Trajectory
+
         Returns
         -------
-        grad: Trajectory object
-            the gradient of the input trajectory
+        Trajectory
     """
     # initialise array for new modes
     # new_modes = np.zeros(traj.shape, dtype = np.complex)
@@ -59,23 +124,16 @@ def traj_grad(traj):
 
 def traj_response(traj, func):
     """
-        This function evaluates the response over the domain of a given
-        trajectory due to a given dyanmical system.
+        Return the response of a trajectory over its length due to a function.
 
         Parameters
         ----------
-        traj: Trajectory object
-            the trajectory over which the response will be evaluated
-        func: function
-            the function that defines the response at each location along the
-            trajectory, must be a function that inputs a vector and outputs a
-            vector of the same size
-        
+        traj : Trajectory
+        func : function
+
         Returns
         -------
-        response_traj: Trajectory object
-            the response at each location of the trajectory, given as an
-            instance of the Trajectory class
+        Trajectory
     """
     # convert trajectory to time domain
     curve = array2list(traj_irfft(traj))
