@@ -120,11 +120,11 @@ def my_min(traj, freq, sys, mean, **kwargs):
             An alternative residual function to use.
         jac_func : function, default=None
             An alternative gradient function to use.
-        my_method : str, default='L-BFGS-B'
+        method : str, default='L-BFGS-B'
             The optimisation algorithm to use.
-        if_quiet : bool, default=False
+        quiet : bool, default=False
             Whether or not to operate the optimise in quiet mode.
-        maxiter : positive int, default None
+        iter : positive int, default None
             The maximum number of iterations before terminating.
         traces : dictionary, default=None
             The dictionary that keeps track of all the important information
