@@ -181,9 +181,6 @@ def my_min(traj, freq, sys, mean, **kwargs):
 
         traces['traj'].append(cur_traj)
         traces['freq'].append(cur_freq)
-        traces['lr'].append(res_funcs.local_residual(cur_traj, sys, cur_freq, mean))
-        traces['gr'].append(res_func(x))
-        traces['gr_grad'].append(jac_func(x))
 
     # convert trajectory to vector of optimisation variables
     traj_vec = traj2vec(traj, freq)
