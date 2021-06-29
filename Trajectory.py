@@ -36,11 +36,6 @@ class Trajectory:
                 is an array.
         """
         if type(curve) == list:
-            type_same, shape_same = self.check_type_shape(curve)
-            if type_same == False:
-                raise TypeError("Data types of list elements must all be the same!")
-            if shape_same == False:
-                raise ValueError("Arrays must all be the same shape!")
             self.mode_list = curve
             self.shape = (len(curve), *np.shape(curve[0]))
             self.type = type(curve[0])
@@ -117,8 +112,6 @@ class Trajectory:
             self.mode_list[key] = value
         else:
             self.mode_list[key[0]][key[1:]] = value
-        if not self.check_type_shape(self.mode_list)[0]:
-            raise ValueError("Invalid assignment!")
 
     def __round__(self, decimals = 6):
         """Return a new trajectory with rounded modes."""
@@ -126,34 +119,3 @@ class Trajectory:
         for i in range(self.shape[0]):
             traj_round[i] = np.round(self[i], decimals = decimals)
         return Trajectory(traj_round)
-
-    @staticmethod
-    def check_type_shape(my_list):
-        """
-            Return whether the elements of a given list are the same shape and
-            type.
-
-            Parameters
-            ----------
-            my_list : list
-
-            Returns
-            -------
-            type_same, shape_same : bool
-        """
-        # initialise bools
-        type_same = True
-        shape_same = True
-
-        # loop over elements of the list to check type
-        for i in range(len(my_list)):
-            if type(my_list[i]) != type(my_list[0]):
-                type_same = False
-
-        # check the shape if the list type is ndarray
-        if type(my_list[0]) == np.ndarray:
-            for i in range(len(my_list)):
-                if np.shape(my_list[i]) != np.shape(my_list[0]):
-                    shape_same = False
-
-        return type_same, shape_same

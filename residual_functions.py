@@ -28,6 +28,7 @@ def resolvent_inv(no_modes, freq, jac_at_mean):
     resolvent_inv = [None]*no_modes
 
     # loop over calculating the value at each wavenumber
+    # GET RID OF LOOP IF POSSIBLE
     for n in range(no_modes):
         # resolvent[n] = np.linalg.inv((1j*n*freq*np.identity(dim)) - jac_at_mean)
         resolvent_inv[n] = (1j*n*freq*np.identity(dim)) - jac_at_mean

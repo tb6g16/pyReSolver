@@ -170,7 +170,7 @@ def my_min(traj, freq, sys, mean, **kwargs):
 
     # define varaibles to be tracked using callback
     if traces == None:
-        traces = {'traj': [], 'freq': [], 'lr': [], 'gr': [], 'gr_grad': []}
+        traces = {'traj': [], 'freq': []}
 
     # define callback function
     def callback(x):
