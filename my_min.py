@@ -60,7 +60,8 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
             traj = psi @ traj
 
         # calculate global residual and return
-        return res_funcs.global_residual(traj, sys, freq, mean)
+        local_res = res_funcs.local_residual(traj, sys, freq, mean)
+        return res_funcs.global_residual(local_res)
 
     def traj_global_res_jac(opt_vector):
         """

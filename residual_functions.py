@@ -73,27 +73,19 @@ def local_residual(traj, sys, freq, mean):
 
     return local_res
 
-def global_residual(traj, sys, freq, mean):
+def global_residual(local_res):
     """
         Return the global residual of a trajectory in a state-space.
 
         Parameters
         ----------
-        traj : Trajectory
-        sys : file
-            File containing the necessary function definitions to define the
-            state-space.
-        freq : float
-        mean : ndarray
-            1D array containing data of float type.
+        local_res: Trajectory
+            local residual for the trajectory in a system
         
         Returns
         -------
         float
     """
-    # calcualte the local residual
-    local_res = local_residual(traj, sys, freq, mean)
-
     # initialise and sum the norms of the complex residual vectors
     sum = 0
     for n in range(1, local_res.shape[0]):
