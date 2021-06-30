@@ -1,6 +1,7 @@
-*.gitignore
 *__pycache__*
 *.orb
 *.png
 *.jpg
 *.pdf
+*.prof
+profiling.py
