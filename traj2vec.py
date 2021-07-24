@@ -66,25 +66,16 @@ def vec2traj(opt_vector, dim):
     # define the degrees of freedom of the system
     dofs = np.shape(opt_vector)[0]
 
-    # check if the given dimension is compatible with the length of the vector
-    if (dofs - 1)/dim % 1 != 0:
-        raise ValueError("Vector length not compatible with dimensions!")
-    
     # initialise lists and arrays
-    traj_list = [None]*(int((dofs - 1)/(2*dim)) + 2)
+    traj_array = np.zeros([int((dofs - 1)/(2*dim)) + 2, dim], dtype = complex)
     mode_vector = np.zeros(dim, dtype = complex)
-
-    # assign restrcited values
-    traj_list[0] = np.zeros(dim, dtype = complex)
-    traj_list[-1] = np.zeros(dim, dtype = complex)
 
     # loop over degrees of freedom and assign the elements of the trajectory list
     a = 0
     for i in range(int((dofs - 1)/2)):
         mode_vector[i - dim*int(i/dim)] = opt_vector[a] + 1j*opt_vector[a + 1]
         if (i + 1)/dim % 1 == 0:
-            traj_list[int(i/dim) + 1] = np.copy(mode_vector)
+            traj_array[int(i/dim) + 1] = np.copy(mode_vector)
         a += 2
 
-
-    return Trajectory(traj_list), opt_vector[-1]
+    return Trajectory(traj_array), opt_vector[-1]

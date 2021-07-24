@@ -1,28 +1,22 @@
 # This file contains the unit tests for traj2vec and vec2traj functions
 # required to perform the optimisation.
 
-import sys
-sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\ResolventSolver")
 import unittest
+import random as rand
 import numpy as np
+
 from Trajectory import Trajectory
 import traj2vec as t2v
-import random as rand
-from traj_util import array2list
-from trajectory_definitions import unit_circle as uc
-from trajectory_definitions import ellipse as elps
-from systems import van_der_pol as vpd
-from systems import viswanath as vis
 
 class TestTraj2Vec(unittest.TestCase):
     
     def setUp(self):
         modes = rand.randint(1, 256)
         dim = rand.randint(1, 5)
-        traj = np.random.rand(modes, dim) + 1j*np.random.rand(modes, dim)
-        traj[0] = 0
-        traj[-1] = 0
-        self.traj = Trajectory(array2list(traj))
+        traj_array = np.random.rand(modes, dim) + 1j*np.random.rand(modes, dim)
+        traj_array[0] = 0
+        traj_array[-1] = 0
+        self.traj = Trajectory(traj_array)
         self.freq = rand.uniform(-10, 10)
         self.vec = t2v.traj2vec(self.traj, self.freq)
 
