@@ -3,7 +3,6 @@
 
 import numpy as np
 import random as rand
-from traj_util import array2list
 from Trajectory import Trajectory
 
 def gen_rand_traj(dim, no_modes):
@@ -22,7 +21,7 @@ def gen_rand_traj(dim, no_modes):
         traj: Trajectory
     """
     # initialise empty trajectory
-    traj = Trajectory(array2list(np.zeros([int(no_modes), 3], dtype = complex)))
+    traj = Trajectory(np.zeros([int(no_modes), dim], dtype = complex))
 
     # loop over elements of trajectory and assign values
     for i in range(1, traj.shape[0]):

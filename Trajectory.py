@@ -3,7 +3,7 @@
 
 import numpy as np
 from my_fft import my_rfft, my_irfft
-from traj_util import func2curve, list2array, array2list
+from traj_util import func2curve
 
 class Trajectory:
     """
