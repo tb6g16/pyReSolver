@@ -11,16 +11,14 @@ class Trajectory:
 
         Attributes
         ----------
-        mode_life : ndarray
+        modes : ndarray
             2D array containing data of float type.
         shape : tuple of int
             Shape of the trajectory equivelent array.
-        type : type
-            Data type of the contents of the mode_list.
     """
 
     # add type attribute
-    __slots__ = ['mode_list', 'shape', 'type']
+    __slots__ = ['modes', 'shape']
     __array_priority__ = 1e100
 
     def __init__(self, curve, modes = 33):
@@ -35,87 +33,59 @@ class Trajectory:
                 Number of modes to represent the trajectory, ignored is curve
                 is an array.
         """
-        if type(curve) == list:
-            self.mode_list = curve
-            self.shape = (len(curve), *np.shape(curve[0]))
-            self.type = type(curve[0])
+        if type(curve) == np.ndarray:
+            self.modes = curve
+            self.shape = np.shape(curve)
         elif hasattr(curve, '__call__'):
-            self.mode_list = array2list(my_rfft(func2curve(curve, modes)))
-            self.shape = (len(self.mode_list), *np.shape(self.mode_list[0]))
-            self.type = type(self.mode_list[0])
+            self.modes = my_rfft(func2curve(curve, modes))
+            self.shape = np.shape(self.modes)
         else:
-            raise TypeError("Curve variable has to be either a function or a list!")
+            raise TypeError("Curve variable has to be either a function or a numpy array!")
 
     def __add__(self, other_traj):
         """Add trajectory to current instance."""
-        if not isinstance(other_traj, Trajectory):
-            raise TypeError("Inputs are not of the correct type!")
-        return Trajectory([self.mode_list[i] + other_traj.mode_list[i] for i in range(self.shape[0])])
+        return Trajectory(self.modes + other_traj.modes)
 
     def __sub__(self, other_traj):
         """Substract trajectory from current instance."""
-        if not isinstance(other_traj, Trajectory):
-            raise TypeError("Inputs are not of the correct type!")
-        return Trajectory([self.mode_list[i] - other_traj.mode_list[i] for i in range(self.shape[0])])
+        return Trajectory(self.modes - other_traj.modes)
 
     def __mul__(self, factor):
-        """Multiply current istance by scalar."""
-        if type(factor) == float or type(factor) == int or \
-            type(factor) == np.float64 or type(factor) == np.int64:
-            return Trajectory([self.mode_list[i]*factor for i in range(self.shape[0])])
-        else:
-            raise TypeError("Inputs are not of the correct type!")
+        """Multiply current instance by scalar."""
+        return Trajectory(self.modes*factor)
 
     def __rmul__(self, factor):
         return self.__mul__(factor)
 
-    def __matmul__(self, factor):
-        """Right muyltiply current instance by array or another trajectory."""
-        if type(factor) == np.ndarray:
-            return Trajectory([np.matmul(self.mode_list[i], factor) \
-                               for i in range(self.shape[0])])
-        elif type(factor) == Trajectory:
-            return Trajectory([np.matmul(self.mode_list[i], factor.mode_list[i]) \
-                               for i in range(self.shape[0])])
-        else:
-            raise TypeError("Inputs are not of the correct type!")
+    def matmul_left_const(self, factor):
+        """Left multiply current instance by constant array."""
+        return Trajectory(np.transpose(np.matmul(factor, np.transpose(self.modes))))
 
-    def __rmatmul__(self, factor):
-        """Left multiply current instance by array or another trajectory."""
-        if type(factor) == np.ndarray:
-            return Trajectory([np.matmul(factor, self.mode_list[i]) \
-                               for i in range(self.shape[0])])
-        elif type(factor) == Trajectory:
-            return Trajectory([np.matmul(self.mode_list[i], factor.mode_list[i]) for i in range(self.shape[0])])
-        else:
-            raise TypeError("Inputs are not of the correct type!")
+    def matmul_left_traj(self, other):
+        """Left multiply current instance by another trajectory instance."""
+        zero_mult = np.matmul(other.modes[0], self.modes[0])
+        prod = np.zeros([self.shape[0], *np.shape(zero_mult)], dtype = complex)
+        prod[0] = zero_mult
+        for i in range(1, self.shape[0]):
+            prod[i] = np.matmul(other.modes[i], self.modes[i])
+        return Trajectory(prod)
 
-    def __eq__(self, other_traj, rtol = 1e-6, atol = 1e-6):
+    def __eq__(self, other_traj, rtol = 1e-5, atol = 1e-8):
         """Evaluate (approximate) equality of trajectory and current instance."""
-        if not isinstance(other_traj, Trajectory):
-            raise TypeError("Inputs are not of the correct type!")
-        for i in range(self.shape[0]):
-            if not np.allclose(self.mode_list[i], other_traj.mode_list[i], rtol, atol):
-                return False
-        return True
+        return np.allclose(self.modes, other_traj.modes, rtol = rtol, atol = atol)
 
     def __getitem__(self, key):
         """Return the element of the mode list indexed by the given key."""
-        if type(key) == int or type(key) == slice:
-            return self.mode_list[key]
-        else:
-            return self.mode_list[key[0]][key[1:]]
+        return self.modes[key]
 
     def __setitem__(self, key, value):
         """Set the value of the mode list indexed by the given key."""
-        if type(key) == int or type(key) == slice:
-            self.mode_list[key] = value
-        else:
-            self.mode_list[key[0]][key[1:]] = value
+        self.modes[key] = value
 
     def __round__(self, decimals = 6):
         """Return a new trajectory with rounded modes."""
-        traj_round = [None]*self.shape[0]
-        for i in range(self.shape[0]):
-            traj_round[i] = np.round(self[i], decimals = decimals)
-        return Trajectory(traj_round)
+        return Trajectory(np.around(self.modes, decimals = decimals))
+
+    def __repr__(self):
+        """Return the modes of the instance."""
+        return np.array_repr(self.modes)
