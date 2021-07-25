@@ -64,8 +64,7 @@ def local_residual(traj, sys, freq, mean):
     resp = traj_funcs.traj_response(traj, sys.nl_factor)
 
     # evaluate local residual trajectory for all modes
-    H_inv_traj_mult = H_n_inv @ traj
-    local_res = H_inv_traj_mult - resp
+    local_res = traj.matmul_left_traj(H_n_inv) - resp
 
     # reassign the mean mode to the second constraint
     local_res[0] = -sys.response(mean) - resp[0]
