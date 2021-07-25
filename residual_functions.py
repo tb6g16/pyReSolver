@@ -2,6 +2,7 @@
 # their associated gradients.
 
 import numpy as np
+
 from Trajectory import Trajectory
 import trajectory_functions as traj_funcs
 
@@ -24,19 +25,16 @@ def resolvent_inv(no_modes, freq, jac_at_mean):
     # evaluate the number of dimensions using the size of the jacobian
     dim = np.shape(jac_at_mean)[0]
 
-    # initialise the resolvent list
-    resolvent_inv = [None]*no_modes
+    # initialise the resolvent array
+    resolvent_inv = Trajectory(np.zeros([no_modes, dim, dim], dtype = complex))
 
     # loop over calculating the value at each wavenumber
     # GET RID OF LOOP IF POSSIBLE
-    for n in range(no_modes):
+    for n in range(1, no_modes):
         # resolvent[n] = np.linalg.inv((1j*n*freq*np.identity(dim)) - jac_at_mean)
         resolvent_inv[n] = (1j*n*freq*np.identity(dim)) - jac_at_mean
 
-    # set mean mode resolvent to array of zeros
-    resolvent_inv[0] = np.zeros_like(resolvent_inv[1])
-
-    return Trajectory(resolvent_inv)
+    return resolvent_inv
 
 def local_residual(traj, sys, freq, mean):
     """

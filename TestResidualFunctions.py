@@ -1,12 +1,11 @@
 # This file contains the tests for the residual calculation functions defined
 # in the residual_functions file.
 
-import sys
-sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\ResolventSolver")
 import unittest
 import numpy as np
 import scipy.integrate as integ
 import random as rand
+
 from Trajectory import Trajectory
 import residual_functions as res_funcs
 from trajectory_definitions import unit_circle as uc
@@ -38,7 +37,7 @@ class TestResidualFunctions(unittest.TestCase):
         del self.sys2
         del self.sys3
 
-    def test_resolvent(self):
+    def test_resolvent_inv(self):
         rho = rand.uniform(0, 30)
         beta = rand.uniform(0, 10)
         sigma = rand.uniform(0, 30)
@@ -49,21 +48,16 @@ class TestResidualFunctions(unittest.TestCase):
         self.sys3.parameters['rho'] = rho
         jac_at_mean_sys3 = self.sys3.jacobian([0, 0, z_mean])
         H_sys3 = res_funcs.resolvent_inv(self.traj3.shape[0], freq, jac_at_mean_sys3)
-        H_sys3_true = [None]*self.traj3.shape[0]
-        resolvent_true_at_n = np.zeros([3, 3], dtype = complex)
-        for n in range(self.traj3.shape[0]):
-            if n == 0:
-                H_sys3_true[n] = np.copy(resolvent_true_at_n)
-            else:
-                D_n = ((1j*n*freq) + sigma)*((1j*n*freq) + 1) + sigma*(z_mean - rho)
-                resolvent_true_at_n[0, 0] = ((1j*n*freq) + 1)/D_n
-                resolvent_true_at_n[1, 0] = (rho - z_mean)/D_n
-                resolvent_true_at_n[0, 1] = sigma/D_n
-                resolvent_true_at_n[1, 1] = ((1j*n*freq) + sigma)/D_n
-                resolvent_true_at_n[2, 2] = 1/((1j*n*freq) + beta)
-                H_sys3_true[n] = np.linalg.inv(np.copy(resolvent_true_at_n))
-        H_sys3_true = Trajectory(H_sys3_true)
-        self.assertEqual(H_sys3, H_sys3_true)
+        resolvent_true = Trajectory(np.zeros([self.traj3.shape[0], 3, 3], dtype = complex))
+        for n in range(1, self.traj3.shape[0]):
+            D_n = ((1j*n*freq) + sigma)*((1j*n*freq) + 1) + sigma*(z_mean - rho)
+            resolvent_true[n, 0, 0] = ((1j*n*freq) + 1)/D_n
+            resolvent_true[n, 1, 0] = (rho - z_mean)/D_n
+            resolvent_true[n, 0, 1] = sigma/D_n
+            resolvent_true[n, 1, 1] = ((1j*n*freq) + sigma)/D_n
+            resolvent_true[n, 2, 2] = 1/((1j*n*freq) + beta)
+            resolvent_true[n] = np.linalg.inv(np.copy(resolvent_true[n]))
+        self.assertEqual(H_sys3, resolvent_true)
 
     def est_local_residual(self):
         # generating random frequencies and system parameters
