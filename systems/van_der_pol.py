@@ -45,8 +45,3 @@ def nl_factor(x, parameters = parameters):
     nl_vector[1] = -mu*(x[0]**2)*x[1]
 
     return nl_vector
-
-# set dimension attributes for functions
-# setattr(response, 'dim', 2)
-# setattr(jacobian, 'dim', 2)
-# setattr(nl_factor, 'dim', 2)

@@ -7,8 +7,6 @@ from Trajectory import Trajectory
 from my_fft import my_rfft, my_irfft
 from conv import conv_array
 
-from traj_util import array2list, list2array
-
 def transpose(traj):
     """
         Return the transpose of a trajectory.
@@ -98,17 +96,16 @@ def traj_grad(traj):
         Trajectory
     """
     # initialise array for new modes
-    # new_modes = np.zeros(traj.shape, dtype = np.complex)
-    new_mode_list = [None]*traj.shape[0]
+    new_modes = np.zeros_like(traj.modes)
 
     # loop over time and multiply modes by modifiers
     for k in range(traj.shape[0]):
-        new_mode_list[k] = 1j*k*traj.mode_list[k]
-    
-    # force zero mode at end to preserve symmetry
-    new_mode_list[-1][:] = 0
+        new_modes[k] = 1j*k*traj.modes[k]
 
-    return Trajectory(new_mode_list)
+    # force zero mode at end to preserve symmetry
+    new_modes[-1][:] = 0
+
+    return Trajectory(new_modes)
 
 def traj_response(traj, func):
     """
@@ -124,12 +121,14 @@ def traj_response(traj, func):
         Trajectory
     """
     # convert trajectory to time domain
-    curve = array2list(traj_irfft(traj))
-    mode_no = len(curve)
+    curve = traj_irfft(traj)
+
+    # initialise new array
+    new_curve = np.zeros([np.shape(curve)[0], *np.shape(func(curve[0]))])
 
     # evaluate response in time domain
-    for i in range(mode_no):
-        curve[i] = func(curve[i])
+    for i in range(np.shape(curve)[0]):
+        new_curve[i] = func(curve[i])
 
     # convert back to frequency domain and return
-    return traj_rfft(list2array(curve))
+    return traj_rfft(new_curve)
