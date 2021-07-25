@@ -35,14 +35,7 @@ def conj(traj):
         -------
         Trajectory
     """
-    # initialise new trajectory list
-    new_traj = array2list(np.zeros(traj.shape, dtype = complex))
-
-    # loop over given trajectory and take its complex conjugate
-    for i in range(len(traj.mode_list)):
-        new_traj[i] = np.conj(traj.mode_list[i])
-
-    return Trajectory(new_traj)
+    return Trajectory(np.conj(traj.modes))
 
 def traj_rfft(array):
     """

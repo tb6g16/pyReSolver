@@ -64,20 +64,21 @@ class TestTrajectoryFunctions(unittest.TestCase):
                     for l in range(traj3.shape[3]):
                         self.assertEqual(traj3[i, j, k, l], traj3_tran[i, l, k, j])
 
-    def est_conj(self):
+    def test_conj(self):
         # set up random trajectories
         i1 = rand.randint(1, 100)
         i2 = rand.randint(1, 10)
         i3 = rand.randint(1, 10)
-        array1_real = np.random.rand(i1, i2, i3)
+        i4 = rand.randint(1, 10)
+        array1_real = np.random.rand(i1, i2)
         array2_real = np.random.rand(i1, i2, i3)
-        array3_real = np.random.rand(i1, i2, i3)
-        array1_imag = np.random.rand(i1, i2, i3)
+        array3_real = np.random.rand(i1, i2, i3, i4)
+        array1_imag = np.random.rand(i1, i2)
         array2_imag = np.random.rand(i1, i2, i3)
-        array3_imag = np.random.rand(i1, i2, i3)
-        traj1 = Trajectory(array2list(array1_real + 1j*array1_imag))
-        traj2 = Trajectory(array2list(array2_real + 1j*array2_imag))
-        traj3 = Trajectory(array2list(array3_real + 1j*array3_imag))
+        array3_imag = np.random.rand(i1, i2, i3, i4)
+        traj1 = Trajectory(array1_real + 1j*array1_imag)
+        traj2 = Trajectory(array2_real + 1j*array2_imag)
+        traj3 = Trajectory(array3_real + 1j*array3_imag)
 
         # take conjugate
         traj1_conj = traj_funcs.conj(traj1)
@@ -92,10 +93,11 @@ class TestTrajectoryFunctions(unittest.TestCase):
         # swapped indices match
         for i in range(traj1.shape[0]):
             for j in range(traj1.shape[1]):
-                for k in range(traj1.shape[2]):
-                    self.assertEqual(traj1[i, j, k], np.conj(traj1_conj[i, j, k]))
+                self.assertEqual(traj1[i, j], np.conj(traj1_conj[i, j]))
+                for k in range(traj2.shape[2]):
                     self.assertEqual(traj2[i, j, k], np.conj(traj2_conj[i, j, k]))
-                    self.assertEqual(traj3[i, j, k], np.conj(traj3_conj[i, j, k]))
+                    for l in range(traj3.shape[3]):
+                        self.assertEqual(traj3[i, j, k, l], np.conj(traj3_conj[i, j, k, l]))
 
     def est_gradient(self):
         traj1_grad = traj_funcs.traj_grad(self.traj1)
