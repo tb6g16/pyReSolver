@@ -86,6 +86,10 @@ class Trajectory:
         """Return a new trajectory with rounded modes."""
         return Trajectory(np.around(self.modes, decimals = decimals))
 
+    def __abs__(self):
+        """Define the behaviour of the in-built absolute function."""
+        return np.linalg.norm(self.modes)
+
     def __repr__(self):
         """Return the modes of the instance."""
         return np.array_repr(self.modes)

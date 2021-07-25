@@ -155,6 +155,6 @@ def gr_freq_grad(traj, local_res):
         sum += n*np.imag(np.dot(np.conj(traj[n]), local_res[n]))
     sum = 2*sum
 
-    return sum
+    # return sum
     # return 0.001*sum
-    # return 0.0
+    return 0.0

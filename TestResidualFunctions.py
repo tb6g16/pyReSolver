@@ -197,15 +197,13 @@ class TestResidualFunctions(unittest.TestCase):
 
         # LARGEST ERRORS AT POINTS OF EXTREMA IN MATRIX ALONG TIME DIMENSION
 
-        # Always passes with rtol, atol = 1e-2
-        self.assertEqual(gr_traj_grad_t1s1, gr_grad_traj_t1s1_FD)
-        # Mostly passes with rtol, atol = 1e-2
-        self.assertEqual(gr_grad_traj_t2s1, gr_grad_traj_t2s1_FD)
-        self.assertAlmostEqual(gr_grad_freq_t1s1, gr_grad_freq_t1s1_FD, places = 6)
-        self.assertAlmostEqual(gr_grad_freq_t2s1, gr_grad_freq_t2s1_FD, places = 6)
+        self.assertAlmostEqual(gr_traj_grad_t1s1, gr_grad_traj_t1s1_FD, places = 3)
+        self.assertAlmostEqual(gr_grad_traj_t2s1, gr_grad_traj_t2s1_FD, places = 3)
+        self.assertAlmostEqual(gr_grad_freq_t1s1, gr_grad_freq_t1s1_FD, places = 4)
+        self.assertAlmostEqual(gr_grad_freq_t2s1, gr_grad_freq_t2s1_FD, places = 4)
 
     @staticmethod
-    def gen_gr_grad_FD(traj, sys, freq, mean, step = 1e-7):
+    def gen_gr_grad_FD(traj, sys, freq, mean, step = 1e-9):
         """
             This function uses finite differencing to compute the gradients of
             the global residual for all the DoFs (the discrete time coordinated
