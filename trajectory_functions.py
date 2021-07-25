@@ -2,10 +2,12 @@
 # and trajectory-system interactions.
 
 import numpy as np
+
 from Trajectory import Trajectory
 from my_fft import my_rfft, my_irfft
-from traj_util import array2list, list2array
 from conv import conv_array
+
+from traj_util import array2list, list2array
 
 def transpose(traj):
     """
@@ -19,14 +21,7 @@ def transpose(traj):
         -------
         Trajectory
     """
-    # initialise new trajectory list
-    new_traj = array2list(np.zeros(traj.shape, dtype = complex))
-
-    # loop over given traj and transpose it
-    for i in range(len(traj.mode_list)):
-        new_traj[i] = np.transpose(traj.mode_list[i])
-
-    return Trajectory(new_traj)
+    return Trajectory(np.transpose(traj.modes, axes = [0, *range(1, traj.modes.ndim)[::-1][0:]]))
 
 def conj(traj):
     """

@@ -1,11 +1,10 @@
 # This file contains the testing methods for the functions defined in
 # trajectory_functions.
 
-import sys
-sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\ResolventSolver")
 import unittest
 import numpy as np
 import random as rand
+
 from Trajectory import Trajectory
 import trajectory_functions as traj_funcs
 from traj_util import array2list, list2array
@@ -35,15 +34,16 @@ class TestTrajectoryFunctions(unittest.TestCase):
         i1 = rand.randint(1, 100)
         i2 = rand.randint(1, 10)
         i3 = rand.randint(1, 10)
-        array1_real = np.random.rand(i1, i2, i3)
+        i4 = rand.randint(1, 10)
+        array1_real = np.random.rand(i1, i2)
         array2_real = np.random.rand(i1, i2, i3)
-        array3_real = np.random.rand(i1, i2, i3)
-        array1_imag = np.random.rand(i1, i2, i3)
+        array3_real = np.random.rand(i1, i2, i3, i4)
+        array1_imag = np.random.rand(i1, i2)
         array2_imag = np.random.rand(i1, i2, i3)
-        array3_imag = np.random.rand(i1, i2, i3)
-        traj1 = Trajectory(array2list(array1_real + 1j*array1_imag))
-        traj2 = Trajectory(array2list(array2_real + 1j*array2_imag))
-        traj3 = Trajectory(array2list(array3_real + 1j*array3_imag))
+        array3_imag = np.random.rand(i1, i2, i3, i4)
+        traj1 = Trajectory(array1_real + 1j*array1_imag)
+        traj2 = Trajectory(array2_real + 1j*array2_imag)
+        traj3 = Trajectory(array3_real + 1j*array3_imag)
 
         # take transpose
         traj1_tran = traj_funcs.transpose(traj1)
@@ -55,15 +55,16 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertEqual(traj2, traj_funcs.transpose(traj2_tran))
         self.assertEqual(traj3, traj_funcs.transpose(traj3_tran))
 
-        # swapped indices match
+        # correct values
         for i in range(traj1.shape[0]):
             for j in range(traj1.shape[1]):
-                for k in range(traj1.shape[2]):
-                    self.assertEqual(traj1[i, j, k], traj1_tran[i, k, j])
+                self.assertEqual(traj1[i, j], traj1_tran[i, j])
+                for k in range(traj2.shape[2]):
                     self.assertEqual(traj2[i, j, k], traj2_tran[i, k, j])
-                    self.assertEqual(traj3[i, j, k], traj3_tran[i, k, j])
+                    for l in range(traj3.shape[3]):
+                        self.assertEqual(traj3[i, j, k, l], traj3_tran[i, l, k, j])
 
-    def test_conj(self):
+    def est_conj(self):
         # set up random trajectories
         i1 = rand.randint(1, 100)
         i2 = rand.randint(1, 10)
@@ -96,7 +97,7 @@ class TestTrajectoryFunctions(unittest.TestCase):
                     self.assertEqual(traj2[i, j, k], np.conj(traj2_conj[i, j, k]))
                     self.assertEqual(traj3[i, j, k], np.conj(traj3_conj[i, j, k]))
 
-    def test_gradient(self):
+    def est_gradient(self):
         traj1_grad = traj_funcs.traj_grad(self.traj1)
         traj2_grad = traj_funcs.traj_grad(self.traj2)
 
@@ -127,7 +128,7 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(np.allclose(traj1_grad_true, traj1_grad_time))
         self.assertTrue(np.allclose(traj2_grad_true, traj2_grad_time))
 
-    def test_traj_response(self):
+    def est_traj_response(self):
         # response to full system
         traj1_response1 = traj_funcs.traj_response(self.traj1, self.sys1.response)
         traj1_response2 = traj_funcs.traj_response(self.traj1, self.sys2.response)
