@@ -94,7 +94,7 @@ def global_residual(local_res):
 
     return np.real(sum)
 
-def gr_traj_grad(traj, sys, freq, mean, conv_method = 'fft'):
+def gr_traj_grad(traj, sys, freq, mean, local_res, conv_method = 'fft'):
     """
         Return the gradient of the global residual with respect to a trajectory
         in state-space.
@@ -115,9 +115,6 @@ def gr_traj_grad(traj, sys, freq, mean, conv_method = 'fft'):
         -------
         Trajectory
     """
-    # calculate local residual trajectory
-    local_res = local_residual(traj, sys, freq, mean)
-
     # calculate trajectory gradients
     res_grad = traj_funcs.traj_grad(local_res)
 
@@ -131,10 +128,9 @@ def gr_traj_grad(traj, sys, freq, mean, conv_method = 'fft'):
     jac_res_conv = traj_funcs.traj_conv(jac, local_res, method = conv_method)
 
     # calculate and return gradients w.r.t trajectory and frequency respectively
-    # return 2*((-freq*res_grad) - jac_res_conv)
     return (-freq*res_grad) - jac_res_conv
 
-def gr_freq_grad(traj, sys, freq, mean):
+def gr_freq_grad(traj, local_res):
     """
         Return the gradient of the global residual with respect to the
         frequency of a trajectory in state-space.
@@ -153,15 +149,12 @@ def gr_freq_grad(traj, sys, freq, mean):
         -------
         float
     """
-    # calculate local residual
-    local_res = local_residual(traj, sys, freq, mean)
-
     # initialise sum and loop over modes
     sum = 0
     for n in range(1, traj.shape[0]):
         sum += n*np.imag(np.dot(np.conj(traj[n]), local_res[n]))
     sum = 2*sum
 
-    # return sum
+    return sum
     # return 0.001*sum
-    return 0
+    # return 0.0
