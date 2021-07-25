@@ -83,7 +83,7 @@ def traj_conv(traj1, traj2, method = 'fft'):
         -------
         Trajectory
     """
-    return Trajectory(array2list(conv_array(list2array(traj1.mode_list), list2array(traj2.mode_list), method = method)))
+    return Trajectory(conv_array(traj1.modes, traj2.modes, method = method))
 
 def traj_grad(traj):
     """
