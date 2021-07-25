@@ -1,10 +1,9 @@
 # This file contains the unit tests for my_fft functions.
 
-import sys
-sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\ResolventSolver")
 import unittest
 import numpy as np
 import random as rand
+
 from my_fft import my_fft, my_ifft, my_rfft, my_irfft
 from traj_util import func2curve
 from trajectory_definitions import unit_circle as uc

@@ -1,14 +1,12 @@
 # This file contains the unit tests for the convolution function defined in the
 # conv.py file.
 
-import sys
-sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\ResolventSolver")
 import unittest
 import numpy as np
 import random as rand
+
 from my_fft import my_rfft, my_irfft
 from conv import conv_scalar, conv_array
-from trajectory_definitions import unit_circle as uc
 from trajectory_definitions import ellipse as elps
 
 class TestConv(unittest.TestCase):

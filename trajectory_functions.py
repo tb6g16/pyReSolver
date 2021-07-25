@@ -50,7 +50,7 @@ def traj_rfft(array):
         -------
         Trajectory
     """
-    return Trajectory(array2list(my_rfft(array)))
+    return Trajectory(my_rfft(array))
 
 def traj_irfft(traj):
     """
@@ -64,7 +64,7 @@ def traj_irfft(traj):
         -------
         ndarray
     """
-    return my_irfft(list2array(traj.mode_list))
+    return my_irfft(traj.modes)
 
 def traj_conv(traj1, traj2, method = 'fft'):
     """
