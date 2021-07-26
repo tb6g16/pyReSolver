@@ -5,6 +5,7 @@
 import numpy as np
 from scipy.optimize import minimize
 import scipy.integrate as integ
+
 from Trajectory import Trajectory
 from traj2vec import traj2vec, vec2traj
 import residual_functions as res_funcs
@@ -57,11 +58,10 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
 
         # convert to full space if singular matrix is provided
         if psi is not None:
-            traj = psi @ traj
+            traj = traj.matmul_left_traj(psi)
 
         # calculate global residual and return
-        local_res = res_funcs.local_residual(traj, sys, freq, mean)
-        return res_funcs.global_residual(local_res)
+        return res_funcs.global_residual(res_funcs.local_residual(traj, sys, freq, mean))
 
     def traj_global_res_jac(opt_vector):
         """
@@ -86,15 +86,16 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
 
         # convert to full space if singular matrix is provided
         if psi is not None:
-            traj = psi @ traj
+            traj = traj.matmul_left_traj(psi)
 
         # calculate global residual gradients
-        gr_traj_grad = res_funcs.gr_traj_grad(traj, sys, freq, mean, conv_method = conv_method)
-        gr_freq_grad = res_funcs.gr_freq_grad(traj, sys, freq, mean)
+        local_res = res_funcs.local_residual(traj, sys, freq, mean)
+        gr_traj_grad = res_funcs.gr_traj_grad(traj, sys, freq, mean, local_res, conv_method = conv_method)
+        gr_freq_grad = res_funcs.gr_freq_grad(traj, local_res)
 
         # convert gradient w.r.t modes to reduced space
         if psi is not None:
-            gr_traj_grad = transpose(conj(psi)) @ gr_traj_grad
+            gr_traj_grad = gr_traj_grad.matmul_left_traj(transpose(conj(psi)))
 
         # convert back to vector and return
         return traj2vec(gr_traj_grad, gr_freq_grad)
@@ -157,7 +158,7 @@ def my_min(traj, freq, sys, mean, **kwargs):
 
     # convert to reduced space if singular matrix is provided
     if psi is not None:
-        traj = transpose(conj(psi)) @ traj
+        traj = traj.matmul_left_traj(transpose(conj(psi)))
 
     # setup the problem
     dim = traj.shape[1]
@@ -211,6 +212,18 @@ def my_min(traj, freq, sys, mean, **kwargs):
 
     # convert to full space if singular matrix is provided
     if psi is not None:
-        op_traj = psi @ op_traj
+        op_traj = op_traj.matmul_left_traj(psi)
 
     return op_traj, op_freq, traces, sol
+
+
+if __name__ == '__main__':
+    from gen_rand_traj import gen_rand_traj
+    from systems import lorenz
+    from plot_traj import plot_traj
+    T = 10
+    freq = (2*np.pi)/T
+    init_traj = gen_rand_traj(3, 10*T)
+    mean = [0, 0, 23.64]
+    op_traj, freq, traces, sol = my_min(init_traj, freq, lorenz, mean, method = 'CG', iter = 1000)
+    plot_traj(op_traj, discs = [10000], means = [mean], proj = 'xz')
