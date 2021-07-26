@@ -4,6 +4,8 @@
 import numpy as np
 from Trajectory import Trajectory
 
+# np.concatenate(np.concatenate((a.real, a.imag)))
+
 def traj2vec(traj, freq):
     """
         Return the vectorised form of the given trajectory frequency pair.

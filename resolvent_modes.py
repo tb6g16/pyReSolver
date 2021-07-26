@@ -38,10 +38,10 @@ def resolvent(freq, n, jac_at_mean, B = None):
     if type(n) == int:
         H_n = np.linalg.inv(1j*n*freq*np.eye(dim) - jac_at_mean) @ B
     elif type(n) == range:
-        H_n = [None]*(n[-1] + 1)
+        shape = np.shape(np.zeros([dim, dim]) @ B)
+        H_n = Trajectory(np.zeros([n[-1] + 1, *shape], dtype = complex))
         for i in n:
             H_n[i] = np.linalg.inv(1j*i*freq*np.eye(dim) - jac_at_mean) @ B
-        H_n = Trajectory(H_n)
 
     return H_n
 
@@ -61,19 +61,18 @@ def resolvent_modes(resolvent, cut = 0):
         psi, sig, phi : Trajectory
     """
     # perform full svd
-    psi, sig, phi = np.linalg.svd(list2array(resolvent.mode_list), full_matrices = False)
+    psi, sig_vec, phi = np.linalg.svd(resolvent.modes, full_matrices = False)
 
     # diagonalize singular value matrix and convert all to lists
-    sig = [np.diag(sig[i, :]) for i in range(resolvent.shape[0])]
-    psi = array2list(psi)
-    phi = array2list(phi)
+    sig = np.zeros_like(psi, dtype = float)
+    for i in range(resolvent.shape[0]):
+        sig[i] = np.diag(sig_vec[i])
 
     # cut off the desired number of singular values
     if cut != 0:
-        for i in range(resolvent.shape[0]):
-            sig[i] = sig[i][:-cut, :-cut]
-            psi[i] = psi[i][:, :-cut]
-            phi[i] = phi[i][:-cut, :]
+        sig = sig[:, :-cut, :-cut]
+        psi = psi[:, :, :-cut]
+        phi = phi[:, :-cut, :]
 
     return Trajectory(psi), Trajectory(sig), conj(transpose(Trajectory(phi)))
 

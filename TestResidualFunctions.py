@@ -22,9 +22,7 @@ class TestResidualFunctions(unittest.TestCase):
 
     def setUp(self):
         self.traj1 = Trajectory(uc.x)
-        # self.freq1 = 1
         self.traj2 = Trajectory(elps.x)
-        # self.freq2 = 1
         self.traj3 = Trajectory(uc3.x)
         self.sys1 = vpd
         self.sys2 = vis
