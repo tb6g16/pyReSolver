@@ -5,7 +5,7 @@ import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from traj_util import list2array
+
 from my_fft import my_irfft
 from TrajPlotObject import TrajPlotObject
 
@@ -25,7 +25,7 @@ def plot_single_traj(plot_object, ax = None, proj = None, show = False):
             Boolean for whether the resulting plot should be shown.
     """
     # pad with zeros to increase resolution
-    temp = list2array(plot_object.traj.mode_list)
+    temp = plot_object.traj.modes
     if plot_object.disc != None:
         tot_modes = int(plot_object.disc/2) + 1
         pad_len = tot_modes - plot_object.traj.shape[0]
@@ -149,7 +149,7 @@ def plot_along_s(*args, **kwargs):
 
     # loop over given trajectories to plot
     for arg in args:
-        traj_time = my_irfft(list2array(arg.mode_list))
+        traj_time = my_irfft(arg.modes)
         s = np.linspace(0, 2*np.pi, np.shape(traj_time)[0] + 1)
         for i in range(np.shape(traj_time)[1]):
             if labels != None:
