@@ -1,17 +1,14 @@
 # This file contains the unit test for the optimise file that initialises the
 # objective function, constraints, and all their associated gradients
 
-import sys
-sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\ResolventSolver")
 import unittest
 import numpy as np
 import random as rand
+
 from Trajectory import Trajectory
-import trajectory_functions as traj_funcs
 from traj2vec import traj2vec, vec2traj
 from my_min import init_opt_funcs
 import residual_functions as res_funcs
-from traj_util import array2list
 from systems import van_der_pol as vpd
 from systems import lorenz
 
@@ -23,21 +20,21 @@ class TestOptimise(unittest.TestCase):
         temp1 = np.random.rand(modes, 2) + 1j*np.random.rand(modes, 2)
         temp1[0] = 0
         temp1[-1] = 0
-        self.traj1 = Trajectory(array2list(temp1))
+        self.traj1 = Trajectory(temp1)
         self.freq1 = rand.uniform(0, 10)
         self.traj1_vec = traj2vec(self.traj1, self.freq1)
 
         temp2 = np.random.rand(modes, 2) + 1j*np.random.rand(modes, 2)
         temp2[0] = 0
         temp2[-1] = 0
-        self.traj2 = Trajectory(array2list(temp2))
+        self.traj2 = Trajectory(temp2)
         self.freq2 = rand.uniform(0, 10)
         self.traj2_vec = traj2vec(self.traj2, self.freq2)
 
         temp3 = np.random.rand(modes, 3) + 1j*np.random.rand(modes, 3)
         temp3[0] = 0
         temp3[-1] = 0
-        self.traj3 = Trajectory(array2list(temp3))
+        self.traj3 = Trajectory(temp3)
         self.freq3 = rand.uniform(0, 10)
         self.traj3_vec = traj2vec(self.traj3, self.freq3)
 
@@ -69,9 +66,12 @@ class TestOptimise(unittest.TestCase):
         gr_t3s2 = res_func_s2(self.traj3_vec)
 
         # correct value
-        gr_t1s1_true = res_funcs.global_residual(self.traj1, self.sys1, self.freq1, self.mean1)
-        gr_t2s1_true = res_funcs.global_residual(self.traj2, self.sys1, self.freq2, self.mean1)
-        gr_t3s2_true = res_funcs.global_residual(self.traj3, self.sys2, self.freq3, self.mean2)
+        lr_t1s1_true = res_funcs.local_residual(self.traj1, self.sys1, self.freq1, self.mean1)
+        lr_t2s1_true = res_funcs.local_residual(self.traj2, self.sys1, self.freq2, self.mean1)
+        lr_t3s2_true = res_funcs.local_residual(self.traj3, self.sys2, self.freq3, self.mean2)
+        gr_t1s1_true = res_funcs.global_residual(lr_t1s1_true)
+        gr_t2s1_true = res_funcs.global_residual(lr_t2s1_true)
+        gr_t3s2_true = res_funcs.global_residual(lr_t3s2_true)
         self.assertEqual(gr_t1s1, gr_t1s1_true)
         self.assertEqual(gr_t2s1, gr_t2s1_true)
         self.assertEqual(gr_t3s2, gr_t3s2_true)
@@ -84,12 +84,15 @@ class TestOptimise(unittest.TestCase):
         gr_traj_t3s2, gr_freq_t3s2 = vec2traj(res_grad_func_s2(self.traj3_vec), 3)
 
         # correct values
-        gr_traj_t1s1_true = vec2traj(traj2vec(res_funcs.gr_traj_grad(self.traj1, self.sys1, self.freq1, self.mean1), np.nan), 2)[0]
-        gr_freq_t1s1_true = res_funcs.gr_freq_grad(self.traj1, self.sys1, self.freq1, self.mean1)
-        gr_traj_t2s1_true = vec2traj(traj2vec(res_funcs.gr_traj_grad(self.traj2, self.sys1, self.freq2, self.mean1), np.nan), 2)[0]
-        gr_freq_t2s1_true = res_funcs.gr_freq_grad(self.traj2, self.sys1, self.freq2, self.mean1)
-        gr_traj_t3s2_true = vec2traj(traj2vec(res_funcs.gr_traj_grad(self.traj3, self.sys2, self.freq3, self.mean2), np.nan), 3)[0]
-        gr_freq_t3s2_true = res_funcs.gr_freq_grad(self.traj3, self.sys2, self.freq3, self.mean2)
+        lr_t1s1_true = res_funcs.local_residual(self.traj1, self.sys1, self.freq1, self.mean1)
+        lr_t2s1_true = res_funcs.local_residual(self.traj2, self.sys1, self.freq2, self.mean1)
+        lr_t3s2_true = res_funcs.local_residual(self.traj3, self.sys2, self.freq3, self.mean2)
+        gr_traj_t1s1_true = vec2traj(traj2vec(res_funcs.gr_traj_grad(self.traj1, self.sys1, self.freq1, self.mean1, lr_t1s1_true), np.nan), 2)[0]
+        gr_freq_t1s1_true = res_funcs.gr_freq_grad(self.traj1, lr_t1s1_true)
+        gr_traj_t2s1_true = vec2traj(traj2vec(res_funcs.gr_traj_grad(self.traj2, self.sys1, self.freq2, self.mean1, lr_t2s1_true), np.nan), 2)[0]
+        gr_freq_t2s1_true = res_funcs.gr_freq_grad(self.traj2, lr_t2s1_true)
+        gr_traj_t3s2_true = vec2traj(traj2vec(res_funcs.gr_traj_grad(self.traj3, self.sys2, self.freq3, self.mean2, lr_t3s2_true), np.nan), 3)[0]
+        gr_freq_t3s2_true = res_funcs.gr_freq_grad(self.traj3, lr_t3s2_true)
         self.assertEqual(gr_traj_t1s1, gr_traj_t1s1_true)
         self.assertEqual(gr_traj_t2s1, gr_traj_t2s1_true)
         self.assertEqual(gr_traj_t3s2, gr_traj_t3s2_true)

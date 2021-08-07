@@ -1,15 +1,13 @@
 # This file contains the unit tests for the functions defined in traj_util.py.
 
-import sys
-sys.path.append(r"C:\Users\user\Desktop\PhD\Bruno Paper\ResolventSolver")
 import unittest
 import numpy as np
 import random as rand
+
 from traj_util import func2curve, list2array, array2list
 from trajectory_definitions import unit_circle as uc
 from trajectory_definitions import unit_circle_3d as uc3d
 from trajectory_definitions import ellipse as elps
-from systems import van_der_pol as vpd
 
 class TestTrajUtil(unittest.TestCase):
 
