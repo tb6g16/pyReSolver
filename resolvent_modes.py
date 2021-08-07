@@ -64,7 +64,7 @@ def resolvent_modes(resolvent, cut = 0):
     psi, sig_vec, phi = np.linalg.svd(resolvent.modes, full_matrices = False)
 
     # diagonalize singular value matrix and convert all to lists
-    sig = np.zeros_like(psi, dtype = float)
+    sig = np.zeros([resolvent.shape[0], sig_vec.shape[1], sig_vec.shape[1]], dtype = float)
     for i in range(resolvent.shape[0]):
         sig[i] = np.diag(sig_vec[i])
 
