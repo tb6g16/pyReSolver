@@ -2,9 +2,8 @@
 # a vector for optimisation purposes, and also the inverse conversion.
 
 import numpy as np
-from Trajectory import Trajectory
 
-# np.concatenate(np.concatenate((a.real, a.imag)))
+from Trajectory import Trajectory
 
 def traj2vec(traj, freq):
     """
@@ -23,27 +22,8 @@ def traj2vec(traj, freq):
         vector : ndarray
             1D array containing data of float type.
     """
-    # defining the degrees of freedom of the system
-    dofs = (2*traj.shape[1]*(traj.shape[0] - 2)) + 1
-
-    # initialise the vector with the degrees of freedome of the system.
-    vector = np.zeros(dofs)
-
-    # loop over all trajectory values and assign to the vector
-    a = 0
-    for i in range(traj.shape[0] - 2):
-        for j in range(traj.shape[1]):
-            for k in range(2):
-                if k == 0:
-                    vector[i*traj.shape[1] + j + a] = np.real(traj[i + 1, j])
-                else:
-                    a += 1
-                    vector[i*traj.shape[1] + j + a] = np.imag(traj[i + 1, j])
-
-    # assign the frequency value do the vector
-    vector[-1] = freq
-
-    return vector
+    # convert trajectory array to vector and append frequency
+    return np.hstack((np.reshape(traj[1:-1].real, -1), np.reshape(traj[1:-1].imag, -1), freq))
 
 def vec2traj(opt_vector, dim):
     """
@@ -65,19 +45,18 @@ def vec2traj(opt_vector, dim):
         float
             The frequency from the given vector.
     """
-    # define the degrees of freedom of the system
-    dofs = np.shape(opt_vector)[0]
+    # split vector into real and imaginary parts
+    real_comps = opt_vector[:int((np.shape(opt_vector)[0] - 1)/2)]
+    imag_comps = opt_vector[int((np.shape(opt_vector)[0] - 1)/2):-1]
 
-    # initialise lists and arrays
-    traj_array = np.zeros([int((dofs - 1)/(2*dim)) + 2, dim], dtype = complex)
-    mode_vector = np.zeros(dim, dtype = complex)
+    # convert vectors into arrays
+    opt_modes = int((np.shape(opt_vector)[0] - 1)/(2*dim))
+    real_comps = np.reshape(real_comps, (opt_modes, dim))
+    imag_comps = np.reshape(imag_comps, (opt_modes, dim))
 
-    # loop over degrees of freedom and assign the elements of the trajectory list
-    a = 0
-    for i in range(int((dofs - 1)/2)):
-        mode_vector[i - dim*int(i/dim)] = opt_vector[a] + 1j*opt_vector[a + 1]
-        if (i + 1)/dim % 1 == 0:
-            traj_array[int(i/dim) + 1] = np.copy(mode_vector)
-        a += 2
+    # combine and pad zero and end modes
+    traj = real_comps + 1j*imag_comps
+    traj = np.insert(traj, np.shape(traj)[0], 0, axis = 0)
+    traj = np.insert(traj, 0, 0, axis = 0)
 
-    return Trajectory(traj_array), opt_vector[-1]
+    return Trajectory(traj), opt_vector[-1]

@@ -30,21 +30,16 @@ class TestTraj2Vec(unittest.TestCase):
         dofs = (2*self.traj.shape[1]*(self.traj.shape[0] - 2)) + 1
         self.assertEqual(np.shape(self.vec), (dofs,))
 
-        # correct values
-        vec_true = np.zeros(dofs)
-        a = 2*self.traj.shape[1]
-        for i in range(dofs - 1):
-            if i % a == 0:
-                b = 0
-            for j in range(a):
-                if (i - j) % a == 0:
-                    if i % 2 == 0:
-                        vec_true[i] = np.real(self.traj[1 + int((i - j)/a), b])
-                    elif i % 2 == 1:
-                        vec_true[i] = np.imag(self.traj[1 + int((i - j)/a), b])
-                        b += 1
-        vec_true[-1] = self.freq
-        self.assertTrue(np.array_equal(self.vec, vec_true))
+        # corrent values
+        a = 0
+        b = (self.traj.shape[0] - 2)*self.traj.shape[1]
+        for i in range(self.traj.shape[0] - 2):
+            for j in range(self.traj.shape[1]):
+                self.assertEqual(self.vec[a], self.traj[i + 1, j].real)
+                self.assertEqual(self.vec[b], self.traj[i + 1, j].imag)
+                a += 1
+                b += 1
+        self.assertEqual(self.vec[-1], self.freq)
 
     def test_vec2traj(self):
         traj, freq = t2v.vec2traj(self.vec, self.traj.shape[1])
