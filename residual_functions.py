@@ -36,7 +36,11 @@ def resolvent_inv(no_modes, freq, jac_at_mean):
 
     return resolvent_inv
 
-def local_residual(traj, sys, freq, mean):
+def init_H_n_inv(traj, sys, freq, mean):
+    jac_at_mean = sys.jacobian(mean)
+    return resolvent_inv(traj.shape[0], freq, jac_at_mean)
+
+def local_residual(traj, sys, freq, mean, H_n_inv):
     """
         Return the local residual of a trajectory in a state-space.
 
@@ -54,12 +58,6 @@ def local_residual(traj, sys, freq, mean):
         -------
         local_res : Trajectory
     """
-    # evaluate jacobian at the mean
-    jac_at_mean = sys.jacobian(mean)
-
-    # evaluate the inverse resolvents
-    H_n_inv = resolvent_inv(traj.shape[0], freq, jac_at_mean)
-
     # evaluate response and multiply by resolvent at every mode
     resp = traj_funcs.traj_response(traj, sys.nl_factor)
 
