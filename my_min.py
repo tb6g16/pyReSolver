@@ -61,7 +61,8 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
             traj = traj.matmul_left_traj(psi)
 
         # calculate global residual and return
-        return res_funcs.global_residual(res_funcs.local_residual(traj, sys, freq, mean))
+        H_n_inv = res_funcs.init_H_n_inv(traj, sys, freq, mean)
+        return res_funcs.global_residual(res_funcs.local_residual(traj, sys, freq, mean, H_n_inv))
 
     def traj_global_res_jac(opt_vector):
         """
@@ -89,7 +90,8 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
             traj = traj.matmul_left_traj(psi)
 
         # calculate global residual gradients
-        local_res = res_funcs.local_residual(traj, sys, freq, mean)
+        H_n_inv = res_funcs.init_H_n_inv(traj, sys, freq, mean)
+        local_res = res_funcs.local_residual(traj, sys, freq, mean, H_n_inv)
         gr_traj_grad = res_funcs.gr_traj_grad(traj, sys, freq, mean, local_res, conv_method = conv_method)
         gr_freq_grad = res_funcs.gr_freq_grad(traj, local_res)
 

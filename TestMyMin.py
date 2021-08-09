@@ -66,9 +66,12 @@ class TestOptimise(unittest.TestCase):
         gr_t3s2 = res_func_s2(self.traj3_vec)
 
         # correct value
-        lr_t1s1_true = res_funcs.local_residual(self.traj1, self.sys1, self.freq1, self.mean1)
-        lr_t2s1_true = res_funcs.local_residual(self.traj2, self.sys1, self.freq2, self.mean1)
-        lr_t3s2_true = res_funcs.local_residual(self.traj3, self.sys2, self.freq3, self.mean2)
+        H_n_inv_t1s1 = res_funcs.init_H_n_inv(self.traj1, self.sys1, self.freq1, self.mean1)
+        H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, self.freq2, self.mean1)
+        H_n_inv_t3s2 = res_funcs.init_H_n_inv(self.traj3, self.sys2, self.freq3, self.mean2)
+        lr_t1s1_true = res_funcs.local_residual(self.traj1, self.sys1, self.freq1, self.mean1, H_n_inv_t1s1)
+        lr_t2s1_true = res_funcs.local_residual(self.traj2, self.sys1, self.freq2, self.mean1, H_n_inv_t2s1)
+        lr_t3s2_true = res_funcs.local_residual(self.traj3, self.sys2, self.freq3, self.mean2, H_n_inv_t3s2)
         gr_t1s1_true = res_funcs.global_residual(lr_t1s1_true)
         gr_t2s1_true = res_funcs.global_residual(lr_t2s1_true)
         gr_t3s2_true = res_funcs.global_residual(lr_t3s2_true)
@@ -84,9 +87,12 @@ class TestOptimise(unittest.TestCase):
         gr_traj_t3s2, gr_freq_t3s2 = vec2traj(res_grad_func_s2(self.traj3_vec), 3)
 
         # correct values
-        lr_t1s1_true = res_funcs.local_residual(self.traj1, self.sys1, self.freq1, self.mean1)
-        lr_t2s1_true = res_funcs.local_residual(self.traj2, self.sys1, self.freq2, self.mean1)
-        lr_t3s2_true = res_funcs.local_residual(self.traj3, self.sys2, self.freq3, self.mean2)
+        H_n_inv_t1s1 = res_funcs.init_H_n_inv(self.traj1, self.sys1, self.freq1, self.mean1)
+        H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, self.freq2, self.mean1)
+        H_n_inv_t3s2 = res_funcs.init_H_n_inv(self.traj3, self.sys2, self.freq3, self.mean2)
+        lr_t1s1_true = res_funcs.local_residual(self.traj1, self.sys1, self.freq1, self.mean1, H_n_inv_t1s1)
+        lr_t2s1_true = res_funcs.local_residual(self.traj2, self.sys1, self.freq2, self.mean1, H_n_inv_t2s1)
+        lr_t3s2_true = res_funcs.local_residual(self.traj3, self.sys2, self.freq3, self.mean2, H_n_inv_t3s2)
         gr_traj_t1s1_true = vec2traj(traj2vec(res_funcs.gr_traj_grad(self.traj1, self.sys1, self.freq1, self.mean1, lr_t1s1_true), np.nan), 2)[0]
         gr_freq_t1s1_true = res_funcs.gr_freq_grad(self.traj1, lr_t1s1_true)
         gr_traj_t2s1_true = vec2traj(traj2vec(res_funcs.gr_traj_grad(self.traj2, self.sys1, self.freq2, self.mean1, lr_t2s1_true), np.nan), 2)[0]
