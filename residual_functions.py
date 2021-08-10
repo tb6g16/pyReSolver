@@ -117,9 +117,9 @@ def gr_traj_grad(traj, sys, freq, mean, local_res, conv_method = 'fft'):
     res_grad = traj_funcs.traj_grad(local_res)
 
     # initialise jacobian function and take transpose
-    traj[0] = np.array(mean, dtype = complex)
+    traj[0] = mean
     jac = traj_funcs.traj_response(traj, sys.jacobian)
-    traj[0] = np.zeros_like(traj[1])
+    traj[0] = 0
     jac = traj_funcs.transpose(jac)
 
     # perform convolution
