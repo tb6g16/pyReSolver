@@ -19,13 +19,31 @@ def write_traj(filename, traj, freq):
         freq : positive float
             Base frequency of the given trajectory.
     """
-    # open the file
+    # open file and write data
     with h5py.File(filename, 'w') as f:
         f.create_dataset('traj', data = traj.modes)
         f.create_dataset('freq', data = np.array(freq))
 
 def read_traj(filename):
-    pass
+    """
+        Returns the trajectory frequency pair stored in an HDF5 file.
+
+        Parameters
+        ----------
+        filename : str
+
+        Returns
+        -------
+        traj : Trajectory
+        freq : positive float
+            Base frequency for the given trajectory.
+    """
+    # open file and read data
+    with h5py.File(filename, 'r') as f:
+        traj = Trajectory(np.array(f['traj']))
+        freq = f['freq'][()]
+
+    return traj, freq
 
 def read_traj_davide(filename):
     """
@@ -40,14 +58,11 @@ def read_traj_davide(filename):
         -------
         traj : Trajectory
         freq : positive float
-            Base frequency of the trajectory.
+            Base frequency for the given trajectory.
     """
-    data = h5py.File(filename, 'r')
-    traj = my_rfft(data['X'])
-    freq = data['ω'][()]
-    return Trajectory(traj), freq
+    # open file and read data
+    with h5py.File(filename, 'r') as f:
+        traj = Trajectory(my_rfft(f['X']))
+        freq = f['ω'][()]
 
-if __name__ == '__main__':
-    from gen_rand_traj import gen_rand_traj
-    rand_traj = gen_rand_traj(3, 50)
-    write_traj('abc.hdf5', rand_traj, 2)
+    return traj, freq
