@@ -34,35 +34,3 @@ def hess(traj, freq, sys, mean, eps = 1e-6, conv_method = 'fft'):
         hessian[:, j] = (grad_at_min - grad_off_min)/eps
 
     return hessian
-
-if __name__ == "__main__":
-    import h5py
-    from unpack_hdf5 import unpack_hdf5
-    from change_traj_res import change_traj_res
-    from System import System
-    from systems import lorenz
-    import random as rand
-    import time
-    import scipy
-
-    traj, freq, mean, _ = unpack_hdf5(r'C:\Users\user\Desktop\PhD\Bruno Paper\Analysis\Example UPOs\upo01.orb')
-    traj = change_traj_res(traj, 25)
-    traj_vec = traj2vec(traj, freq)
-    sys = System(lorenz)
-
-    eps = 1e-6
-
-    upo_hess = hess(traj, freq, sys, mean, eps = eps)
-
-    hess_eigvals = scipy.linalg.eigvals(upo_hess)
-
-    # for i in range(np.shape(hess_eigvals)[0]):
-    #     if np.real(hess_eigvals[i]) > 0:
-    #         print()
-    #         print("Positive:   " + str(np.real(hess_eigvals[i]) > 0))
-    #         print("Eigenvalue: " + str(np.real(hess_eigvals[i])))
-    #         time.sleep(0.01)
-
-    # ONLY SYMMETRIC TO LOW A TOLERANCE, GETS WORSE AS NUMBER OF MODES IS INCREASED
-    # print()
-    # print("Hessian symmetric: " + str(np.allclose(upo_hess, np.transpose(upo_hess), atol = 1e-2)))
