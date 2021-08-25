@@ -27,10 +27,8 @@ def hess(traj, freq, sys, mean, eps = 1e-6, conv_method = 'fft'):
 
         # calculate gradient at two close states at minimum
         grad_off_min = grad_func(state + eps*unit_basis_j)
-        if j == 0:
-            print(grad_off_min)
 
         # evaluate hessian column
         hessian[:, j] = (grad_at_min - grad_off_min)/eps
 
-    return hessian
+    return hessian[:-1, :-1]
