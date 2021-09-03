@@ -95,18 +95,16 @@ def traj_grad(traj):
         -------
         Trajectory
     """
-    # # initialise array for new modes
-    # new_modes = np.zeros_like(traj.modes)
+    # initialise array of mode modifiers to be multiplied
+    modifiers = np.transpose(np.tile(1j*np.arange(traj.shape[0]), (traj.shape[1], 1)))
 
-    # # loop over time and multiply modes by modifiers
-    # for k in range(traj.shape[0]):
-    #     new_modes[k] = 1j*k*traj.modes[k]
+    # multiply element-wise
+    new_modes = modifiers*traj.modes
 
-    # # force zero mode at end to preserve symmetry
-    # new_modes[-1][:] = 0
+    # force end mode to be zero to preserve symmetry
+    new_modes[-1][:] = 0
 
-    # return Trajectory(new_modes)
-    pass
+    return Trajectory(new_modes)
 
 def traj_response(traj, func):
     """
