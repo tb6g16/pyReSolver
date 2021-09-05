@@ -63,12 +63,13 @@ class Trajectory:
 
     def matmul_left_traj(self, other):
         """Left multiply current instance by another trajectory instance."""
-        zero_mult = np.matmul(other.modes[0], self.modes[0])
-        prod = np.zeros([self.shape[0], *np.shape(zero_mult)], dtype = complex)
-        prod[0] = zero_mult
-        for i in range(1, self.shape[0]):
-            prod[i] = np.matmul(other.modes[i], self.modes[i])
-        return Trajectory(prod)
+        # zero_mult = np.matmul(other.modes[0], self.modes[0])
+        # prod = np.zeros([self.shape[0], *np.shape(zero_mult)], dtype = complex)
+        # prod[0] = zero_mult
+        # for i in range(1, self.shape[0]):
+        #     prod[i] = np.matmul(other.modes[i], self.modes[i])
+        # return Trajectory(prod)
+        pass
 
     def __eq__(self, other_traj, rtol = 1e-5, atol = 1e-8):
         """Evaluate (approximate) equality of trajectory and current instance."""
