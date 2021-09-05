@@ -69,7 +69,7 @@ class TestTrajectoryMethods(unittest.TestCase):
     def test_matmul_traj(self):
         # random trajectory to left multiply
         no_modes = self.traj1.shape[0]
-        rand_row = rand.randint(1, 5)
+        rand_row = rand.randint(2, 5)
         rand_array = np.random.rand(no_modes, rand_row, self.dim1) + 1j*np.random.rand(no_modes, rand_row, self.dim1)
         rand_traj = Trajectory(rand_array)
 
