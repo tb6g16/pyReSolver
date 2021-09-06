@@ -143,12 +143,13 @@ def gr_freq_grad(traj, local_res):
         -------
         float
     """
-    # initialise sum and loop over modes
-    sum = 0
-    for n in range(1, traj.shape[0]):
-        sum += n*np.imag(np.dot(np.conj(traj[n]), local_res[n]))
-    sum = 2*sum
+    # take imaginary part of inner product of trajectory and local residual
+    grad_sum = np.imag(np.copy(traj_funcs.conj(traj).matmul_left_traj(local_res).modes))
 
-    # return sum
-    # return 0.001*sum
+    # scale by two times the mode number
+    grad_sum = 2*np.arange(traj.shape[0])*grad_sum
+
+    # sum and return
+    # return np.sum(grad_sum)
+    # return 0.001*np.sum(grad_sum)
     return 0.0
