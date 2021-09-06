@@ -65,6 +65,8 @@ class Trajectory:
         """Left multiply current instance by another trajectory instance."""
         if len(self.shape) == 2 and len(other.shape) == 2:
             return Trajectory(np.diag(np.inner(other.modes, self.modes)))
+        elif len(self.shape) == 3 and len(other.shape) == 3:
+            return Trajectory(np.matmul(other.modes, self.modes))
         else:
             return Trajectory(np.squeeze(np.matmul(other.modes, np.reshape(self.modes, (*self.shape, 1)))))
 
