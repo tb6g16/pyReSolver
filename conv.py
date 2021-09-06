@@ -79,9 +79,7 @@ def conv_scalar(scalar1, scalar2, method = 'fft'):
         scalar2_time = my_irfft(scalar2)
 
         # initialise array and perform point-wise multiplication
-        prod = np.zeros_like(scalar1_time)
-        for i in range(np.shape(scalar1_time)[0]):
-            prod[i] = scalar1_time[i]*scalar2_time[i]
+        prod = scalar1_time*scalar2_time
         
         return my_rfft(prod)
     else:
@@ -137,11 +135,14 @@ def conv_array(array1, array2, method = 'fft'):
         # dummy array to find shape of result
         matmul_temp = np.matmul(array1_time[0], array2_time[1])
 
-        # intialise array and perform point-wise multiplication
-        prod = np.zeros([np.shape(array1_time)[0], *np.shape(matmul_temp)])
-        for i in range(np.shape(array1_time)[0]):
-            prod[i] = np.matmul(array1_time[i], array2_time[i])
-        
+        # intialise array and perform mode-wise multiplication
+        if len(array1_time.shape) == 2 and len(array2_time.shape) == 2:
+            prod = np.diag(np.inner(array1_time, array2_time))
+        elif len(array1_time.shape) == 3 and len(array2_time.shape) == 3:
+            prod = np.matmul(array1_time, array2_time)
+        else:
+            prod = np.squeeze(np.matmul(array1_time, np.reshape(array2_time, (*np.shape(array2_time), 1))))
+
         return my_rfft(prod)
     else:
         raise ValueError("Not a valid method!")
