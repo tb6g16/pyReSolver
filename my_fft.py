@@ -2,9 +2,6 @@
 # a wrapper to the numpy FFT function, mainly to properly take into account
 # the effects of normalisation.
 
-# RFFT ASSUMES THE TIME DOMAIN SIGNAL LENGTH IS ODD SINCE THE LAST ELEMENT IS
-# IN GENERAL COMPLEX
-
 import numpy as np
 
 def my_fft(array):
@@ -69,8 +66,8 @@ def my_irfft(array):
         ndarray
             N-D array containing data of float type.
     """
-    return np.fft.irfft(array*(2*np.shape(array)[0] - 1), 2*np.shape(array)[0] - 1, axis = 0) # works if original function had odd length
-    # return np.fft.irfft(array*2*(np.shape(array)[0] - 1), axis = 0) # works if original function had even length
+    # return np.fft.irfft(array*(2*np.shape(array)[0] - 1), 2*np.shape(array)[0] - 1, axis = 0) # works if original function had odd length
+    return np.fft.irfft(array*2*(np.shape(array)[0] - 1), axis = 0) # works if original function had even length
 
 
 # TESTS WITH THE DELTA FUNCTION
