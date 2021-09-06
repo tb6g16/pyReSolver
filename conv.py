@@ -30,9 +30,14 @@ def conv_scalar_fast(scalar1, scalar2):
 
     # truncate to include on rfft outputs
     conv_array = conv_array_full[np.shape(scalar1)[0]:]
-    conv_array = np.append(conv_array, [conv_array_full[1], conv_array_full[0]])
+    conv_array = np.append(conv_array, [np.conj(conv_array_full[2]), np.conj(conv_array_full[1])])
 
     return conv_array
+
+def conv_array_fast(array1, array2):
+    # convert to full domain
+    array1_full = np.fft.fftshift(my_fft(my_irfft(array1)), axes = 0)
+    array2_full = np.fft.fftshift(my_fft(my_irfft(array2)), axes = 0)
 
 def conv_scalar(scalar1, scalar2, method = 'fft'):
     """
