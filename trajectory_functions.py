@@ -122,12 +122,8 @@ def traj_response(traj, func):
     # convert trajectory to time domain
     curve = traj_irfft(traj)
 
-    # initialise new array
-    new_curve = np.zeros([np.shape(curve)[0], *np.shape(func(curve[0]))])
-
     # evaluate response in time domain
-    for i in range(np.shape(curve)[0]):
-        new_curve[i] = func(curve[i])
+    new_curve = func(curve)
 
     # convert back to frequency domain and return
     return traj_rfft(new_curve)

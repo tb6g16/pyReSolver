@@ -16,8 +16,8 @@ def response(x, parameters = parameters):
     response = np.zeros(np.shape(x))
 
     # assign response
-    response[0] = x[1] + (mu*x[0])*(rlim - np.sqrt((x[0]**2) + (x[1]**2)))
-    response[1] = -x[0] + (mu*x[1])*(rlim - np.sqrt((x[0]**2) + (x[1]**2)))
+    response[:, 0] = x[:, 1] + (mu*x[:, 0])*(rlim - np.sqrt((x[:, 0]**2) + (x[:, 1]**2)))
+    response[:, 1] = -x[:, 0] + (mu*x[:, 1])*(rlim - np.sqrt((x[:, 0]**2) + (x[:, 1]**2)))
 
     return response
 
@@ -32,13 +32,12 @@ def jacobian(x, parameters = parameters):
 
     # compute jacobian elements
     r = np.sqrt((x[0]**2) + (x[1]**2))
-    print(r)
-    jacobian[0, 0] = mu*(rlim - (2*(x[0]**2) + (x[1]**2))/r)
-    jacobian[0, 1] = 1 - (mu*x[0]*x[1])/r
-    jacobian[1, 0] = -1 - (mu*x[0]*x[1])/r
-    jacobian[1, 1] = mu*(rlim - ((x[0]**2) + 2*(x[1]**2))/r)
+    jacobian[:, 0, 0] = mu*(rlim - (2*(x[:, 0]**2) + (x[:, 1]**2))/r)
+    jacobian[:, 0, 1] = 1 - (mu*x[:, 0]*x[:, 1])/r
+    jacobian[:, 1, 0] = -1 - (mu*x[:, 0]*x[:, 1])/r
+    jacobian[:, 1, 1] = mu*(rlim - ((x[:, 0]**2) + 2*(x[:, 1]**2))/r)
 
-    return jacobian
+    return np.squeeze(jacobian)
 
 def nl_factor(x, parameters = parameters):
     
@@ -49,8 +48,8 @@ def nl_factor(x, parameters = parameters):
     nl_vector = np.zeros(np.shape(x))
 
     # assign values to vector
-    r = np.sqrt((x[0]**2) + (x[1]**2))
-    nl_vector[0] = -mu*x[0]*r
-    nl_vector[1] = mu*x[1]*r
+    r = np.sqrt((x[:, 0]**2)+(x[:, 1]**2))
+    nl_vector[:, 0] = -mu*x[:, 0]*r
+    nl_vector[:, 1] = mu*x[:, 1]*r
 
     return nl_vector
