@@ -5,7 +5,7 @@ import numpy as np
 
 from Trajectory import Trajectory
 from my_fft import my_rfft, my_irfft
-from conv import conv_array
+from conv import conv_vec_vec_fast, conv_mat_vec_fast, conv_mat_mat_fast, conv_array
 
 def transpose(traj):
     """
@@ -82,6 +82,61 @@ def traj_conv(traj1, traj2, method = 'fft'):
         Trajectory
     """
     return Trajectory(conv_array(traj1.modes, traj2.modes, method = method))
+
+def traj_conv_vec_vec(traj1, traj2):
+    """
+        Return the convolution of two vector trajectories.
+
+        Perform a discrete convolution of two trajectories with vector states
+        using in-built numpy functions.
+
+        Parameters
+        ----------
+        traj1, traj2 : Trajectory
+            Trajectories of the same size to be convolved
+
+        Returns
+        -------
+        Trajectory
+    """
+    return Trajectory(conv_vec_vec_fast(traj1.modes, traj2.modes))
+
+def traj_conv_mat_vec(traj1, traj2):
+    """
+        Return the convolution of a matrix trajectory and a vector trajectory.
+
+        Perform a discrete convolution of two trajectories, one with matrix
+        states and the other with vector states, using in-built numpy#
+        functions.
+
+        Parameters
+        ----------
+        traj1, traj2 : Trajectory
+            Trajectories of the same size to be convolved
+
+        Returns
+        -------
+        Trajectory
+    """
+    return Trajectory(conv_mat_vec_fast(traj1.modes, traj2.modes))
+
+def traj_conv_mat_mat(traj1, traj2):
+    """
+        Return the convolution of two matrix trajectories.
+
+        Perform a discrete convolution of two trajectories with matrix states
+        using in-built numpy functions.
+
+        Parameters
+        ----------
+        traj1, traj2 : Trajectory
+            Trajectories of the same size to be convolved
+
+        Returns
+        -------
+        Trajectory
+    """
+    return Trajectory(conv_mat_mat_fast(traj1.modes, traj2.modes))
 
 def traj_grad(traj):
     """

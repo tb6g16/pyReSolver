@@ -6,7 +6,7 @@ import numpy as np
 import random as rand
 
 from my_fft import my_rfft, my_irfft
-from conv import conv_scalar_fast, conv_array_fast, conv_scalar, conv_array
+from conv import conv_scalar_fast, conv_vec_vec_fast, conv_mat_vec_fast, conv_mat_mat_fast, conv_scalar, conv_array
 from trajectory_definitions import ellipse as elps
 
 class TestConv(unittest.TestCase):
@@ -70,7 +70,7 @@ class TestConv(unittest.TestCase):
         self.assertTrue(np.allclose(conv_rand1_rand2_sum, conv_rand1_rand2))
         self.assertTrue(np.allclose(conv_rand2_rand2_sum, conv_rand2_rand2))
 
-    def est_conv_array_fast(self):
+    def test_conv_array_fast(self):
         # initialise general ellipse
         a = rand.uniform(0, 10)
         b = rand.uniform(0, 10)
@@ -108,9 +108,10 @@ class TestConv(unittest.TestCase):
         rand_mat2 = np.append(rand_mat2, np.zeros([self.modes, dim2, dim3], dtype = complex), axis = 0)
 
         # perform convolutions
-        conv_elps_fft = conv_array(elps, elps, method = 'fft')
-        conv_matvec_fft = conv_array(matrix, vector, method = 'fft')
-        conv_rand_mat12_fft = conv_array(rand_mat1, rand_mat2, method = 'fft')
+        conv_elps = conv_vec_vec_fast(elps, elps)
+        conv_matvec = conv_mat_vec_fast(matrix, vector)
+        conv_rand_mat12 = conv_mat_mat_fast(rand_mat1, rand_mat2)
+        conv_rand_mat12_sum = conv_array(rand_mat1, rand_mat2, method = 'direct')
 
         # initialise known inner product convolution
         conv_elps_true = np.zeros(self.modes, dtype = complex)
@@ -124,12 +125,15 @@ class TestConv(unittest.TestCase):
         conv_matvec_true[2, 2] = -1j*a*b*0.5
 
         # check inner product
-        self.assertTrue(np.allclose(conv_elps_fft, conv_elps_true))
+        self.assertTrue(np.allclose(conv_elps, conv_elps_true))
 
         # check matrix vector product
-        self.assertTrue(np.allclose(conv_matvec_fft, conv_matvec_true))
+        self.assertTrue(np.allclose(conv_matvec, conv_matvec_true))
 
-    def est_conv_scalar(self):
+        # check general matrix multiplication
+        self.assertTrue(np.allclose(conv_rand_mat12_sum, conv_rand_mat12))
+
+    def test_conv_scalar(self):
         # initialise arrays with known convolutions
         a = rand.uniform(0, 10)
         b = rand.uniform(0, 10)
