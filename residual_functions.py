@@ -25,14 +25,11 @@ def resolvent_inv(no_modes, freq, jac_at_mean):
     # evaluate the number of dimensions using the size of the jacobian
     dim = np.shape(jac_at_mean)[0]
 
-    # initialise the resolvent array
-    resolvent_inv = Trajectory(np.zeros([no_modes, dim, dim], dtype = complex))
+    # evaluate resolvent arrays (including zero)
+    resolvent_inv = Trajectory((1j*freq*np.tile(np.arange(no_modes), (dim, dim, 1)).transpose())*np.identity(dim) - jac_at_mean)
 
-    # loop over calculating the value at each wavenumber
-    # GET RID OF LOOP IF POSSIBLE
-    for n in range(1, no_modes):
-        # resolvent[n] = np.linalg.inv((1j*n*freq*np.identity(dim)) - jac_at_mean)
-        resolvent_inv[n] = (1j*n*freq*np.identity(dim)) - jac_at_mean
+    # set zero mode to zero
+    resolvent_inv[0] = 0
 
     return resolvent_inv
 
