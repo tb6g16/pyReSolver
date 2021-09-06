@@ -79,15 +79,14 @@ def global_residual(local_res):
         -------
         float
     """
-    # initialise and sum the norms of the complex residual vectors
-    sum = 0
-    for n in range(1, local_res.shape[0]):
-        sum += np.dot(np.conj(local_res[n]), local_res[n])
+    # evaluate inner product of local residuals
+    gr_sum = np.copy((traj_funcs.conj(local_res).matmul_left_traj(local_res)).modes)
 
-    # add the zero mode for the mean constraint
-    sum += 0.5*np.dot(np.conj(local_res[0]), local_res[0])
+    # scale zero modes
+    gr_sum[0] = 0.5*gr_sum[0]
 
-    return np.real(sum)
+    # sum and return real part
+    return np.real(np.sum(gr_sum))
 
 def gr_traj_grad(traj, sys, freq, mean, local_res, conv_method = 'fft'):
     """
