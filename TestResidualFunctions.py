@@ -221,6 +221,8 @@ class TestResidualFunctions(unittest.TestCase):
 
         # generate resolvent trajectory
         H_n_inv = res_funcs.init_H_n_inv(traj, sys, freq, mean)
+        H_n_inv_freq_for = res_funcs.init_H_n_inv(traj, sys, freq + step, mean)
+        H_n_inv_freq_back = res_funcs.init_H_n_inv(traj, sys, freq - step, mean)
 
         # loop over trajectory DoFs and use CD scheme
         for i in range(traj.shape[0]):
@@ -245,9 +247,9 @@ class TestResidualFunctions(unittest.TestCase):
         gr_grad_FD_traj = Trajectory(gr_grad_FD_traj_real + 1j*gr_grad_FD_traj_imag)
 
         # calculate gradient w.r.t frequency
-        lr_freq_for = res_funcs.local_residual(traj, sys, freq + step, mean, H_n_inv)
+        lr_freq_for = res_funcs.local_residual(traj, sys, freq + step, mean, H_n_inv_freq_for)
         gr_freq_for = res_funcs.global_residual(lr_freq_for)
-        lr_freq_back = res_funcs.local_residual(traj, sys, freq - step, mean, H_n_inv)
+        lr_freq_back = res_funcs.local_residual(traj, sys, freq - step, mean, H_n_inv_freq_back)
         gr_freq_back = res_funcs.global_residual(lr_freq_back)
         gr_grad_FD_freq = (gr_freq_for - gr_freq_back)/(2*step)
 
