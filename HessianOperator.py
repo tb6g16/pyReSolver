@@ -24,10 +24,28 @@ class HessianOperator(LinearOperator):
         """
         return self.grad_func(self.state + v) - self.grad_func(self.state)
 
+    def _rmatvec(self, v):
+        """
+            Return the matrix-vector product of an arbitrary vector and the
+            adjoint of the Hessian (equivalent to left multiplication of a
+            row vector).
+        """
+        return self.grad_func(self.state + v) - self.grad_func(self.state)
+
     @property
     def traj(self):
         return vec2traj(self.state, self.dim)[0]
 
+    @traj.setter
+    def traj(self, new_traj):
+        self.dim = new_traj.shape[1]
+        self.state = traj2vec(new_traj, self.state[-1])
+        self.shape = (np.shape(self.state)[0] - 1, np.shape(self.state)[0] - 1)
+
     @property
     def freq(self):
         return vec2traj(self.state, self.dim)[1]
+
+    @freq.setter
+    def freq(self, new_freq):
+        self.state[-1] = new_freq
