@@ -49,3 +49,8 @@ class HessianOperator(LinearOperator):
     @freq.setter
     def freq(self, new_freq):
         self.state[-1] = new_freq
+
+    # THE PREVIOUS CODE CAN BE PUT HERE FOR SAFE KEEPING
+    @property
+    def hess_matrix(self):
+        pass
