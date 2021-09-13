@@ -5,7 +5,7 @@ import numpy as np
 
 from Trajectory import Trajectory
 from my_fft import my_rfft, my_irfft
-from conv import conv_array
+from conv import conv_vec_vec_fast, conv_mat_vec_fast, conv_mat_mat_fast, conv_array
 
 def transpose(traj):
     """
@@ -83,6 +83,61 @@ def traj_conv(traj1, traj2, method = 'fft'):
     """
     return Trajectory(conv_array(traj1.modes, traj2.modes, method = method))
 
+def traj_conv_vec_vec(traj1, traj2):
+    """
+        Return the convolution of two vector trajectories.
+
+        Perform a discrete convolution of two trajectories with vector states
+        using in-built numpy functions.
+
+        Parameters
+        ----------
+        traj1, traj2 : Trajectory
+            Trajectories of the same size to be convolved
+
+        Returns
+        -------
+        Trajectory
+    """
+    return Trajectory(conv_vec_vec_fast(traj1.modes, traj2.modes))
+
+def traj_conv_mat_vec(traj1, traj2):
+    """
+        Return the convolution of a matrix trajectory and a vector trajectory.
+
+        Perform a discrete convolution of two trajectories, one with matrix
+        states and the other with vector states, using in-built numpy#
+        functions.
+
+        Parameters
+        ----------
+        traj1, traj2 : Trajectory
+            Trajectories of the same size to be convolved
+
+        Returns
+        -------
+        Trajectory
+    """
+    return Trajectory(conv_mat_vec_fast(traj1.modes, traj2.modes))
+
+def traj_conv_mat_mat(traj1, traj2):
+    """
+        Return the convolution of two matrix trajectories.
+
+        Perform a discrete convolution of two trajectories with matrix states
+        using in-built numpy functions.
+
+        Parameters
+        ----------
+        traj1, traj2 : Trajectory
+            Trajectories of the same size to be convolved
+
+        Returns
+        -------
+        Trajectory
+    """
+    return Trajectory(conv_mat_mat_fast(traj1.modes, traj2.modes))
+
 def traj_grad(traj):
     """
         Return the gradient of a trajectory.
@@ -95,14 +150,13 @@ def traj_grad(traj):
         -------
         Trajectory
     """
-    # initialise array for new modes
-    new_modes = np.zeros_like(traj.modes)
+    # initialise array of mode modifiers to be multiplied
+    modifiers = np.transpose(np.tile(1j*np.arange(traj.shape[0]), (traj.shape[1], 1)))
 
-    # loop over time and multiply modes by modifiers
-    for k in range(traj.shape[0]):
-        new_modes[k] = 1j*k*traj.modes[k]
+    # multiply element-wise
+    new_modes = modifiers*traj.modes
 
-    # force zero mode at end to preserve symmetry
+    # force end mode to be zero to preserve symmetry
     new_modes[-1][:] = 0
 
     return Trajectory(new_modes)
@@ -123,12 +177,8 @@ def traj_response(traj, func):
     # convert trajectory to time domain
     curve = traj_irfft(traj)
 
-    # initialise new array
-    new_curve = np.zeros([np.shape(curve)[0], *np.shape(func(curve[0]))])
-
     # evaluate response in time domain
-    for i in range(np.shape(curve)[0]):
-        new_curve[i] = func(curve[i])
+    new_curve = func(curve)
 
     # convert back to frequency domain and return
     return traj_rfft(new_curve)

@@ -45,7 +45,7 @@ class TestResidualFunctions(unittest.TestCase):
         self.sys3.parameters['sigma'] = sigma
         self.sys3.parameters['beta'] = beta
         self.sys3.parameters['rho'] = rho
-        jac_at_mean_sys3 = self.sys3.jacobian([0, 0, z_mean])
+        jac_at_mean_sys3 = self.sys3.jacobian(np.array([[0, 0, z_mean]]))
         H_sys3 = res_funcs.resolvent_inv(self.traj3.shape[0], freq, jac_at_mean_sys3)
         resolvent_true = Trajectory(np.zeros([self.traj3.shape[0], 3, 3], dtype = complex))
         for n in range(1, self.traj3.shape[0]):
@@ -72,12 +72,12 @@ class TestResidualFunctions(unittest.TestCase):
         self.sys2.parameters['r'] = r
 
         # generate inverse resolvent matrices
-        H_n_inv_t1s1 = res_funcs.init_H_n_inv(self.traj1, self.sys1, freq1, np.zeros([2]))
-        H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, freq2, np.zeros([2]))
+        H_n_inv_t1s1 = res_funcs.init_H_n_inv(self.traj1, self.sys1, freq1, np.zeros([1, 2]))
+        H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, freq2, np.zeros([1, 2]))
 
         # generate local residual trajectories
-        lr_traj1_sys1 = res_funcs.local_residual(self.traj1, self.sys1, freq1, np.zeros([2]), H_n_inv_t1s1)
-        lr_traj2_sys1 = res_funcs.local_residual(self.traj2, self.sys1, freq2, np.zeros([2]), H_n_inv_t2s1)
+        lr_traj1_sys1 = res_funcs.local_residual(self.traj1, self.sys1, freq1, np.zeros([1, 2]), H_n_inv_t1s1)
+        lr_traj2_sys1 = res_funcs.local_residual(self.traj2, self.sys1, freq2, np.zeros([1, 2]), H_n_inv_t2s1)
 
         # output is of Trajectory class
         self.assertIsInstance(lr_traj1_sys1, Trajectory)
@@ -125,10 +125,10 @@ class TestResidualFunctions(unittest.TestCase):
         self.sys2.parameters['r'] = r
 
         # calculate global residuals
-        H_n_inv_t1s1 = res_funcs.init_H_n_inv(self.traj1, self.sys1, freq1, np.zeros([2]))
-        H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, freq2, np.zeros([2]))
-        lr_t1s1 = res_funcs.local_residual(self.traj1, self.sys1, freq1, np.zeros([2]), H_n_inv_t1s1)
-        lr_t2s1 = res_funcs.local_residual(self.traj2, self.sys1, freq2, np.zeros([2]), H_n_inv_t2s1)
+        H_n_inv_t1s1 = res_funcs.init_H_n_inv(self.traj1, self.sys1, freq1, np.zeros([1, 2]))
+        H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, freq2, np.zeros([1, 2]))
+        lr_t1s1 = res_funcs.local_residual(self.traj1, self.sys1, freq1, np.zeros([1, 2]), H_n_inv_t1s1)
+        lr_t2s1 = res_funcs.local_residual(self.traj2, self.sys1, freq2, np.zeros([1, 2]), H_n_inv_t2s1)
         gr_traj1_sys1 = res_funcs.global_residual(lr_t1s1)
         gr_traj2_sys1 = res_funcs.global_residual(lr_t2s1)
 
@@ -155,7 +155,7 @@ class TestResidualFunctions(unittest.TestCase):
         r = rand.uniform(0, 10)
 
         # define mean
-        mean = np.zeros([2])
+        mean = np.zeros([1, 2])
 
         # apply parameters
         self.sys1.parameters['mu'] = mu1
@@ -163,14 +163,14 @@ class TestResidualFunctions(unittest.TestCase):
         self.sys2.parameters['r'] = r
 
         # calculate local residuals
-        H_n_inv_t1s1 = res_funcs.init_H_n_inv(self.traj1, self.sys1, freq1, np.zeros([2]))
-        H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, freq2, np.zeros([2]))
+        H_n_inv_t1s1 = res_funcs.init_H_n_inv(self.traj1, self.sys1, freq1, np.zeros([1, 2]))
+        H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, freq2, np.zeros([1, 2]))
         lr_t1s1 = res_funcs.local_residual(self.traj1, self.sys1, freq1, mean, H_n_inv_t1s1)
         lr_t2s1 = res_funcs.local_residual(self.traj2, self.sys1, freq2, mean, H_n_inv_t2s1)
 
         # calculate global residual gradients
-        gr_traj_grad_t1s1 = res_funcs.gr_traj_grad(self.traj1, self.sys1, freq1, np.zeros([2]), lr_t1s1)
-        gr_grad_traj_t2s1 = res_funcs.gr_traj_grad(self.traj2, self.sys1, freq2, np.zeros([2]), lr_t2s1)
+        gr_traj_grad_t1s1 = res_funcs.gr_traj_grad(self.traj1, self.sys1, freq1, np.zeros([1, 2]), lr_t1s1)
+        gr_grad_traj_t2s1 = res_funcs.gr_traj_grad(self.traj2, self.sys1, freq2, np.zeros([1, 2]), lr_t2s1)
         gr_grad_freq_t1s1 = res_funcs.gr_freq_grad(self.traj1, lr_t1s1)
         gr_grad_freq_t2s1 = res_funcs.gr_freq_grad(self.traj2, lr_t2s1)
 
@@ -221,6 +221,8 @@ class TestResidualFunctions(unittest.TestCase):
 
         # generate resolvent trajectory
         H_n_inv = res_funcs.init_H_n_inv(traj, sys, freq, mean)
+        H_n_inv_freq_for = res_funcs.init_H_n_inv(traj, sys, freq + step, mean)
+        H_n_inv_freq_back = res_funcs.init_H_n_inv(traj, sys, freq - step, mean)
 
         # loop over trajectory DoFs and use CD scheme
         for i in range(traj.shape[0]):
@@ -245,9 +247,9 @@ class TestResidualFunctions(unittest.TestCase):
         gr_grad_FD_traj = Trajectory(gr_grad_FD_traj_real + 1j*gr_grad_FD_traj_imag)
 
         # calculate gradient w.r.t frequency
-        lr_freq_for = res_funcs.local_residual(traj, sys, freq + step, mean, H_n_inv)
+        lr_freq_for = res_funcs.local_residual(traj, sys, freq + step, mean, H_n_inv_freq_for)
         gr_freq_for = res_funcs.global_residual(lr_freq_for)
-        lr_freq_back = res_funcs.local_residual(traj, sys, freq - step, mean, H_n_inv)
+        lr_freq_back = res_funcs.local_residual(traj, sys, freq - step, mean, H_n_inv_freq_back)
         gr_freq_back = res_funcs.global_residual(lr_freq_back)
         gr_grad_FD_freq = (gr_freq_for - gr_freq_back)/(2*step)
 

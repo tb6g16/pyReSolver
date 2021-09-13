@@ -25,14 +25,11 @@ def resolvent_inv(no_modes, freq, jac_at_mean):
     # evaluate the number of dimensions using the size of the jacobian
     dim = np.shape(jac_at_mean)[0]
 
-    # initialise the resolvent array
-    resolvent_inv = Trajectory(np.zeros([no_modes, dim, dim], dtype = complex))
+    # evaluate resolvent arrays (including zero)
+    resolvent_inv = Trajectory((1j*freq*np.tile(np.arange(no_modes), (dim, dim, 1)).transpose())*np.identity(dim) - jac_at_mean)
 
-    # loop over calculating the value at each wavenumber
-    # GET RID OF LOOP IF POSSIBLE
-    for n in range(1, no_modes):
-        # resolvent[n] = np.linalg.inv((1j*n*freq*np.identity(dim)) - jac_at_mean)
-        resolvent_inv[n] = (1j*n*freq*np.identity(dim)) - jac_at_mean
+    # set zero mode to zero
+    resolvent_inv[0] = 0
 
     return resolvent_inv
 
@@ -82,15 +79,14 @@ def global_residual(local_res):
         -------
         float
     """
-    # initialise and sum the norms of the complex residual vectors
-    sum = 0
-    for n in range(1, local_res.shape[0]):
-        sum += np.dot(np.conj(local_res[n]), local_res[n])
+    # evaluate inner product of local residuals
+    gr_sum = np.copy((traj_funcs.conj(local_res).matmul_left_traj(local_res)).modes)
 
-    # add the zero mode for the mean constraint
-    sum += 0.5*np.dot(np.conj(local_res[0]), local_res[0])
+    # scale zero modes
+    gr_sum[0] = 0.5*gr_sum[0]
 
-    return np.real(sum)
+    # sum and return real part
+    return np.real(np.sum(gr_sum))
 
 def gr_traj_grad(traj, sys, freq, mean, local_res, conv_method = 'fft'):
     """
@@ -147,12 +143,13 @@ def gr_freq_grad(traj, local_res):
         -------
         float
     """
-    # initialise sum and loop over modes
-    sum = 0
-    for n in range(1, traj.shape[0]):
-        sum += n*np.imag(np.dot(np.conj(traj[n]), local_res[n]))
-    sum = 2*sum
+    # take imaginary part of inner product of trajectory and local residual
+    grad_sum = np.imag(np.copy(traj_funcs.conj(traj).matmul_left_traj(local_res).modes))
 
-    # return sum
-    # return 0.001*sum
+    # scale by two times the mode number
+    grad_sum = 2*np.arange(traj.shape[0])*grad_sum
+
+    # sum and return
+    # return np.sum(grad_sum)
+    # return 0.001*np.sum(grad_sum)
     return 0.0

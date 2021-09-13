@@ -2,6 +2,7 @@
 # between two real valued Fourier mode pairs.
 
 import numpy as np
+
 from my_fft import my_fft, my_ifft, my_rfft, my_irfft
 
 def conv_scalar_fast(scalar1, scalar2):
@@ -14,7 +15,7 @@ def conv_scalar_fast(scalar1, scalar2):
         Paramaters
         ----------
         scalar1, scalar2 : ndarray
-            1D array containing data of float type.
+            1D arrays containing data of float type.
         
         Returns
         -------
@@ -30,9 +31,114 @@ def conv_scalar_fast(scalar1, scalar2):
 
     # truncate to include on rfft outputs
     conv_array = conv_array_full[np.shape(scalar1)[0]:]
-    conv_array = np.append(conv_array, [conv_array_full[1], conv_array_full[0]])
+    conv_array = np.append(conv_array, [np.conj(conv_array_full[2]), np.conj(conv_array_full[1])])
 
     return conv_array
+
+def conv_vec_vec_fast(array1, array2):
+    """
+        Return convolution of two vector arrays using in-built numpy functions.
+
+        Perform a discrete convolution over two sets of vectors using the
+        numpy in-built convolve function.
+
+        Parameters
+        ----------
+        array1, array2 : ndarray
+            2D arrays containing data of float type.
+
+        Returns
+        -------
+        conv : ndarray
+            1D array containing data of float type.
+    """
+    # initialise convolution array
+    conv = np.zeros([np.shape(array1)[0], *np.shape(np.matmul(array1[0], array2[0]))], dtype = complex)
+
+    # loop over the dimensions
+    for i in range(np.shape(array1)[1]):
+        # pick out the mode vector for each dimension
+        array1_at_i = array1[:, i]
+        array2_at_i = array2[:, i]
+
+        # convolve the two vectors and add to the sum over this dimension
+        conv[:] += conv_scalar_fast(array1_at_i, array2_at_i)
+
+    return conv
+
+def conv_mat_vec_fast(array1, array2):
+    """
+        Return convolution of a matrix array and a vector array using in-built
+        numpy functions.
+
+        Perform a discrete convolution over a set of matrices and a set of
+        vectors using the numpy in-built convolve function.
+
+        Parameters
+        ----------
+        array1, array2 : ndarray
+            2D arrays containing data of float type.
+
+        Returns
+        -------
+        conv : ndarray
+            1D array containing data of float type.
+    """
+    # initialise convolution array
+    conv = np.zeros([np.shape(array1)[0], *np.shape(np.matmul(array1[0], array2[0]))], dtype = complex)
+
+    # loop over the dimensions
+    for i in range(np.shape(array1)[1]):
+        conv_at_i = 0
+        for j in range(np.shape(array1)[2]):
+            # pick out the mode matrix and vector for each dimension
+            array1_at_ij = array1[:, i, j]
+            array2_at_j = array2[:, j]
+
+            # convolve the matrix and vector and add to sum over this dimension
+            conv_at_i += conv_scalar_fast(array1_at_ij, array2_at_j)
+
+        # assign convolution sum for current dimension
+        conv[:, i] = conv_at_i
+
+    return conv
+
+def conv_mat_mat_fast(array1, array2):
+    """
+        Return convolution of two matrix arrays using in-built numpy functions.
+
+        Perform a discrete convolution over two sets of matrices using the
+        numpy in-built convolve function.
+
+        Parameters
+        ----------
+        array1, array2 : ndarray
+            2D arrays containing data of float type.
+
+        Returns
+        -------
+        conv : ndarray
+            1D array containing data of float type.
+    """
+    # initialise convolution array
+    conv = np.zeros([np.shape(array1)[0], *np.shape(np.matmul(array1[0], array2[0]))], dtype = complex)
+
+    # loop over the dimensions
+    for i in range(np.shape(array1)[1]):
+        for j in range(np.shape(array2)[2]):
+            conv_at_ij = 0
+            for k in range(np.shape(array1)[2]):
+                # pick out the mode matrix and vector for each dimension
+                array1_at_ik = array1[:, i, k]
+                array2_at_kj = array2[:, k, j]
+
+                # convolve the matrices and add to sum over this dimension
+                conv_at_ij += conv_scalar_fast(array1_at_ik, array2_at_kj)
+
+            # assign convolution sum for current dimension
+            conv[:, i, j] = conv_at_ij
+
+    return conv
 
 def conv_scalar(scalar1, scalar2, method = 'fft'):
     """
@@ -79,9 +185,7 @@ def conv_scalar(scalar1, scalar2, method = 'fft'):
         scalar2_time = my_irfft(scalar2)
 
         # initialise array and perform point-wise multiplication
-        prod = np.zeros_like(scalar1_time)
-        for i in range(np.shape(scalar1_time)[0]):
-            prod[i] = scalar1_time[i]*scalar2_time[i]
+        prod = scalar1_time*scalar2_time
         
         return my_rfft(prod)
     else:
@@ -137,11 +241,14 @@ def conv_array(array1, array2, method = 'fft'):
         # dummy array to find shape of result
         matmul_temp = np.matmul(array1_time[0], array2_time[1])
 
-        # intialise array and perform point-wise multiplication
-        prod = np.zeros([np.shape(array1_time)[0], *np.shape(matmul_temp)])
-        for i in range(np.shape(array1_time)[0]):
-            prod[i] = np.matmul(array1_time[i], array2_time[i])
-        
+        # intialise array and perform mode-wise multiplication
+        if len(array1_time.shape) == 2 and len(array2_time.shape) == 2:
+            prod = np.diag(np.inner(array1_time, array2_time))
+        elif len(array1_time.shape) == 3 and len(array2_time.shape) == 3:
+            prod = np.matmul(array1_time, array2_time)
+        else:
+            prod = np.squeeze(np.matmul(array1_time, np.reshape(array2_time, (*np.shape(array2_time), 1))))
+
         return my_rfft(prod)
     else:
         raise ValueError("Not a valid method!")

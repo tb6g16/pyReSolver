@@ -39,9 +39,9 @@ class TestOptimise(unittest.TestCase):
         self.traj3_vec = traj2vec(self.traj3, self.freq3)
 
         self.sys1 = vpd
-        self.mean1 = np.random.rand(2)
+        self.mean1 = np.random.rand(1, 2)
         self.sys2 = lorenz
-        self.mean2 = np.random.rand(3)
+        self.mean2 = np.random.rand(1, 3)
 
     def tearDown(self):
         del self.traj1

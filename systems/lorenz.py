@@ -16,9 +16,9 @@ def response(x: np.ndarray, defaults = parameters):
     response = np.zeros(np.shape(x))
 
     # assign response
-    response[0] = sigma*(x[1] - x[0])
-    response[1] = (rho*x[0]) - x[1] - (x[0]*x[2])
-    response[2] = (x[0]*x[1]) - (beta*x[2])
+    response[:, 0] = sigma*(x[:, 1] - x[:, 0])
+    response[:, 1] = (rho*x[:, 0]) - x[:, 1] - (x[:, 0]*x[:, 2])
+    response[:, 2] = (x[:, 0]*x[:, 1]) - (beta*x[:, 2])
 
     return response
 
@@ -29,27 +29,27 @@ def jacobian(x: np.ndarray, defaults = parameters):
     sigma = defaults['sigma']
 
     # initialise jacobian matrix
-    jacobian = np.zeros([np.shape(x)[0], np.shape(x)[0]])
+    jacobian = np.zeros([np.shape(x)[0], np.shape(x)[1], np.shape(x)[1]])
 
     # compute jacobian elements
-    jacobian[0, 0] = -sigma
-    jacobian[0, 1] = sigma
-    jacobian[1, 0] = rho - x[2]
-    jacobian[1, 1] = -1
-    jacobian[1, 2] = -x[0]
-    jacobian[2, 0] = x[1]
-    jacobian[2, 1] = x[0]
-    jacobian[2, 2] = -beta
+    jacobian[:, 0, 0] = -sigma
+    jacobian[:, 0, 1] = sigma
+    jacobian[:, 1, 0] = rho - x[:, 2]
+    jacobian[:, 1, 1] = -1
+    jacobian[:, 1, 2] = -x[:, 0]
+    jacobian[:, 2, 0] = x[:, 1]
+    jacobian[:, 2, 1] = x[:, 0]
+    jacobian[:, 2, 2] = -beta
 
-    return jacobian
+    return np.squeeze(jacobian)
 
 def nl_factor(x: np.ndarray, defaults = parameters):
     # initialise output vector
     nl_vector = np.zeros(np.shape(x))
 
     # assign values
-    nl_vector[1] = -x[0]*x[2]
-    nl_vector[2] = x[0]*x[1]
+    nl_vector[:, 1] = -x[:, 0]*x[:, 2]
+    nl_vector[:, 2] = x[:, 0]*x[:, 1]
 
     return nl_vector
 
