@@ -1,7 +1,6 @@
 # This file will contian the definitions for an easy to use plotting wrapper
 # for the trajectory object.
 
-import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D

@@ -2,6 +2,7 @@
 # decomposition of the resolvent operator.
 
 import numpy as np
+
 from traj_util import list2array, array2list
 from Trajectory import Trajectory
 from trajectory_functions import transpose, conj
