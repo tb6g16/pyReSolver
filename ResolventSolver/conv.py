@@ -3,7 +3,7 @@
 
 import numpy as np
 
-from my_fft import my_fft, my_ifft, my_rfft, my_irfft
+from ResolventSolver.my_fft import my_fft, my_ifft, my_rfft, my_irfft
 
 def conv_scalar_fast(scalar1, scalar2):
     """

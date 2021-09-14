@@ -5,12 +5,12 @@ import unittest
 import numpy as np
 import random as rand
 
-from Trajectory import Trajectory
-from traj2vec import traj2vec, vec2traj
-from my_min import init_opt_funcs
-import residual_functions as res_funcs
-from systems import van_der_pol as vpd
-from systems import lorenz
+from ResolventSolver.Trajectory import Trajectory
+from ResolventSolver.traj2vec import traj2vec, vec2traj
+from ResolventSolver.my_min import init_opt_funcs
+import ResolventSolver.residual_functions as res_funcs
+from ResolventSolver.systems import van_der_pol as vpd
+from ResolventSolver.systems import lorenz
 
 class TestOptimise(unittest.TestCase):
 

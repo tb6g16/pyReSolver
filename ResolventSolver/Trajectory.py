@@ -3,8 +3,8 @@
 
 import numpy as np
 
-from my_fft import my_rfft, my_irfft
-from traj_util import func2curve
+from ResolventSolver.my_fft import my_rfft, my_irfft
+from ResolventSolver.traj_util import func2curve
 
 class Trajectory:
     """

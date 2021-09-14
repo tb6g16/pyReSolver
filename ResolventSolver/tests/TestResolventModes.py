@@ -5,10 +5,10 @@ import unittest
 import random as rand
 import numpy as np
 
-from Trajectory import Trajectory
-from trajectory_functions import transpose, conj
-from resolvent_modes import resolvent, resolvent_modes
-from systems import lorenz
+from ResolventSolver.Trajectory import Trajectory
+from ResolventSolver.trajectory_functions import transpose, conj
+from ResolventSolver.resolvent_modes import resolvent, resolvent_modes
+from ResolventSolver.systems import lorenz
 
 class TestResolventModes(unittest.TestCase):
 

@@ -4,10 +4,10 @@ import unittest
 import numpy as np
 import random as rand
 
-from traj_util import func2curve, list2array, array2list
-from trajectory_definitions import unit_circle as uc
-from trajectory_definitions import unit_circle_3d as uc3d
-from trajectory_definitions import ellipse as elps
+from ResolventSolver.traj_util import func2curve, list2array, array2list
+from ResolventSolver.trajectory_definitions import unit_circle as uc
+from ResolventSolver.trajectory_definitions import unit_circle_3d as uc3d
+from ResolventSolver.trajectory_definitions import ellipse as elps
 
 class TestTrajUtil(unittest.TestCase):
 

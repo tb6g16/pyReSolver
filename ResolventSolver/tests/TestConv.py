@@ -5,9 +5,9 @@ import unittest
 import numpy as np
 import random as rand
 
-from my_fft import my_rfft, my_irfft
-from conv import conv_scalar_fast, conv_vec_vec_fast, conv_mat_vec_fast, conv_mat_mat_fast, conv_scalar, conv_array
-from trajectory_definitions import ellipse as elps
+from ResolventSolver.my_fft import my_rfft, my_irfft
+from ResolventSolver.conv import conv_scalar_fast, conv_vec_vec_fast, conv_mat_vec_fast, conv_mat_mat_fast, conv_scalar, conv_array
+from ResolventSolver.trajectory_definitions import ellipse as elps
 
 class TestConv(unittest.TestCase):
 

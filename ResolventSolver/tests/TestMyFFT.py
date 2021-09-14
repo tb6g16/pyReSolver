@@ -4,10 +4,10 @@ import unittest
 import numpy as np
 import random as rand
 
-from my_fft import my_fft, my_ifft, my_rfft, my_irfft
-from traj_util import func2curve
-from trajectory_definitions import unit_circle as uc
-from trajectory_definitions import ellipse as elps
+from ResolventSolver.my_fft import my_fft, my_ifft, my_rfft, my_irfft
+from ResolventSolver.traj_util import func2curve
+from ResolventSolver.trajectory_definitions import unit_circle as uc
+from ResolventSolver.trajectory_definitions import ellipse as elps
 
 class TestMyFFT(unittest.TestCase):
 

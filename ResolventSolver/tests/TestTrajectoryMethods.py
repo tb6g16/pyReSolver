@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 import random as rand
 
-from Trajectory import Trajectory
+from ResolventSolver.Trajectory import Trajectory
 
 class TestTrajectoryMethods(unittest.TestCase):
 

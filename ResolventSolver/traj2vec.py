@@ -3,7 +3,7 @@
 
 import numpy as np
 
-from Trajectory import Trajectory
+from ResolventSolver.Trajectory import Trajectory
 
 def traj2vec(traj, freq):
     """
