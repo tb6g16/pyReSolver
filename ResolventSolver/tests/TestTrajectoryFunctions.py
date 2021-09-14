@@ -5,14 +5,14 @@ import unittest
 import numpy as np
 import random as rand
 
-from Trajectory import Trajectory
-import trajectory_functions as traj_funcs
-from trajectory_definitions import unit_circle as uc
-from trajectory_definitions import ellipse as elps
-from trajectory_definitions import unit_circle_3d as uc3
-from systems import van_der_pol as vpd
-from systems import viswanath as vis
-from systems import lorenz
+from ResolventSolver.Trajectory import Trajectory
+import ResolventSolver.trajectory_functions as traj_funcs
+from ResolventSolver.trajectory_definitions import unit_circle as uc
+from ResolventSolver.trajectory_definitions import ellipse as elps
+from ResolventSolver.trajectory_definitions import unit_circle_3d as uc3
+from ResolventSolver.systems import van_der_pol as vpd
+from ResolventSolver.systems import viswanath as vis
+from ResolventSolver.systems import lorenz
 
 class TestTrajectoryFunctions(unittest.TestCase):
 

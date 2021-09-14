@@ -1,8 +1,6 @@
 # This file contains the class definition to allow simple implementation of
 # trajectory plotting in the plot_traj.py file.
 
-import numpy as np
-
 class TrajPlotObject():
     """
         Class for the simple plotting data of a trajectory.

@@ -5,10 +5,10 @@
 import numpy as np
 from scipy.optimize import minimize
 
-from Trajectory import Trajectory
-from traj2vec import traj2vec, vec2traj
-import residual_functions as res_funcs
-from trajectory_functions import transpose, conj
+from ResolventSolver.Trajectory import Trajectory
+from ResolventSolver.traj2vec import traj2vec, vec2traj
+import ResolventSolver.residual_functions as res_funcs
+from ResolventSolver.trajectory_functions import transpose, conj
 
 def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
     """

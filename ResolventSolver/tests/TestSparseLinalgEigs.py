@@ -7,11 +7,6 @@ import scipy
 from scipy.sparse.linalg import LinearOperator
 import random as rand
 
-import traj_hdf5
-from Trajectory import Trajectory
-from hessian import hess
-from systems import lorenz
-
 class RandomDiagonal(LinearOperator):
     
     def __init__(self, N):

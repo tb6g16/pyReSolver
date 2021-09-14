@@ -3,8 +3,8 @@
 
 import numpy as np
 
-from traj2vec import traj2vec
-from my_min import init_opt_funcs
+from ResolventSolver.traj2vec import traj2vec
+from ResolventSolver.my_min import init_opt_funcs
 
 def hess(traj, freq, sys, mean, eps = 1e-6, conv_method = 'fft'):
     # initialise gradient function

@@ -4,8 +4,8 @@
 import h5py
 import numpy as np
 
-from Trajectory import Trajectory
-from my_fft import my_rfft
+from ResolventSolver.Trajectory import Trajectory
+from ResolventSolver.my_fft import my_rfft
 
 def write_traj(filename, traj, freq):
     """

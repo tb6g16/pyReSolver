@@ -3,9 +3,9 @@
 
 import numpy as np
 
-from traj_util import list2array, array2list
-from Trajectory import Trajectory
-from trajectory_functions import transpose, conj
+from ResolventSolver.traj_util import list2array, array2list
+from ResolventSolver.Trajectory import Trajectory
+from ResolventSolver.trajectory_functions import transpose, conj
 
 def resolvent(freq, n, jac_at_mean, B = None):
     """

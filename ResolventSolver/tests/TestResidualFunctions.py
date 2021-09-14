@@ -6,15 +6,15 @@ import numpy as np
 import scipy.integrate as integ
 import random as rand
 
-from Trajectory import Trajectory
-import residual_functions as res_funcs
-from my_fft import my_rfft, my_irfft
-from trajectory_definitions import unit_circle as uc
-from trajectory_definitions import ellipse as elps
-from trajectory_definitions import unit_circle_3d as uc3
-from systems import van_der_pol as vpd
-from systems import viswanath as vis
-from systems import lorenz
+from ResolventSolver.Trajectory import Trajectory
+import ResolventSolver.residual_functions as res_funcs
+from ResolventSolver.my_fft import my_rfft, my_irfft
+from ResolventSolver.trajectory_definitions import unit_circle as uc
+from ResolventSolver.trajectory_definitions import ellipse as elps
+from ResolventSolver.trajectory_definitions import unit_circle_3d as uc3
+from ResolventSolver.systems import van_der_pol as vpd
+from ResolventSolver.systems import viswanath as vis
+from ResolventSolver.systems import lorenz
 
 import matplotlib.pyplot as plt
 

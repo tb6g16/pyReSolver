@@ -5,8 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-from my_fft import my_irfft
-from TrajPlotObject import TrajPlotObject
+from ResolventSolver.my_fft import my_irfft
+from ResolventSolver.TrajPlotObject import TrajPlotObject
 
 def plot_single_traj(plot_object, ax = None, proj = None, show = False):
     """

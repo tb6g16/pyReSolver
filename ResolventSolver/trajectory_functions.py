@@ -3,9 +3,9 @@
 
 import numpy as np
 
-from Trajectory import Trajectory
-from my_fft import my_rfft, my_irfft
-from conv import conv_vec_vec_fast, conv_mat_vec_fast, conv_mat_mat_fast, conv_array
+from ResolventSolver.Trajectory import Trajectory
+from ResolventSolver.my_fft import my_rfft, my_irfft
+from ResolventSolver.conv import conv_vec_vec_fast, conv_mat_vec_fast, conv_mat_mat_fast, conv_array
 
 def transpose(traj):
     """
