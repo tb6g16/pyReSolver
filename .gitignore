@@ -8,3 +8,4 @@
 profiling.py
 csource/build/
 venv
+.vscode
