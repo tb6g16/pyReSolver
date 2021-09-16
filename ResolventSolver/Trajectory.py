@@ -3,9 +3,6 @@
 
 import numpy as np
 
-from ResolventSolver.my_fft import my_rfft, my_irfft
-from ResolventSolver.traj_util import func2curve
-
 class Trajectory:
     """
         A trajectory in state-space stored as an array of Fourier modes.
@@ -18,7 +15,6 @@ class Trajectory:
             Shape of the trajectory equivelent array.
     """
 
-    # add type attribute
     __slots__ = ['modes', 'shape']
     __array_priority__ = 1e100
 
@@ -28,20 +24,14 @@ class Trajectory:
 
             Parameters
             ----------
-            curve : function or ndarray
-                Function or list that defines a trajectory in state-space
+            curve : ndarray
+                Numpy array that defines a trajectory in state-space
             modes : positive int, default=33
                 Number of modes to represent the trajectory, ignored is curve
                 is an array.
         """
-        if type(curve) == np.ndarray:
-            self.modes = curve
-            self.shape = np.shape(curve)
-        elif hasattr(curve, '__call__'):
-            self.modes = my_rfft(func2curve(curve, modes))
-            self.shape = np.shape(self.modes)
-        else:
-            raise TypeError("Curve variable has to be either a function or a numpy array!")
+        self.modes = curve
+        self.shape = np.shape(curve)
 
     def __add__(self, other_traj):
         """Add trajectory to current instance."""
@@ -76,11 +66,11 @@ class Trajectory:
         return np.allclose(self.modes, other_traj.modes, rtol = rtol, atol = atol)
 
     def __getitem__(self, key):
-        """Return the element of the mode list indexed by the given key."""
+        """Return the element(s) of the modes indexed by the given key."""
         return self.modes[key]
 
     def __setitem__(self, key, value):
-        """Set the value of the mode list indexed by the given key."""
+        """Set the value(s) of the modes indexed by the given key."""
         self.modes[key] = value
 
     def __round__(self, decimals = 6):

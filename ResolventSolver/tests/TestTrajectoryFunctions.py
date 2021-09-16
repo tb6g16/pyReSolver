@@ -5,6 +5,8 @@ import unittest
 import numpy as np
 import random as rand
 
+from ResolventSolver.traj_util import func2curve
+from ResolventSolver.my_fft import my_rfft
 from ResolventSolver.Trajectory import Trajectory
 import ResolventSolver.trajectory_functions as traj_funcs
 from ResolventSolver.trajectory_definitions import unit_circle as uc
@@ -17,8 +19,8 @@ from ResolventSolver.systems import lorenz
 class TestTrajectoryFunctions(unittest.TestCase):
 
     def setUp(self):
-        self.traj1 = Trajectory(uc.x, modes = 33)
-        self.traj2 = Trajectory(elps.x, modes = 33)
+        self.traj1 = Trajectory(my_rfft(func2curve(uc.x, 33)))
+        self.traj2 = Trajectory(my_rfft(func2curve(elps.x, 33)))
         self.sys1 = vpd
         self.sys2 = vis
 
@@ -188,7 +190,7 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(np.allclose(t1nl2_time[cross_i2], t2nl2_time[cross_i2]))
 
         # extra test for matrix function
-        traj3 = Trajectory(uc3.x)
+        traj3 = Trajectory(my_rfft(func2curve(uc3.x, 33)))
         sys3 = lorenz
         t3_lor_jac = traj_funcs.traj_response(traj3, sys3.jacobian)
         t3_lor_jac_true = np.zeros([traj3.shape[0], 3, 3], dtype = complex)
