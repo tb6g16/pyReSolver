@@ -6,7 +6,7 @@ import numpy as np
 # define parameters
 parameters = {'rho': 28, 'beta': 8/3, 'sigma': 10}
 
-def response(x: np.ndarray, defaults = parameters):
+def response(x, defaults = parameters):
     # unpack defaults
     rho = defaults['rho']
     beta = defaults['beta']
@@ -22,7 +22,7 @@ def response(x: np.ndarray, defaults = parameters):
 
     return response
 
-def jacobian(x: np.ndarray, defaults = parameters):
+def jacobian(x, defaults = parameters):
     # unpack defaults
     rho = defaults['rho']
     beta = defaults['beta']
@@ -43,7 +43,7 @@ def jacobian(x: np.ndarray, defaults = parameters):
 
     return np.squeeze(jacobian)
 
-def nl_factor(x: np.ndarray, defaults = parameters):
+def nl_factor(x, defaults = parameters):
     # initialise output vector
     nl_vector = np.zeros(np.shape(x))
 
@@ -53,24 +53,24 @@ def nl_factor(x: np.ndarray, defaults = parameters):
 
     return nl_vector
 
-def nl_factor2(x, defaults = parameters):
-    # initialise output vector
-    nl_vector = np.zeros(2)
+# def nl_factor2(x, defaults = parameters):
+#     # initialise output vector
+#     nl_vector = np.zeros(2)
 
-    # assign values
-    nl_vector[0] = x[0]*x[2]
-    nl_vector[1] = x[0]*x[1]
+#     # assign values
+#     nl_vector[0] = x[0]*x[2]
+#     nl_vector[1] = x[0]*x[1]
 
-    return nl_vector
+#     return nl_vector
 
-def nl_factor_derv(x, defaults = parameters):
-    # initialise output matrix
-    nl_derv_mat = np.zeros([2, 3])
+# def nl_factor_derv(x, defaults = parameters):
+#     # initialise output matrix
+#     nl_derv_mat = np.zeros([2, 3])
 
-    # assign values
-    nl_derv_mat[0, 0] = x[2]
-    nl_derv_mat[0, 2] = x[0]
-    nl_derv_mat[1, 0] = x[1]
-    nl_derv_mat[1, 1] = x[0]
+#     # assign values
+#     nl_derv_mat[0, 0] = x[2]
+#     nl_derv_mat[0, 2] = x[0]
+#     nl_derv_mat[1, 0] = x[1]
+#     nl_derv_mat[1, 1] = x[0]
 
-    return nl_derv_mat
+#     return nl_derv_mat

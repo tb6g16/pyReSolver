@@ -5,6 +5,5 @@
 *.pdf
 *.prof
 *.hdf5
-profiling.py
 csource/build/
 venv
