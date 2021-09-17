@@ -6,6 +6,8 @@ import numpy as np
 import scipy.integrate as integ
 import random as rand
 
+from ResolventSolver.traj_util import func2curve
+from ResolventSolver.my_fft import my_rfft
 from ResolventSolver.Trajectory import Trajectory
 import ResolventSolver.residual_functions as res_funcs
 from ResolventSolver.my_fft import my_rfft, my_irfft
@@ -21,9 +23,9 @@ import matplotlib.pyplot as plt
 class TestResidualFunctions(unittest.TestCase):
 
     def setUp(self):
-        self.traj1 = Trajectory(uc.x)
-        self.traj2 = Trajectory(elps.x)
-        self.traj3 = Trajectory(uc3.x)
+        self.traj1 = Trajectory(my_rfft(func2curve(uc.x, 33)))
+        self.traj2 = Trajectory(my_rfft(func2curve(elps.x, 33)))
+        self.traj3 = Trajectory(my_rfft(func2curve(uc3.x, 33)))
         self.sys1 = vpd
         self.sys2 = vis
         self.sys3 = lorenz
