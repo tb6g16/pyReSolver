@@ -50,7 +50,24 @@ class HessianOperator(LinearOperator):
     def freq(self, new_freq):
         self.state[-1] = new_freq
 
-    # THE PREVIOUS CODE CAN BE PUT HERE FOR SAFE KEEPING
     @property
-    def hess_matrix(self):
-        pass
+    def hess_matrix(self, eps = 1e-6):
+        # intialise hessian matrix
+        hessian = np.zeros(self.shape)
+
+        # precompute the gradient for the given trajectory
+        grad_at_min = self.grad_func(self.state)
+
+        # loop over columns of hessian matrix
+        for j in range(self.shape[0] - 1):
+            # define unit basis in j-th direction
+            unit_basis_j = np.zeros(self.shape[0])
+            unit_basis_j[j] = 1.0
+
+            # calculate gradient at two close states at minimum
+            grad_off_min = self.grad_func(self.state + eps*unit_basis_j)
+
+            # evaluate hessian column
+            hessian[:, j] = (grad_at_min - grad_off_min)/eps
+
+        return hessian[:-1, :-1]

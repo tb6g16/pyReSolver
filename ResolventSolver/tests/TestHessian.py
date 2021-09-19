@@ -14,6 +14,9 @@ class TestHessian(unittest.TestCase):
     def test_hessian_symmetric(self):
         pass
 
+    def test_hessian_dot_test(self):
+        pass
+
     def test_hessian_positive_definite(self):
         pass
 
