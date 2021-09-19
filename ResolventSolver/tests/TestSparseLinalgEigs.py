@@ -2,12 +2,12 @@
 # minimum.
 
 import unittest
-import numpy as np
-import scipy
-from scipy.sparse.linalg import LinearOperator
 import random as rand
 
-class RandomDiagonal(LinearOperator):
+import numpy as np
+import scipy.sparse.linalg as sparse
+
+class RandomDiagonal(sparse.LinearOperator):
     
     def __init__(self, N):
         self.diag_vec = np.random.rand(N)
@@ -28,8 +28,7 @@ class RandomDiagonal(LinearOperator):
 class TestSparseLinalgEigs(unittest.TestCase):
 
     def setUp(self):
-        # N = rand.randint(2, 50)
-        N = 5
+        N = rand.randint(3, 50)
         self.diag = RandomDiagonal(N)
 
     def tearDown(self):
@@ -59,7 +58,32 @@ class TestSparseLinalgEigs(unittest.TestCase):
         self.assertTrue(np.allclose(lhs, rhs))
 
     def test_diag_eigs(self):
-        pass
+        # how many eigenvalues to find
+        no_eigs = rand.randint(1, self.diag.shape[0] - 2)
+
+        # find largest
+        evals_large, _ = sparse.eigs(self.diag, k = no_eigs, which = 'LM')
+
+        # find smallest with shift invert
+        evals_small, _ = sparse.eigs(self.diag, k = no_eigs, which = 'LM', sigma = 0)
+
+        # are they correct
+        self.assertTrue(np.allclose(np.sort(self.diag.diag_vec)[self.diag.shape[0] - no_eigs:], np.sort(evals_large)))
+        self.assertTrue(np.allclose(np.sort(self.diag.diag_vec)[:no_eigs], np.sort(evals_small)))
+
+    def test_diag_eigsh(self):
+        # how many eigenvalues to find
+        no_eigs = rand.randint(1, self.diag.shape[0] - 1)
+
+        # find largest
+        evals_large, _ = sparse.eigsh(self.diag, k = no_eigs, which = 'LM')
+
+        # find smallest with shift invert
+        evals_small, _ = sparse.eigsh(self.diag, k = no_eigs, which = 'LM', sigma = 0)
+
+        # are they correct
+        self.assertTrue(np.allclose(np.sort(self.diag.diag_vec)[self.diag.shape[0] - no_eigs:], np.sort(evals_large)))
+        self.assertTrue(np.allclose(np.sort(self.diag.diag_vec)[:no_eigs], np.sort(evals_small)))
 
 
 if __name__ == '__main__':
