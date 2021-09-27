@@ -1,12 +1,17 @@
 # This file will contian the definitions for an easy to use plotting wrapper
 # for the trajectory object.
 
+import warnings
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 from ResolventSolver.my_fft import my_irfft
 from ResolventSolver.TrajPlotObject import TrajPlotObject
+
+# catch warnings as if they are errors
+warnings.filterwarnings('error')
 
 def plot_single_traj(plot_object, ax = None, proj = None, show = False):
     """
@@ -100,6 +105,7 @@ def plot_traj(*args, **kwargs):
     proj = kwargs.get('proj', None)
     discs = kwargs.get('discs', [None]*len(args))
     means = kwargs.get('means', [None]*len(args))
+    save = kwargs.get('save', None)
 
     # initialise figure and axis
     fig = plt.figure()
@@ -120,8 +126,14 @@ def plot_traj(*args, **kwargs):
         plot_object = TrajPlotObject(arg, disc = discs[index], mean = means[index])
         plot_single_traj(plot_object, ax = ax, proj = proj)
 
-    # show the plot (OR SAVE IT????)
-    plt.show()
+    # show the plot or save it
+    if save is not None:
+        plt.savefig(save)
+    else:
+        try:
+            plt.show()
+        except UserWarning:
+            plt.savefig('./temp.png')
 
 def plot_along_s(*args, **kwargs):
     """

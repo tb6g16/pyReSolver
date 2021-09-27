@@ -22,7 +22,7 @@ class HessianOperator(LinearOperator):
             Return the Hessian-vector product by taking the difference of the
             gradients.
         """
-        return self.grad_func(self.state + v) - self.grad_func(self.state)
+        return self.grad_func(self.state + v)[:-1] - self.grad_func(self.state)[:-1]
 
     def _rmatvec(self, v):
         """
@@ -30,7 +30,7 @@ class HessianOperator(LinearOperator):
             adjoint of the Hessian (equivalent to left multiplication of a
             row vector).
         """
-        return self.grad_func(self.state + v) - self.grad_func(self.state)
+        return self.grad_func(self.state + v)[:-1] - self.grad_func(self.state)[:-1]
 
     @property
     def traj(self):

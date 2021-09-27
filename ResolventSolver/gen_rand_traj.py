@@ -1,8 +1,9 @@
 # This file contains the definitions to generate a random trajectory in a given
 # state space defined by a dynamical system.
 
-import numpy as np
 import random as rand
+
+import numpy as np
 
 from ResolventSolver.Trajectory import Trajectory
 
