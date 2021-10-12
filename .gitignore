@@ -7,3 +7,5 @@
 *.hdf5
 csource/build/
 venv
+.vscode
+build/
