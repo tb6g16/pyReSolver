@@ -8,3 +8,4 @@
 csource/build/
 venv
 .vscode
+build/
