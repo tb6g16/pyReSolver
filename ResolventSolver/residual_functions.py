@@ -37,7 +37,7 @@ def init_H_n_inv(traj, sys, freq, mean):
     jac_at_mean = sys.jacobian(mean)
     return resolvent_inv(traj.shape[0], freq, jac_at_mean)
 
-def local_residual(traj, sys, freq, mean, H_n_inv):
+def local_residual(traj, sys, mean, H_n_inv):
     """
         Return the local residual of a trajectory in a state-space.
 
@@ -150,6 +150,6 @@ def gr_freq_grad(traj, local_res):
     grad_sum = 2*np.arange(traj.shape[0])*grad_sum
 
     # sum and return
-    # return np.sum(grad_sum)
+    return np.sum(grad_sum)
     # return 0.001*np.sum(grad_sum)
-    return 0.0
+    # return 0.0

@@ -78,8 +78,8 @@ class TestResidualFunctions(unittest.TestCase):
         H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, freq2, np.zeros([1, 2]))
 
         # generate local residual trajectories
-        lr_traj1_sys1 = res_funcs.local_residual(self.traj1, self.sys1, freq1, np.zeros([1, 2]), H_n_inv_t1s1)
-        lr_traj2_sys1 = res_funcs.local_residual(self.traj2, self.sys1, freq2, np.zeros([1, 2]), H_n_inv_t2s1)
+        lr_traj1_sys1 = res_funcs.local_residual(self.traj1, self.sys1, np.zeros([1, 2]), H_n_inv_t1s1)
+        lr_traj2_sys1 = res_funcs.local_residual(self.traj2, self.sys1, np.zeros([1, 2]), H_n_inv_t2s1)
 
         # output is of Trajectory class
         self.assertIsInstance(lr_traj1_sys1, Trajectory)
@@ -129,8 +129,8 @@ class TestResidualFunctions(unittest.TestCase):
         # calculate global residuals
         H_n_inv_t1s1 = res_funcs.init_H_n_inv(self.traj1, self.sys1, freq1, np.zeros([1, 2]))
         H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, freq2, np.zeros([1, 2]))
-        lr_t1s1 = res_funcs.local_residual(self.traj1, self.sys1, freq1, np.zeros([1, 2]), H_n_inv_t1s1)
-        lr_t2s1 = res_funcs.local_residual(self.traj2, self.sys1, freq2, np.zeros([1, 2]), H_n_inv_t2s1)
+        lr_t1s1 = res_funcs.local_residual(self.traj1, self.sys1, np.zeros([1, 2]), H_n_inv_t1s1)
+        lr_t2s1 = res_funcs.local_residual(self.traj2, self.sys1, np.zeros([1, 2]), H_n_inv_t2s1)
         gr_traj1_sys1 = res_funcs.global_residual(lr_t1s1)
         gr_traj2_sys1 = res_funcs.global_residual(lr_t2s1)
 
@@ -167,11 +167,11 @@ class TestResidualFunctions(unittest.TestCase):
         # calculate local residuals
         H_n_inv_t1s1 = res_funcs.init_H_n_inv(self.traj1, self.sys1, freq1, np.zeros([1, 2]))
         H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, freq2, np.zeros([1, 2]))
-        lr_t1s1 = res_funcs.local_residual(self.traj1, self.sys1, freq1, mean, H_n_inv_t1s1)
-        lr_t2s1 = res_funcs.local_residual(self.traj2, self.sys1, freq2, mean, H_n_inv_t2s1)
+        lr_t1s1 = res_funcs.local_residual(self.traj1, self.sys1, mean, H_n_inv_t1s1)
+        lr_t2s1 = res_funcs.local_residual(self.traj2, self.sys1, mean, H_n_inv_t2s1)
 
         # calculate global residual gradients
-        gr_traj_grad_t1s1 = res_funcs.gr_traj_grad(self.traj1, self.sys1, freq1, np.zeros([1, 2]), lr_t1s1)
+        gr_grad_traj_t1s1 = res_funcs.gr_traj_grad(self.traj1, self.sys1, freq1, np.zeros([1, 2]), lr_t1s1)
         gr_grad_traj_t2s1 = res_funcs.gr_traj_grad(self.traj2, self.sys1, freq2, np.zeros([1, 2]), lr_t2s1)
         gr_grad_freq_t1s1 = res_funcs.gr_freq_grad(self.traj1, lr_t1s1)
         gr_grad_freq_t2s1 = res_funcs.gr_freq_grad(self.traj2, lr_t2s1)
@@ -179,7 +179,7 @@ class TestResidualFunctions(unittest.TestCase):
         # outputs are numbers
         temp_traj = True
         temp_freq = True
-        if gr_traj_grad_t1s1.modes.dtype != np.complex128:
+        if gr_grad_traj_t1s1.modes.dtype != np.complex128:
             temp_traj = False
         if gr_grad_traj_t2s1.modes.dtype != np.complex128:
             temp_traj = False
@@ -191,8 +191,8 @@ class TestResidualFunctions(unittest.TestCase):
         self.assertTrue(temp_freq)
 
         # correct values (compared with FD approximation)
-        gr_grad_traj_t1s1_FD, gr_grad_freq_t1s1_FD = self.gen_gr_grad_FD(self.traj1, self.sys1, freq1, mean)
-        gr_grad_traj_t2s1_FD, gr_grad_freq_t2s1_FD = self.gen_gr_grad_FD(self.traj2, self.sys1, freq2, mean)
+        gr_grad_traj_t1s1_FD = self.gen_gr_grad_FD(self.traj1, self.sys1, freq1, mean)
+        gr_grad_traj_t2s1_FD = self.gen_gr_grad_FD(self.traj2, self.sys1, freq2, mean)
 
         # fig, (ax1, ax2, ax3) = plt.subplots(figsize = (12, 5), nrows = 3)
         # pos1 = ax1.matshow(gr_grad_traj_traj2_sys2.curve_array)
@@ -205,10 +205,8 @@ class TestResidualFunctions(unittest.TestCase):
 
         # LARGEST ERRORS AT POINTS OF EXTREMA IN MATRIX ALONG TIME DIMENSION
 
-        self.assertAlmostEqual(gr_traj_grad_t1s1, gr_grad_traj_t1s1_FD, places = 3)
+        self.assertAlmostEqual(gr_grad_traj_t1s1, gr_grad_traj_t1s1_FD, places = 3)
         self.assertAlmostEqual(gr_grad_traj_t2s1, gr_grad_traj_t2s1_FD, places = 3)
-        self.assertAlmostEqual(gr_grad_freq_t1s1, gr_grad_freq_t1s1_FD, places = 4)
-        self.assertAlmostEqual(gr_grad_freq_t2s1, gr_grad_freq_t2s1_FD, places = 4)
 
     @staticmethod
     def gen_gr_grad_FD(traj, sys, freq, mean, step = 1e-9):
@@ -236,11 +234,11 @@ class TestResidualFunctions(unittest.TestCase):
                         step2 = step
                     traj_for = traj
                     traj_for[i, j] = traj[i, j] + step2
-                    lr_traj_for = res_funcs.local_residual(traj_for, sys, freq, mean, H_n_inv)
+                    lr_traj_for = res_funcs.local_residual(traj_for, sys, mean, H_n_inv)
                     gr_traj_for = res_funcs.global_residual(lr_traj_for)
                     traj_back = traj
                     traj_back[i, j] = traj[i, j] - step2
-                    lr_traj_back = res_funcs.local_residual(traj_back, sys, freq, mean, H_n_inv)
+                    lr_traj_back = res_funcs.local_residual(traj_back, sys, mean, H_n_inv)
                     gr_traj_back = res_funcs.global_residual(lr_traj_back)
                     if k == 0:
                         gr_grad_FD_traj_real[i, j] = (gr_traj_for - gr_traj_back)/(2*step)
@@ -248,14 +246,7 @@ class TestResidualFunctions(unittest.TestCase):
                         gr_grad_FD_traj_imag[i, j] = (gr_traj_for - gr_traj_back)/(2*step)
         gr_grad_FD_traj = Trajectory(gr_grad_FD_traj_real + 1j*gr_grad_FD_traj_imag)
 
-        # calculate gradient w.r.t frequency
-        lr_freq_for = res_funcs.local_residual(traj, sys, freq + step, mean, H_n_inv_freq_for)
-        gr_freq_for = res_funcs.global_residual(lr_freq_for)
-        lr_freq_back = res_funcs.local_residual(traj, sys, freq - step, mean, H_n_inv_freq_back)
-        gr_freq_back = res_funcs.global_residual(lr_freq_back)
-        gr_grad_FD_freq = (gr_freq_for - gr_freq_back)/(2*step)
-
-        return gr_grad_FD_traj, gr_grad_FD_freq
+        return gr_grad_FD_traj
 
 
 if __name__ == "__main__":
