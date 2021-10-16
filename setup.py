@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
 
 # THIS STUFF HAS TO IMPLEMENTED FOR THE C EXTENSIONS
+# module = Extension('demo', include_dirs = ['some include dirs'], sources = ['demo.c'])
 # def main():
 #     setup(name = "ctrajmul",
 #           description = "Python interface for trajmul C function",
