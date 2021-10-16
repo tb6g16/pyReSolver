@@ -2,8 +2,9 @@
 # trajectory_functions.
 
 import unittest
-import numpy as np
 import random as rand
+
+import numpy as np
 
 from ResolventSolver.traj_util import func2curve
 from ResolventSolver.my_fft import my_rfft

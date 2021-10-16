@@ -1,8 +1,9 @@
 # This file contains the unit tests for my_fft functions.
 
 import unittest
-import numpy as np
 import random as rand
+
+import numpy as np
 
 from ResolventSolver.my_fft import my_fft, my_ifft, my_rfft, my_irfft
 from ResolventSolver.traj_util import func2curve

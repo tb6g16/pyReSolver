@@ -2,8 +2,9 @@
 # objective function, constraints, and all their associated gradients
 
 import unittest
-import numpy as np
 import random as rand
+
+import numpy as np
 
 from ResolventSolver.Trajectory import Trajectory
 from ResolventSolver.traj2vec import traj2vec, vec2traj

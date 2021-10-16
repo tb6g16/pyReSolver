@@ -1,8 +1,9 @@
 # This file contains the unit tests for the functions defined in traj_util.py.
 
 import unittest
-import numpy as np
 import random as rand
+
+import numpy as np
 
 from ResolventSolver.traj_util import func2curve, list2array, array2list
 from ResolventSolver.trajectory_definitions import unit_circle as uc

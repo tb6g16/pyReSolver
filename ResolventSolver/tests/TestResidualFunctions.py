@@ -2,9 +2,10 @@
 # in the residual_functions file.
 
 import unittest
+import random as rand
+
 import numpy as np
 import scipy.integrate as integ
-import random as rand
 
 from ResolventSolver.traj_util import func2curve
 from ResolventSolver.my_fft import my_rfft
