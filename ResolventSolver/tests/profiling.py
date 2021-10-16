@@ -19,7 +19,7 @@ def do_op():
     resolvents = resolvent(init_freq, range(M), jac_at_mean, B)
     psi, _, _ = resolvent_modes(resolvents)
 
-    _, _, _, _ = my_min(init_traj, init_freq, lorenz, mean, method = 'CG', iter = 10, psi = psi)
+    _, _, _ = my_min(init_traj, init_freq, lorenz, mean, method = 'CG', iter = 10, psi = psi)
     # plot_traj(op_traj, discs = [10000], means = [mean])
 
 def main():
