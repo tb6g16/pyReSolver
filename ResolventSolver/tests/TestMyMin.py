@@ -16,7 +16,8 @@ from ResolventSolver.systems import lorenz
 class TestOptimise(unittest.TestCase):
 
     def setUp(self):
-        modes = rand.randint(3, 65)
+        # modes = rand.randint(3, 65)
+        modes = 3
 
         temp1 = np.random.rand(modes, 2) + 1j*np.random.rand(modes, 2)
         temp1[0] = 0
@@ -59,10 +60,10 @@ class TestOptimise(unittest.TestCase):
         del self.sys2
         del self.mean2
 
-    def est_traj_global_res(self):
-        res_func_t1s1, _ = init_opt_funcs(self.freq1, self.sys1, 2, self.mean1)
-        res_func_t2s1, _ = init_opt_funcs(self.freq2, self.sys1, 2, self.mean1)
-        res_func_t3s2, _ = init_opt_funcs(self.freq3, self.sys2, 3, self.mean2)
+    def test_traj_global_res(self):
+        res_func_t1s1, _ = init_opt_funcs(self.traj1.shape[0], self.freq1, self.sys1, 2, self.mean1)
+        res_func_t2s1, _ = init_opt_funcs(self.traj2.shape[0], self.freq2, self.sys1, 2, self.mean1)
+        res_func_t3s2, _ = init_opt_funcs(self.traj3.shape[0], self.freq3, self.sys2, 3, self.mean2)
         gr_t1s1 = res_func_t1s1(self.traj1_vec)
         gr_t2s1 = res_func_t2s1(self.traj2_vec)
         gr_t3s2 = res_func_t3s2(self.traj3_vec)
@@ -82,9 +83,9 @@ class TestOptimise(unittest.TestCase):
         self.assertEqual(gr_t3s2, gr_t3s2_true)
 
     def test_traj_global_res_jac(self):
-        _, res_grad_func_t1s1 = init_opt_funcs(self.freq1, self.sys1, 2, self.mean1)
-        _, res_grad_func_t2s1 = init_opt_funcs(self.freq2, self.sys1, 2, self.mean1)
-        _, res_grad_func_t3s2 = init_opt_funcs(self.freq3, self.sys2, 3, self.mean2)
+        _, res_grad_func_t1s1 = init_opt_funcs(self.traj1.shape[0], self.freq1, self.sys1, 2, self.mean1)
+        _, res_grad_func_t2s1 = init_opt_funcs(self.traj2.shape[0], self.freq2, self.sys1, 2, self.mean1)
+        _, res_grad_func_t3s2 = init_opt_funcs(self.traj3.shape[0], self.freq3, self.sys2, 3, self.mean2)
         gr_traj_t1s1 = vec2traj(res_grad_func_t1s1(self.traj1_vec), 2)
         gr_traj_t2s1 = vec2traj(res_grad_func_t2s1(self.traj2_vec), 2)
         gr_traj_t3s2 = vec2traj(res_grad_func_t3s2(self.traj3_vec), 3)
