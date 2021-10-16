@@ -9,3 +9,4 @@ csource/build/
 venv
 .vscode
 build/
+*.egg-info
