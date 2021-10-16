@@ -10,7 +10,7 @@ from ResolventSolver.traj2vec import traj2vec, vec2traj
 import ResolventSolver.residual_functions as res_funcs
 from ResolventSolver.trajectory_functions import transpose, conj
 
-def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
+def init_opt_funcs(freq, sys, dim, mean, psi = None, conv_method = 'fft'):
     """
         Return the functions to allow the calculation of the global residual
         and its associated gradients with a vector derived from a trajectory
@@ -53,7 +53,7 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
             float
         """
         # unpack trajectory
-        traj, freq = vec2traj(opt_vector, dim)
+        traj = vec2traj(opt_vector, dim)
 
         # convert to full space if singular matrix is provided
         if psi is not None:
@@ -61,7 +61,7 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
 
         # calculate global residual and return
         H_n_inv = res_funcs.init_H_n_inv(traj, sys, freq, mean)
-        return res_funcs.global_residual(res_funcs.local_residual(traj, sys, freq, mean, H_n_inv))
+        return res_funcs.global_residual(res_funcs.local_residual(traj, sys, mean, H_n_inv))
 
     def traj_global_res_jac(opt_vector):
         """
@@ -82,7 +82,7 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
                 Gradient of the global residual with respect to the frequency.
         """
         # unpack trajectory
-        traj, freq = vec2traj(opt_vector, dim)
+        traj = vec2traj(opt_vector, dim)
 
         # convert to full space if singular matrix is provided
         if psi is not None:
@@ -90,7 +90,7 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
 
         # calculate global residual gradients
         H_n_inv = res_funcs.init_H_n_inv(traj, sys, freq, mean)
-        local_res = res_funcs.local_residual(traj, sys, freq, mean, H_n_inv)
+        local_res = res_funcs.local_residual(traj, sys, mean, H_n_inv)
         gr_traj_grad = res_funcs.gr_traj_grad(traj, sys, freq, mean, local_res, conv_method = conv_method)
         gr_freq_grad = res_funcs.gr_freq_grad(traj, local_res)
 
@@ -99,7 +99,7 @@ def init_opt_funcs(sys, dim, mean, psi = None, conv_method = 'fft'):
             gr_traj_grad = gr_traj_grad.matmul_left_traj(transpose(conj(psi)))
 
         # convert back to vector and return
-        return traj2vec(gr_traj_grad, gr_freq_grad)
+        return traj2vec(gr_traj_grad)
 
     return traj_global_res, traj_global_res_jac
 
@@ -164,29 +164,28 @@ def my_min(traj, freq, sys, mean, **kwargs):
     # setup the problem
     dim = traj.shape[1]
     if not hasattr(res_func, '__call__') and not hasattr(jac_func, '__call__'):
-        res_func, jac_func = init_opt_funcs(sys, dim, mean, psi = psi, conv_method = conv_method)
+        res_func, jac_func = init_opt_funcs(freq, sys, dim, mean, psi = psi, conv_method = conv_method)
     elif not hasattr(res_func, '__call__'):
-        res_func, _ = init_opt_funcs(sys, dim, mean, psi = psi, conv_method = conv_method)
+        res_func, _ = init_opt_funcs(freq, sys, dim, mean, psi = psi, conv_method = conv_method)
     elif not hasattr(jac_func, '__call__'):
-        _, jac_func = init_opt_funcs(sys, dim, mean, psi = psi, conv_method = conv_method)
+        _, jac_func = init_opt_funcs(freq, sys, dim, mean, psi = psi, conv_method = conv_method)
 
     # define varaibles to be tracked using callback
     if traces == None:
-        traces = {'traj': [], 'freq': []}
+        traces = {'traj': []}
 
     # define callback function
     def callback(x):
-        cur_traj, cur_freq = vec2traj(x, dim)
+        cur_traj = vec2traj(x, dim)
 
         # convert to full space if singular matrix is provided
         if psi is not None:
             cur_traj = cur_traj.matmul_left_traj(psi)
 
         traces['traj'].append(cur_traj)
-        traces['freq'].append(cur_freq)
 
     # convert trajectory to vector of optimisation variables
-    traj_vec = traj2vec(traj, freq)
+    traj_vec = traj2vec(traj)
 
     # initialise options
     options = {}
@@ -209,10 +208,10 @@ def my_min(traj, freq, sys, mean, **kwargs):
 
     # unpack trajectory from solution
     op_vec = sol.x
-    op_traj, op_freq = vec2traj(op_vec, dim)
+    op_traj = vec2traj(op_vec, dim)
 
     # convert to full space if singular matrix is provided
     if psi is not None:
         op_traj = op_traj.matmul_left_traj(psi)
 
-    return op_traj, op_freq, traces, sol
+    return op_traj, traces, sol
