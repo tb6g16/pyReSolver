@@ -17,17 +17,15 @@ class TestTraj2Vec(unittest.TestCase):
         traj_array[0] = 0
         traj_array[-1] = 0
         self.traj = Trajectory(traj_array)
-        self.freq = rand.uniform(-10, 10)
-        self.vec = t2v.traj2vec(self.traj, self.freq)
+        self.vec = t2v.traj2vec(self.traj)
 
     def tearDown(self):
         del self.traj
-        del self.freq
         del self.vec
 
     def test_traj2vec(self):
         # correct size
-        dofs = (2*self.traj.shape[1]*(self.traj.shape[0] - 2)) + 1
+        dofs = (2*self.traj.shape[1]*(self.traj.shape[0] - 2))
         self.assertEqual(np.shape(self.vec), (dofs,))
 
         # corrent values
@@ -39,16 +37,12 @@ class TestTraj2Vec(unittest.TestCase):
                 self.assertEqual(self.vec[b], self.traj[i + 1, j].imag)
                 a += 1
                 b += 1
-        self.assertEqual(self.vec[-1], self.freq)
 
     def test_vec2traj(self):
-        traj, freq = t2v.vec2traj(self.vec, self.traj.shape[1])
+        traj = t2v.vec2traj(self.vec, self.traj.shape[1])
 
         # check vec2traj returns correct trajectory
         self.assertEqual(traj, self.traj)
-
-        # check vec2traj returns correct frequency
-        self.assertEqual(freq, self.freq)
 
 
 if __name__ == "__main__":

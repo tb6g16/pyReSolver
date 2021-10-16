@@ -5,7 +5,7 @@ import numpy as np
 
 from ResolventSolver.Trajectory import Trajectory
 
-def traj2vec(traj, freq):
+def traj2vec(traj):
     """
         Return the vectorised form of the given trajectory frequency pair.
 
@@ -23,7 +23,7 @@ def traj2vec(traj, freq):
             1D array containing data of float type.
     """
     # convert trajectory array to vector and append frequency
-    return np.hstack((np.reshape(traj[1:-1].real, -1), np.reshape(traj[1:-1].imag, -1), freq))
+    return np.hstack((np.reshape(traj[1:-1].real, -1), np.reshape(traj[1:-1].imag, -1)))
 
 def vec2traj(opt_vector, dim):
     """
@@ -46,11 +46,11 @@ def vec2traj(opt_vector, dim):
             The frequency from the given vector.
     """
     # split vector into real and imaginary parts
-    real_comps = opt_vector[:int((np.shape(opt_vector)[0] - 1)/2)]
-    imag_comps = opt_vector[int((np.shape(opt_vector)[0] - 1)/2):-1]
+    real_comps = opt_vector[:int(np.shape(opt_vector)[0]/2)]
+    imag_comps = opt_vector[int(np.shape(opt_vector)[0]/2):]
 
     # convert vectors into arrays
-    opt_modes = int((np.shape(opt_vector)[0] - 1)/(2*dim))
+    opt_modes = int(np.shape(opt_vector)[0]/(2*dim))
     real_comps = np.reshape(real_comps, (opt_modes, dim))
     imag_comps = np.reshape(imag_comps, (opt_modes, dim))
 
@@ -59,4 +59,4 @@ def vec2traj(opt_vector, dim):
     traj = np.insert(traj, np.shape(traj)[0], 0, axis = 0)
     traj = np.insert(traj, 0, 0, axis = 0)
 
-    return Trajectory(traj), opt_vector[-1]
+    return Trajectory(traj)
