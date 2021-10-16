@@ -2,8 +2,9 @@
 # methods.
 
 import unittest
-import numpy as np
 import random as rand
+
+import numpy as np
 
 from ResolventSolver.Trajectory import Trajectory
 

@@ -19,7 +19,7 @@ def main():
     resolvent_traj = resolvent((2*np.pi)/period, range(init_traj.shape[0]), jac_at_mean, B)
     psi, _, _ = resolvent_modes(resolvent_traj)
 
-    opt_traj, _, _, _ = my_min(init_traj, (2*np.pi)/period, lorenz, mean, iter = 5000, method = 'CG', psi = psi)
+    opt_traj, _, _ = my_min(init_traj, (2*np.pi)/period, lorenz, mean, iter = 5000, method = 'CG', psi = psi)
     plot_traj(opt_traj, discs = [100000], means = [mean], proj = 'xz')
 
 if __name__ == '__main__':
