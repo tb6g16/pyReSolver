@@ -11,10 +11,10 @@ from ResolventSolver.my_min import init_opt_funcs
 class HessianOperator(LinearOperator):
 
     def __init__(self, traj, sys, freq, mean):
-        self.state = traj2vec(traj, freq)
+        self.state = traj2vec(traj)
         self.dim = traj.shape[1]
-        _, self.grad_func = init_opt_funcs(sys, traj.shape[1], mean)
-        self.shape = (np.shape(self.state)[0] - 1, np.shape(self.state)[0] - 1)
+        _, self.grad_func = init_opt_funcs(traj.shape[0], freq, sys, traj.shape[1], mean)
+        self.shape = (np.shape(self.state)[0], np.shape(self.state)[0])
         self.dtype = np.dtype('float64')
 
     def _matvec(self, v):
@@ -22,7 +22,7 @@ class HessianOperator(LinearOperator):
             Return the Hessian-vector product by taking the difference of the
             gradients.
         """
-        return self.grad_func(self.state + v)[:-1] - self.grad_func(self.state)[:-1]
+        return self.grad_func(self.state + v) - self.grad_func(self.state)
 
     def _rmatvec(self, v):
         """
@@ -30,25 +30,17 @@ class HessianOperator(LinearOperator):
             adjoint of the Hessian (equivalent to left multiplication of a
             row vector).
         """
-        return self.grad_func(self.state + v)[:-1] - self.grad_func(self.state)[:-1]
+        return self.grad_func(self.state + v) - self.grad_func(self.state)
 
     @property
     def traj(self):
-        return vec2traj(self.state, self.dim)[0]
+        return vec2traj(self.state, self.dim)
 
     @traj.setter
     def traj(self, new_traj):
         self.dim = new_traj.shape[1]
-        self.state = traj2vec(new_traj, self.state[-1])
-        self.shape = (np.shape(self.state)[0] - 1, np.shape(self.state)[0] - 1)
-
-    @property
-    def freq(self):
-        return vec2traj(self.state, self.dim)[1]
-
-    @freq.setter
-    def freq(self, new_freq):
-        self.state[-1] = new_freq
+        self.state = traj2vec(new_traj)
+        self.shape = (np.shape(self.state)[0], np.shape(self.state)[0])
 
     @property
     def hess_matrix(self, eps = 1e-6):

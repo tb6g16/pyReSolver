@@ -55,7 +55,7 @@ class TestSparseLinalgEigs(unittest.TestCase):
         rhs = np.dot(u, self.diag.rmatvec(v))
 
         # are they equal?
-        self.assertTrue(np.allclose(lhs, rhs))
+        self.assertEqual(lhs, rhs)
 
     def test_diag_eigs(self):
         # how many eigenvalues to find

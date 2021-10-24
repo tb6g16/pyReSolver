@@ -20,6 +20,7 @@ def do_op():
     psi, _, _ = resolvent_modes(resolvents)
 
     _, _, _ = my_min(init_traj, init_freq, lorenz, mean, method = 'CG', iter = 10, psi = psi)
+    # _, _, _ = my_min(init_traj, init_freq, lorenz, mean, method = 'CG', iter = 10)
     # plot_traj(op_traj, discs = [10000], means = [mean])
 
 def main():

@@ -52,25 +52,3 @@ def nl_factor(x, defaults = parameters):
     nl_vector[:, 2] = x[:, 0]*x[:, 1]
 
     return nl_vector
-
-# def nl_factor2(x, defaults = parameters):
-#     # initialise output vector
-#     nl_vector = np.zeros(2)
-
-#     # assign values
-#     nl_vector[0] = x[0]*x[2]
-#     nl_vector[1] = x[0]*x[1]
-
-#     return nl_vector
-
-# def nl_factor_derv(x, defaults = parameters):
-#     # initialise output matrix
-#     nl_derv_mat = np.zeros([2, 3])
-
-#     # assign values
-#     nl_derv_mat[0, 0] = x[2]
-#     nl_derv_mat[0, 2] = x[0]
-#     nl_derv_mat[1, 0] = x[1]
-#     nl_derv_mat[1, 1] = x[0]
-
-#     return nl_derv_mat
