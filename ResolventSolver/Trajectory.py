@@ -18,7 +18,7 @@ class Trajectory:
     __slots__ = ['modes', 'shape']
     __array_priority__ = 1e100
 
-    def __init__(self, curve, modes = 33):
+    def __init__(self, modes):
         """
             Initialise a trajectory with a curve definition.
 
@@ -30,8 +30,8 @@ class Trajectory:
                 Number of modes to represent the trajectory, ignored is curve
                 is an array.
         """
-        self.modes = curve
-        self.shape = np.shape(curve)
+        self.modes = modes
+        self.shape = np.shape(modes)
 
     def __add__(self, other_traj):
         """Add trajectory to current instance."""

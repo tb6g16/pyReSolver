@@ -2,6 +2,14 @@
 # a wrapper to the numpy FFT function, mainly to properly take into account
 # the effects of normalisation.
 
+# AN IMPLEMENTATION CAN ACHIEVED BY CREATING A NEW CLASS (CALLED CACHE) THAT
+# HOLDS THE FFT AND IFFT PLANS, IN ADDITION TO TEMPORARY SPECTRAL AND PHYSICAL
+# REPRESENTATIONS OF THE TRAJECTORY.
+# 
+# BY THIS METHOD THE CACHE CAN BE PASSED AS AN ARGUMENT TO FUNCTIONS, AND THE
+# PRESENCE OF TEMPORARY OBJECTS MINIMISES THE REQUIREMENT TO REQUEST NEW
+# MEMORY.
+
 import numpy as np
 
 def my_fft(array):
@@ -68,6 +76,8 @@ def my_irfft(array):
     """
     # return np.fft.irfft(array*(2*np.shape(array)[0] - 1), 2*np.shape(array)[0] - 1, axis = 0) # works if original function had odd length
     return np.fft.irfft(array*2*(np.shape(array)[0] - 1), axis = 0) # works if original function had even length
+
+
 
 
 # TESTS WITH THE DELTA FUNCTION
