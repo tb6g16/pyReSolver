@@ -8,14 +8,14 @@ class FFTPlans:
 
     __slots__ = ['tmp_t', 'tmp_f', 'fftplan', 'ifftplan']
 
-    def __init__(shape, flag = 'FFTW_EXHAUSTIVE'):
+    def __init__(self, shape, flag = 'FFTW_EXHAUSTIVE'):
         self.tmp_t = pyfftw.empty_aligned(shape, dtype = 'float64')
         self.tmp_f = pyfftw.empty_aligned([(shape[0] >> 1) + 1, shape[1]], dtype = 'complex128')
-        self.fftplan = pyfftw.FFTW(tmp_t, tmp_f, axes = (0,), direction = 'FFTW_FORWARD', flags = (flag,))
-        self.ifftplan = pyfftw.FFTW(tmp_f, tmp_t, axes = (0,), direction = 'FFTW_BACKWARD')
+        self.fftplan = pyfftw.FFTW(self.tmp_t, self.tmp_f, axes = (0,), direction = 'FFTW_FORWARD', flags = (flag,))
+        self.ifftplan = pyfftw.FFTW(self.tmp_f, self.tmp_t, axes = (0,), direction = 'FFTW_BACKWARD', flags = (flag,))
 
     def fft(self):
-        self.fftplan()
+        self.tmp_f = self.fftplan(self.tmp_t)/self.tmp_t.shape[0]
 
     def ifft(self):
-        self.ifftplan()
+        self.tmp_t = self.ifftplan(self.tmp_f)*self.tmp_t.shape[0]
