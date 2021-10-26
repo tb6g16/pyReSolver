@@ -3,7 +3,7 @@
 
 import numpy as np
 
-def func2curve(traj_func, modes):
+def func2curve(traj_func, modes, if_freq = True):
     """
         Return the array of a function evaluated at a number of locations.
 
@@ -19,7 +19,10 @@ def func2curve(traj_func, modes):
             N-D array containing data of float type.
     """
     # convert the number of modes the discretisation in time domain
-    disc = 2*(modes - 1)
+    if if_freq:
+        disc = 2*(modes - 1)
+    else:
+        disc = modes
 
     # initialise the output array and the parameter of the curve
     traj_array = np.zeros([disc, *np.shape(traj_func(0))])
