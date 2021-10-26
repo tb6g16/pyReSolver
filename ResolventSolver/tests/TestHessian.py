@@ -47,9 +47,10 @@ class TestHessian(unittest.TestCase):
 
     # THIS TEST FAILING IMPLIES THE HESSIAN OPERATOR IS NOT SYMMETRIC
     def test_hessian_dot_test(self):
-        # initialise two random vectors#
-        u = np.random.rand(self.hess_operator.shape[0])
-        v = np.random.rand(self.hess_operator.shape[0])
+        # initialise two random vectors
+        # NOTE: small perturbation
+        u = np.random.rand(self.hess_operator.shape[0])*1e-6
+        v = np.random.rand(self.hess_operator.shape[0])*1e-6
 
         # perform each side of the dot test
         lhs = np.dot(self.hess_operator.matvec(u), v)
