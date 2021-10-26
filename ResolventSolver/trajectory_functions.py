@@ -35,7 +35,7 @@ def conj(traj):
     """
     return Trajectory(np.conj(traj.modes))
 
-def traj_rfft(array):
+def traj_rfft_dep(array):
     """
         Return the real FFT of an array as a trajectory instance.
 
@@ -50,7 +50,7 @@ def traj_rfft(array):
     """
     return Trajectory(my_rfft(array))
 
-def traj_irfft(traj):
+def traj_irfft_dep(traj):
     """
         Return the inverse real FFT of a trajectory as an array.
 
@@ -63,6 +63,16 @@ def traj_irfft(traj):
         ndarray
     """
     return my_irfft(traj.modes)
+
+def traj_rfft(array, fftplans):
+    fftplans.tmp_t = np.copy(array)
+    fftplans.fft()
+    return Trajectory(fftplans.tmp_f)
+
+def traj_irfft(traj, fftplans):
+    fftplans.tmp_f = np.copy(traj.modes)
+    fftplans.ifft()
+    return fftplans.tmp_t
 
 def traj_conv(traj1, traj2, method = 'fft'):
     """
@@ -161,7 +171,7 @@ def traj_grad(traj):
 
     return Trajectory(new_modes)
 
-def traj_response(traj, func):
+def traj_response(traj, fftplans, func):
     """
         Return the response of a trajectory over its length due to a function.
 
@@ -175,10 +185,10 @@ def traj_response(traj, func):
         Trajectory
     """
     # convert trajectory to time domain
-    curve = traj_irfft(traj)
+    curve = traj_irfft(traj, fftplans)
 
     # evaluate response in time domain
     new_curve = func(curve)
 
     # convert back to frequency domain and return
-    return traj_rfft(new_curve)
+    return traj_rfft(new_curve, fftplans)

@@ -49,24 +49,24 @@ def plot_single_traj(plot_object, ax = None, proj = None, show = False):
     if plot_object.traj.shape[1] == 3:
         if proj == None:
             plt.plot(np.append(traj_time[:, 0], traj_time[0, 0]), \
-                     np.append(traj_time[:, 1], traj_time[0, 1]), \
-                     np.append(traj_time[:, 2], traj_time[0, 2]))
+                        np.append(traj_time[:, 1], traj_time[0, 1]), \
+                        np.append(traj_time[:, 2], traj_time[0, 2]))
 
         elif proj == 'xy' or proj == 'yx':
             plt.plot(np.append(traj_time[:, 0], traj_time[0, 0]), \
-                     np.append(traj_time[:, 1], traj_time[0, 1]))
+                        np.append(traj_time[:, 1], traj_time[0, 1]))
 
         elif proj == 'xz' or proj == 'zx':
             plt.plot(np.append(traj_time[:, 0], traj_time[0, 0]), \
-                     np.append(traj_time[:, 2], traj_time[0, 2]))
+                        np.append(traj_time[:, 2], traj_time[0, 2]))
 
         elif proj == 'yz' or proj == 'zy':
             plt.plot(np.append(traj_time[:, 1], traj_time[0, 1]), \
-                     np.append(traj_time[:, 2], traj_time[0, 2]))
+                        np.append(traj_time[:, 2], traj_time[0, 2]))
 
     elif plot_object.traj.shape[1] == 2:
         plt.plot(np.append(traj_time[:, 0], traj_time[0, 0]), \
-                 np.append(traj_time[:, 1], traj_time[0, 1]))
+                    np.append(traj_time[:, 1], traj_time[0, 1]))
 
     else:
         raise ValueError("Can't plot dimensions higher then 3!")

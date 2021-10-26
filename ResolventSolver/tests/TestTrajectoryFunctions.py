@@ -6,6 +6,7 @@ import random as rand
 
 import numpy as np
 
+from ResolventSolver.FFTPlans import FFTPlans
 from ResolventSolver.traj_util import func2curve
 from ResolventSolver.my_fft import my_rfft
 from ResolventSolver.Trajectory import Trajectory
@@ -20,8 +21,12 @@ from ResolventSolver.systems import lorenz
 class TestTrajectoryFunctions(unittest.TestCase):
 
     def setUp(self):
-        self.traj1 = Trajectory(my_rfft(func2curve(uc.x, 33)))
-        self.traj2 = Trajectory(my_rfft(func2curve(elps.x, 33)))
+        curve1 = func2curve(uc.x, 33)
+        curve2 = func2curve(elps.x, 33)
+        self.traj1 = Trajectory(my_rfft(curve1))
+        self.traj2 = Trajectory(my_rfft(curve2))
+        self.plans_t1 = FFTPlans(curve1.shape, flag = 'FFTW_ESTIMATE')
+        self.plans_t2 = FFTPlans(curve2.shape, flag = 'FFTW_ESTIMATE')
         self.sys1 = vpd
         self.sys2 = vis
 
@@ -129,14 +134,14 @@ class TestTrajectoryFunctions(unittest.TestCase):
 
     def test_traj_response(self):
         # response to full system
-        traj1_response1 = traj_funcs.traj_response(self.traj1, self.sys1.response)
-        traj1_response2 = traj_funcs.traj_response(self.traj1, self.sys2.response)
-        traj2_response1 = traj_funcs.traj_response(self.traj2, self.sys1.response)
-        traj2_response2 = traj_funcs.traj_response(self.traj2, self.sys2.response)
-        traj1_nl1 = traj_funcs.traj_response(self.traj1, self.sys1.nl_factor)
-        traj1_nl2 = traj_funcs.traj_response(self.traj1, self.sys2.nl_factor)
-        traj2_nl1 = traj_funcs.traj_response(self.traj2, self.sys1.nl_factor)
-        traj2_nl2 = traj_funcs.traj_response(self.traj2, self.sys2.nl_factor)
+        traj1_response1 = traj_funcs.traj_response(self.traj1, self.plans_t1, self.sys1.response)
+        traj1_response2 = traj_funcs.traj_response(self.traj1, self.plans_t1, self.sys2.response)
+        traj2_response1 = traj_funcs.traj_response(self.traj2, self.plans_t2, self.sys1.response)
+        traj2_response2 = traj_funcs.traj_response(self.traj2, self.plans_t2, self.sys2.response)
+        traj1_nl1 = traj_funcs.traj_response(self.traj1, self.plans_t1, self.sys1.nl_factor)
+        traj1_nl2 = traj_funcs.traj_response(self.traj1, self.plans_t1, self.sys2.nl_factor)
+        traj2_nl1 = traj_funcs.traj_response(self.traj2, self.plans_t2, self.sys1.nl_factor)
+        traj2_nl2 = traj_funcs.traj_response(self.traj2, self.plans_t2, self.sys2.nl_factor)
         
         # output is of the Trajectory class
         self.assertIsInstance(traj1_response1, Trajectory)
@@ -171,7 +176,7 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(temp2)
 
         # same response for trajectories at crossing points in time domain
-        t1r1_time = traj_funcs.traj_irfft(traj1_response1)
+        t1r1_time = traj_funcs.traj_irfft(traj1_response1, self.plans_t1)
         # t1r2_time = traj_funcs.traj_irfft(traj1_response2)
         # t2r1_time = traj_funcs.traj_irfft(traj2_response1)
         # t2r2_time = traj_funcs.traj_irfft(traj2_response2)
@@ -181,19 +186,26 @@ class TestTrajectoryFunctions(unittest.TestCase):
         # self.assertTrue(np.allclose(t1r1_time[cross_i2], t2r1_time[cross_i2]))
         # self.assertTrue(np.allclose(t1r2_time[cross_i1], t2r2_time[cross_i1]))
         # self.assertTrue(np.allclose(t1r2_time[cross_i2], t2r2_time[cross_i2]))
-        t1nl1_time = traj_funcs.traj_irfft(traj1_nl1)
-        t1nl2_time = traj_funcs.traj_irfft(traj1_nl2)
-        t2nl1_time = traj_funcs.traj_irfft(traj2_nl1)
-        t2nl2_time = traj_funcs.traj_irfft(traj2_nl2)
+        t1nl1_time = traj_funcs.traj_irfft(traj1_nl1, self.plans_t1)
+        t1nl2_time = traj_funcs.traj_irfft(traj1_nl2, self.plans_t1)
+        t2nl1_time = traj_funcs.traj_irfft(traj2_nl1, self.plans_t2)
+        t2nl2_time = traj_funcs.traj_irfft(traj2_nl2, self.plans_t2)
         self.assertTrue(np.allclose(t1nl1_time[cross_i1], t2nl1_time[cross_i1]))
         self.assertTrue(np.allclose(t1nl1_time[cross_i2], t2nl1_time[cross_i2]))
         self.assertTrue(np.allclose(t1nl2_time[cross_i1], t2nl2_time[cross_i1]))
         self.assertTrue(np.allclose(t1nl2_time[cross_i2], t2nl2_time[cross_i2]))
 
         # extra test for matrix function
-        traj3 = Trajectory(my_rfft(func2curve(uc3.x, 33)))
+        # TODO: fix this!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        # NOTE: this doesn't work because the function returns a completely
+        # different shape function than the trajectory that is input, will
+        # probably have to rework my handling of functions returning different
+        # shaped trajectories
+        curve3 = func2curve(uc3.x, 33)
+        traj3 = Trajectory(my_rfft(curve3))
+        plan_t3 = FFTPlans(curve3.shape, flag = 'FFTW_ESTIMATE')
         sys3 = lorenz
-        t3_lor_jac = traj_funcs.traj_response(traj3, sys3.jacobian)
+        t3_lor_jac = traj_funcs.traj_response(traj3, plan_t3, sys3.jacobian)
         t3_lor_jac_true = np.zeros([traj3.shape[0], 3, 3], dtype = complex)
         t3_lor_jac_true[0, 0, 0] = -sys3.parameters['sigma']
         t3_lor_jac_true[0, 0, 1] = sys3.parameters['sigma']

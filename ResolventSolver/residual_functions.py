@@ -37,7 +37,7 @@ def init_H_n_inv(traj, sys, freq, mean):
     jac_at_mean = sys.jacobian(mean)
     return resolvent_inv(traj.shape[0], freq, jac_at_mean)
 
-def local_residual(traj, sys, mean, H_n_inv):
+def local_residual(traj, sys, mean, H_n_inv, fftplans):
     """
         Return the local residual of a trajectory in a state-space.
 
@@ -56,7 +56,7 @@ def local_residual(traj, sys, mean, H_n_inv):
         local_res : Trajectory
     """
     # evaluate response and multiply by resolvent at every mode
-    resp = traj_funcs.traj_response(traj, sys.nl_factor)
+    resp = traj_funcs.traj_response(traj, fftplans, sys.nl_factor)
 
     # evaluate local residual trajectory for all modes
     local_res = traj.matmul_left_traj(H_n_inv) - resp
@@ -88,7 +88,7 @@ def global_residual(local_res):
     # sum and return real part
     return np.real(np.sum(gr_sum))
 
-def gr_traj_grad(traj, sys, freq, mean, local_res, conv_method = 'fft'):
+def gr_traj_grad(traj, sys, freq, mean, local_res, fftplans, conv_method = 'fft'):
     """
         Return the gradient of the global residual with respect to a trajectory
         in state-space.
@@ -114,7 +114,7 @@ def gr_traj_grad(traj, sys, freq, mean, local_res, conv_method = 'fft'):
 
     # initialise jacobian function and take transpose
     traj[0] = mean
-    jac = traj_funcs.traj_response(traj, sys.jacobian)
+    jac = traj_funcs.traj_response(traj, fftplans, sys.jacobian)
     traj[0] = 0
     jac = traj_funcs.transpose(jac)
 

@@ -6,11 +6,12 @@ import numpy as np
 from scipy.optimize import minimize
 
 from ResolventSolver.Trajectory import Trajectory
+from ResolventSolver.FFTPlans import FFTPlans
 from ResolventSolver.traj2vec import traj2vec, vec2traj
 import ResolventSolver.residual_functions as res_funcs
 from ResolventSolver.trajectory_functions import transpose, conj
 
-def init_opt_funcs(no_modes, freq, sys, dim, mean, psi = None, conv_method = 'fft'):
+def init_opt_funcs(no_modes, freq, fftplans, sys, dim, mean, psi = None, conv_method = 'fft'):
     """
         Return the functions to allow the calculation of the global residual
         and its associated gradients with a vector derived from a trajectory
@@ -63,7 +64,7 @@ def init_opt_funcs(no_modes, freq, sys, dim, mean, psi = None, conv_method = 'ff
             traj = traj.matmul_left_traj(psi)
 
         # calculate global residual and return
-        return res_funcs.global_residual(res_funcs.local_residual(traj, sys, mean, H_n_inv))
+        return res_funcs.global_residual(res_funcs.local_residual(traj, sys, mean, H_n_inv, fftplans))
 
     def traj_global_res_jac(opt_vector):
         """
@@ -91,8 +92,8 @@ def init_opt_funcs(no_modes, freq, sys, dim, mean, psi = None, conv_method = 'ff
             traj = traj.matmul_left_traj(psi)
 
         # calculate global residual gradients
-        local_res = res_funcs.local_residual(traj, sys, mean, H_n_inv)
-        gr_traj_grad = res_funcs.gr_traj_grad(traj, sys, freq, mean, local_res, conv_method = conv_method)
+        local_res = res_funcs.local_residual(traj, sys, mean, H_n_inv, fftplans)
+        gr_traj_grad = res_funcs.gr_traj_grad(traj, sys, freq, mean, local_res, fftplans, conv_method = conv_method)
         gr_freq_grad = res_funcs.gr_freq_grad(traj, local_res)
 
         # convert gradient w.r.t modes to reduced space
@@ -157,6 +158,10 @@ def my_min(traj, freq, sys, mean, **kwargs):
     traces = kwargs.get('traces', None)
     conv_method = kwargs.get('conv_method', 'fft')
     psi = kwargs.get('psi', None)
+    flag = kwags.get('flag', 'FFTW_EXHAUSTIVE')
+
+    # define FFT plans
+    plans = FFTPlans(traj.shape, flag = flag)
 
     # convert to reduced space if singular matrix is provided
     if psi is not None:
@@ -166,11 +171,11 @@ def my_min(traj, freq, sys, mean, **kwargs):
     no_modes = traj.shape[0]
     dim = traj.shape[1]
     if not hasattr(res_func, '__call__') and not hasattr(jac_func, '__call__'):
-        res_func, jac_func = init_opt_funcs(no_modes, freq, sys, dim, mean, psi = psi, conv_method = conv_method)
+        res_func, jac_func = init_opt_funcs(no_modes, freq, plans, sys, dim, mean, psi = psi, conv_method = conv_method)
     elif not hasattr(res_func, '__call__'):
-        res_func, _ = init_opt_funcs(no_modes, freq, sys, dim, mean, psi = psi, conv_method = conv_method)
+        res_func, _ = init_opt_funcs(no_modes, freq, plans, sys, dim, mean, psi = psi, conv_method = conv_method)
     elif not hasattr(jac_func, '__call__'):
-        _, jac_func = init_opt_funcs(no_modes, freq, sys, dim, mean, psi = psi, conv_method = conv_method)
+        _, jac_func = init_opt_funcs(no_modes, freq, plans, sys, dim, mean, psi = psi, conv_method = conv_method)
 
     # define varaibles to be tracked using callback
     if traces == None:
