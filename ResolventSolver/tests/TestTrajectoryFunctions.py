@@ -205,15 +205,10 @@ class TestTrajectoryFunctions(unittest.TestCase):
         t3_lor_jac_true = np.zeros([traj3.shape[0], 3], dtype = complex)
         t3_lor_jac_true[0, 1] = lorenz.parameters['rho'] - 1
         t3_lor_jac_true[0, 2] = -lorenz.parameters['beta']
-        # NOTE: should this be 0.5 or -0.5 (get the actual answer)
-        t3_lor_jac_true[1, 1] = 0.5
+        t3_lor_jac_true[1, 1] = -0.5
         t3_lor_jac_true[1, 2] = 0.5*(1 + 1j)
         t3_lor_jac_true = Trajectory(t3_lor_jac_true)
-        for i in range(traj3.shape[0]):
-            if not np.allclose(t3_lor_jac[i], t3_lor_jac_true[i]):
-                print(t3_lor_jac[i])
-                print(t3_lor_jac_true[i])
-        # self.assertAlmostEqual(t3_lor_jac, t3_lor_jac_true)
+        self.assertAlmostEqual(t3_lor_jac, t3_lor_jac_true)
 
 
 if __name__ == "__main__":

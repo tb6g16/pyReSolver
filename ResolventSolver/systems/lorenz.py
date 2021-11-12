@@ -64,7 +64,7 @@ def jac_conv(x, r, defaults = parameters):
 
     # compute response
     response[:, 0] = -(sigma*r[:, 0]) + (sigma*r[:, 1])
-    response[:, 1] = ((rho - x[:, 2])*r[:, 0]) - r[:, 1] + (x[:, 0]*r[:, 2])
+    response[:, 1] = ((rho - x[:, 2])*r[:, 0]) - r[:, 1] - (x[:, 0]*r[:, 2])
     response[:, 2] = (x[:, 1]*r[:, 0]) + (x[:, 0]*r[:, 1]) - (beta*r[:, 2])
 
     return response
