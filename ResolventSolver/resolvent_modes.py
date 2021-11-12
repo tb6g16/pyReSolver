@@ -1,6 +1,8 @@
 # This file contains the definitions required to compute the singular value
 # decomposition of the resolvent operator.
 
+# TODO: get rid of conditional in resolvent() function
+
 import numpy as np
 
 from ResolventSolver.traj_util import list2array, array2list

@@ -7,6 +7,7 @@ import random as rand
 import numpy as np
 import scipy.integrate as integ
 
+from ResolventSolver.FFTPlans import FFTPlans
 from ResolventSolver.traj_util import func2curve
 from ResolventSolver.my_fft import my_rfft
 from ResolventSolver.Trajectory import Trajectory
@@ -27,6 +28,9 @@ class TestResidualFunctions(unittest.TestCase):
         self.traj1 = Trajectory(my_rfft(func2curve(uc.x, 33)))
         self.traj2 = Trajectory(my_rfft(func2curve(elps.x, 33)))
         self.traj3 = Trajectory(my_rfft(func2curve(uc3.x, 33)))
+        self.plans_t1 = FFTPlans(self.traj1.shape, flag = 'FFTW_ESTIMATE')
+        self.plans_t2 = FFTPlans(self.traj2.shape, flag = 'FFTW_ESTIMATE')
+        self.plans_t3 = FFTPlans(self.traj3.shape, flag = 'FFTW_ESTIMATE')
         self.sys1 = vpd
         self.sys2 = vis
         self.sys3 = lorenz
@@ -35,6 +39,9 @@ class TestResidualFunctions(unittest.TestCase):
         del self.traj1
         del self.traj2
         del self.traj3
+        del self.plans_t1
+        del self.plans_t2
+        del self.plans_t3
         del self.sys1
         del self.sys2
         del self.sys3
@@ -114,7 +121,7 @@ class TestResidualFunctions(unittest.TestCase):
         self.assertEqual(lr_traj1_sys1, lr_traj1_sys1_true)
         self.assertEqual(lr_traj2_sys1, lr_traj2_sys1_true)
 
-    def test_global_residual(self):
+    def est_global_residual(self):
         # generating random frequencies and system parameters
         freq1 = rand.uniform(-10, 10)
         freq2 = rand.uniform(-10, 10)
@@ -149,7 +156,7 @@ class TestResidualFunctions(unittest.TestCase):
         self.assertAlmostEqual(gr_traj1_sys1, gr_traj1_sys1_true, places = 6)
         self.assertAlmostEqual(gr_traj2_sys1, gr_traj2_sys1_true, places = 6)
 
-    def test_global_residual_grad(self):
+    def est_global_residual_grad(self):
         # generating random frequencies and system parameters
         freq1 = rand.uniform(-10, 10)
         freq2 = rand.uniform(-10, 10)

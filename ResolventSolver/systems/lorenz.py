@@ -53,24 +53,18 @@ def nl_factor(x, defaults = parameters):
 
     return nl_vector
 
-# def nl_factor2(x, defaults = parameters):
-#     # initialise output vector
-#     nl_vector = np.zeros(2)
+def jac_conv(x, r, defaults = parameters):
+    # unpack defaults
+    rho = defaults['rho']
+    beta = defaults['beta']
+    sigma = defaults['sigma']
 
-#     # assign values
-#     nl_vector[0] = x[0]*x[2]
-#     nl_vector[1] = x[0]*x[1]
+    # assign response
+    response = np.zeros_like(x)
 
-#     return nl_vector
+    # compute response
+    response[:, 0] = -(sigma*r[:, 0]) + (sigma*r[:, 1])
+    response[:, 1] = ((rho - x[:, 2])*r[:, 0]) - r[:, 1] + (x[:, 0]*r[:, 2])
+    response[:, 2] = (x[:, 1]*r[:, 0]) + (x[:, 0]*r[:, 1]) - (beta*r[:, 2])
 
-# def nl_factor_derv(x, defaults = parameters):
-#     # initialise output matrix
-#     nl_derv_mat = np.zeros([2, 3])
-
-#     # assign values
-#     nl_derv_mat[0, 0] = x[2]
-#     nl_derv_mat[0, 2] = x[0]
-#     nl_derv_mat[1, 0] = x[1]
-#     nl_derv_mat[1, 1] = x[0]
-
-#     return nl_derv_mat
+    return response

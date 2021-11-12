@@ -192,3 +192,16 @@ def traj_response(traj, fftplans, func):
 
     # convert back to frequency domain and return
     return traj_rfft(new_curve, fftplans)
+
+# NOTE: this function is here just for the jacobian function with multiple trajectory
+#       trajectory inputs (avoiding python loops at all costs)
+def traj_response2(traj1, traj2, fftplans, func):
+    # convert trajectories to time domain
+    curve1 = traj_irfft(traj1, fftplans)
+    curve2 = traj_irfft(traj2, fftplans)
+
+    # evaluate response in time domain
+    new_curve = func(curve1, curve2)
+
+    # convert back to frequency domain and return
+    return traj_rfft(new_curve, fftplans)
