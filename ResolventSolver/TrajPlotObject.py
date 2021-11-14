@@ -1,5 +1,5 @@
 # This file contains the class definition to allow simple implementation of
-# trajectory plotting in the plot_traj.py file.
+# trajectory plotting in the plot_traj file.
 
 class TrajPlotObject():
     """

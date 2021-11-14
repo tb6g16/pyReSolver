@@ -9,10 +9,9 @@ import scipy.integrate as integ
 
 from ResolventSolver.FFTPlans import FFTPlans
 from ResolventSolver.traj_util import func2curve
-from ResolventSolver.my_fft import my_rfft
 from ResolventSolver.Trajectory import Trajectory
+import ResolventSolver.trajectory_functions as traj_funcs
 import ResolventSolver.residual_functions as res_funcs
-from ResolventSolver.my_fft import my_rfft, my_irfft
 from ResolventSolver.trajectory_definitions import unit_circle as uc
 from ResolventSolver.trajectory_definitions import ellipse as elps
 from ResolventSolver.trajectory_definitions import unit_circle_3d as uc3
@@ -28,12 +27,12 @@ class TestResidualFunctions(unittest.TestCase):
         curve1 = func2curve(uc.x, 33)
         curve2 = func2curve(elps.x, 33)
         curve3 = func2curve(uc3.x, 33)
-        self.traj1 = Trajectory(my_rfft(curve1))
-        self.traj2 = Trajectory(my_rfft(curve2))
-        self.traj3 = Trajectory(my_rfft(curve3))
         self.plans_t1 = FFTPlans(curve1.shape, flag = 'FFTW_ESTIMATE')
         self.plans_t2 = FFTPlans(curve2.shape, flag = 'FFTW_ESTIMATE')
         self.plans_t3 = FFTPlans(curve3.shape, flag = 'FFTW_ESTIMATE')
+        self.traj1 = traj_funcs.traj_rfft(curve1, self.plans_t1)
+        self.traj2 = traj_funcs.traj_rfft(curve2, self.plans_t2)
+        self.traj3 = traj_funcs.traj_rfft(curve3, self.plans_t3)
         self.sys1 = vdp
         self.sys2 = vis
         self.sys3 = lorenz
@@ -109,18 +108,18 @@ class TestResidualFunctions(unittest.TestCase):
         self.assertTrue(temp)
 
         # correct values
-        lr_traj1_sys1_true = np.zeros_like(my_irfft(self.traj1.modes))
-        lr_traj2_sys1_true = np.zeros_like(my_irfft(self.traj2.modes))
+        lr_traj1_sys1_true = np.zeros_like(traj_funcs.traj_irfft(self.traj1, self.plans_t1))
+        lr_traj2_sys1_true = np.zeros_like(traj_funcs.traj_irfft(self.traj2, self.plans_t2))
         for i in range(np.shape(lr_traj1_sys1_true)[0]):
             s = ((2*np.pi)/np.shape(lr_traj1_sys1_true)[0])*i
             lr_traj1_sys1_true[i, 0] = (1 - freq1)*np.sin(s)
             lr_traj1_sys1_true[i, 1] = (mu1*(1 - (np.cos(s)**2))*np.sin(s)) + ((1 - freq1)*np.cos(s))
-        lr_traj1_sys1_true = Trajectory(my_rfft(lr_traj1_sys1_true))
+        lr_traj1_sys1_true = traj_funcs.traj_rfft(lr_traj1_sys1_true, self.plans_t1)
         for i in range(np.shape(lr_traj2_sys1_true)[0]):
             s = ((2*np.pi)/np.shape(lr_traj2_sys1_true)[0])*i
             lr_traj2_sys1_true[i, 0] = (1 - (2*freq2))*np.sin(s)
             lr_traj2_sys1_true[i, 1] = ((2 - freq2)*np.cos(s)) + (mu1*(1 - (4*(np.cos(s)**2)))*np.sin(s))
-        lr_traj2_sys1_true = Trajectory(my_rfft(lr_traj2_sys1_true))
+        lr_traj2_sys1_true = traj_funcs.traj_rfft(lr_traj2_sys1_true, self.plans_t2)
         self.assertEqual(lr_traj1_sys1, lr_traj1_sys1_true)
         self.assertEqual(lr_traj2_sys1, lr_traj2_sys1_true)
 

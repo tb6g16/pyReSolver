@@ -5,7 +5,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-from ResolventSolver.my_fft import my_irfft
 from ResolventSolver.TrajPlotObject import TrajPlotObject
 
 def plot_single_traj(plot_object, ax = None, proj = None, show = False):
@@ -39,11 +38,9 @@ def plot_single_traj(plot_object, ax = None, proj = None, show = False):
     # adding mean
     if type(plot_object.mean) == np.ndarray:
         modes_padded[0] = plot_object.mean
-    elif plot_object.mean != None:
-        modes_padded[0] = plot_object.mean
 
     # convert to time domain
-    traj_time = my_irfft(modes_padded)
+    traj_time = np.fft.irfft(modes_padded*2*(np.shape(modes_padded)[0] - 1), axis = 0)
 
     # plot curve in time domain
     if plot_object.traj.shape[1] == 3:
@@ -100,6 +97,7 @@ def plot_traj(*args, **kwargs):
     proj = kwargs.get('proj', None)
     discs = kwargs.get('discs', [None]*len(args))
     means = kwargs.get('means', [None]*len(args))
+    save = kwargs.get('save', None)
 
     # initialise figure and axis
     fig = plt.figure()
@@ -120,8 +118,11 @@ def plot_traj(*args, **kwargs):
         plot_object = TrajPlotObject(arg, disc = discs[index], mean = means[index])
         plot_single_traj(plot_object, ax = ax, proj = proj)
 
-    # show the plot (OR SAVE IT????)
-    plt.show()
+    # show the plot
+    if save is not None:
+        plt.savefig(save)
+    else:
+        plt.show()
 
 def plot_along_s(*args, **kwargs):
     """
@@ -148,7 +149,7 @@ def plot_along_s(*args, **kwargs):
 
     # loop over given trajectories to plot
     for arg in args:
-        traj_time = my_irfft(arg.modes)
+        traj_time = np.fft.irfft(arg.modes*2*(np.shape(arg.modes)[0] - 1), axis = 0)
         s = np.linspace(0, 2*np.pi, np.shape(traj_time)[0] + 1)
         for i in range(np.shape(traj_time)[1]):
             if labels != None:

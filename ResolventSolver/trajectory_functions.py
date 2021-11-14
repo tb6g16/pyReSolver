@@ -4,8 +4,6 @@
 import numpy as np
 
 from ResolventSolver.Trajectory import Trajectory
-from ResolventSolver.my_fft import my_rfft, my_irfft
-from ResolventSolver.conv import conv_vec_vec_fast, conv_mat_vec_fast, conv_mat_mat_fast, conv_array
 
 def transpose(traj):
     """
@@ -35,119 +33,16 @@ def conj(traj):
     """
     return Trajectory(np.conj(traj.modes))
 
-def traj_rfft_dep(array):
-    """
-        Return the real FFT of an array as a trajectory instance.
-
-        Parameters
-        ----------
-        array : ndarray
-            N-D array containing data of float type.
-        
-        Returns
-        -------
-        Trajectory
-    """
-    return Trajectory(my_rfft(array))
-
-def traj_irfft_dep(traj):
-    """
-        Return the inverse real FFT of a trajectory as an array.
-
-        Parameters
-        ----------
-        traj : Trajectory
-
-        Returns
-        -------
-        ndarray
-    """
-    return my_irfft(traj.modes)
-
-# TODO: Can these be done without copying arrays?
+# FIXME: the copy function is avoid strange assignment behaviour
 def traj_rfft(array, fftplans):
-    fftplans.tmp_t = np.copy(array)
+    np.copyto(fftplans.tmp_t, array)
     fftplans.fft()
-    return Trajectory(fftplans.tmp_f)
+    return Trajectory(np.copy(fftplans.tmp_f))
 
 def traj_irfft(traj, fftplans):
-    fftplans.tmp_f = np.copy(traj.modes)
+    np.copyto(fftplans.tmp_f, traj.modes)
     fftplans.ifft()
     return fftplans.tmp_t
-
-def traj_conv(traj1, traj2, method = 'fft'):
-    """
-        Return the convolution of two trajectories.
-
-        Perform a discrete convolution of two trajectory instances using either
-        a direct sum or indirect FFT approach.
-
-        Parameters
-        ----------
-        traj1, traj2 : Trajectory
-            Trajectories of the same size to be convolved
-        method : {'fft', 'sum'}, default='fft'
-
-        Returns
-        -------
-        Trajectory
-    """
-    return Trajectory(conv_array(traj1.modes, traj2.modes, method = method))
-
-def traj_conv_vec_vec(traj1, traj2):
-    """
-        Return the convolution of two vector trajectories.
-
-        Perform a discrete convolution of two trajectories with vector states
-        using in-built numpy functions.
-
-        Parameters
-        ----------
-        traj1, traj2 : Trajectory
-            Trajectories of the same size to be convolved
-
-        Returns
-        -------
-        Trajectory
-    """
-    return Trajectory(conv_vec_vec_fast(traj1.modes, traj2.modes))
-
-def traj_conv_mat_vec(traj1, traj2):
-    """
-        Return the convolution of a matrix trajectory and a vector trajectory.
-
-        Perform a discrete convolution of two trajectories, one with matrix
-        states and the other with vector states, using in-built numpy#
-        functions.
-
-        Parameters
-        ----------
-        traj1, traj2 : Trajectory
-            Trajectories of the same size to be convolved
-
-        Returns
-        -------
-        Trajectory
-    """
-    return Trajectory(conv_mat_vec_fast(traj1.modes, traj2.modes))
-
-def traj_conv_mat_mat(traj1, traj2):
-    """
-        Return the convolution of two matrix trajectories.
-
-        Perform a discrete convolution of two trajectories with matrix states
-        using in-built numpy functions.
-
-        Parameters
-        ----------
-        traj1, traj2 : Trajectory
-            Trajectories of the same size to be convolved
-
-        Returns
-        -------
-        Trajectory
-    """
-    return Trajectory(conv_mat_mat_fast(traj1.modes, traj2.modes))
 
 def traj_grad(traj):
     """

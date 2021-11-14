@@ -8,7 +8,6 @@ import numpy as np
 
 from ResolventSolver.FFTPlans import FFTPlans
 from ResolventSolver.traj_util import func2curve
-from ResolventSolver.my_fft import my_rfft
 from ResolventSolver.Trajectory import Trajectory
 import ResolventSolver.trajectory_functions as traj_funcs
 from ResolventSolver.trajectory_definitions import unit_circle as uc
@@ -23,16 +22,18 @@ class TestTrajectoryFunctions(unittest.TestCase):
     def setUp(self):
         curve1 = func2curve(uc.x, 33)
         curve2 = func2curve(elps.x, 33)
-        self.traj1 = Trajectory(my_rfft(curve1))
-        self.traj2 = Trajectory(my_rfft(curve2))
         self.plans_t1 = FFTPlans(curve1.shape, flag = 'FFTW_ESTIMATE')
         self.plans_t2 = FFTPlans(curve2.shape, flag = 'FFTW_ESTIMATE')
+        self.traj1 = traj_funcs.traj_rfft(curve1, self.plans_t1)
+        self.traj2 = traj_funcs.traj_rfft(curve2, self.plans_t2)
         self.sys1 = vdp
         self.sys2 = vis
 
     def tearDown(self):
         del self.traj1
         del self.traj2
+        del self.plans_t1
+        del self.plans_t2
         del self.sys1
         del self.sys2
 
@@ -197,17 +198,13 @@ class TestTrajectoryFunctions(unittest.TestCase):
 
     def test_traj_response2(self):
         # test for lorenz
-        curve5 = func2curve(uc3.x, 33)
+        curve5 = func2curve(uc3.x, 5)
         curve6 = np.tile(np.random.rand(curve5.shape[1]), [curve5.shape[0], 1])
-        traj5 = Trajectory(my_rfft(curve5))
-        traj6 = Trajectory(my_rfft(curve6))
         plan_t5 = FFTPlans(curve5.shape, flag = 'FFTW_ESTIMATE')
+        traj5 = traj_funcs.traj_rfft(curve5, plan_t5)
+        traj6 = traj_funcs.traj_rfft(curve6, plan_t5)
         t5_lor_jac = traj_funcs.traj_response2(traj5, traj6, plan_t5, lorenz.jac_conv)
         t5_lor_jac_true = np.zeros([traj5.shape[0], 3], dtype = complex)
-        # t5_lor_jac_true[0, 1] = lorenz.parameters['rho'] - 1
-        # t5_lor_jac_true[0, 2] = -lorenz.parameters['beta']
-        # t5_lor_jac_true[1, 1] = -0.5
-        # t5_lor_jac_true[1, 2] = 0.5*(1 + 1j)
         t5_lor_jac_true[0, 0] = lorenz.parameters['sigma']*(curve6[0, 1] - curve6[0, 0])
         t5_lor_jac_true[0, 1] = (lorenz.parameters['rho']*curve6[0, 0]) - curve6[0, 1]
         t5_lor_jac_true[0, 2] = -lorenz.parameters['beta']*curve6[0, 2]
