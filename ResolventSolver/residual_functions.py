@@ -1,8 +1,6 @@
 # This file contains the function definitions that calculate the residuals and
 # their associated gradients.
 
-# TODO: gr_traj_grad() function needs to be changed to use FFTW properly
-
 import numpy as np
 
 from ResolventSolver.Trajectory import Trajectory
@@ -90,7 +88,7 @@ def global_residual(local_res):
     # sum and return real part
     return np.real(np.sum(gr_sum))
 
-def gr_traj_grad(traj, sys, freq, mean, local_res, fftplans, conv_method = 'fft'):
+def gr_traj_grad(traj, sys, freq, mean, local_res, fftplans):
     """
         Return the gradient of the global residual with respect to a trajectory
         in state-space.
@@ -114,25 +112,13 @@ def gr_traj_grad(traj, sys, freq, mean, local_res, fftplans, conv_method = 'fft'
     # calculate trajectory gradients
     res_grad = traj_funcs.traj_grad(local_res)
 
-    # # initialise jacobian function and take transpose
-    # # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # traj[0] = mean
-    # jac = traj_funcs.traj_response(traj, fftplans, sys.jacobian)
-    # traj[0] = 0
-    # # move this line to make the one above a one-liner
-    # jac = traj_funcs.transpose(jac)
-    # # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    # # perform convolution
-    # jac_res_conv = traj_funcs.traj_conv(jac, local_res, method = conv_method)
-
     # calculate jacobian residual convolution
     traj[0] = mean
-    jac_res_conv = traj_funcs.traj_response2(traj, local_res, fftplans, sys.jacobian)
+    jac_res_conv = traj_funcs.traj_response2(traj, local_res, fftplans, sys.jac_conv_adj)
     traj[0] = 0
 
     # calculate and return gradients w.r.t trajectory and frequency respectively
-    return (-freq*res_grad) - jac_res_conv
+    return -freq*res_grad - jac_res_conv
 
 def gr_freq_grad(traj, local_res):
     """

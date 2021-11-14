@@ -14,7 +14,7 @@ import ResolventSolver.trajectory_functions as traj_funcs
 from ResolventSolver.trajectory_definitions import unit_circle as uc
 from ResolventSolver.trajectory_definitions import ellipse as elps
 from ResolventSolver.trajectory_definitions import unit_circle_3d as uc3
-from ResolventSolver.systems import van_der_pol as vpd
+from ResolventSolver.systems import van_der_pol as vdp
 from ResolventSolver.systems import viswanath as vis
 from ResolventSolver.systems import lorenz
 
@@ -27,7 +27,7 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.traj2 = Trajectory(my_rfft(curve2))
         self.plans_t1 = FFTPlans(curve1.shape, flag = 'FFTW_ESTIMATE')
         self.plans_t2 = FFTPlans(curve2.shape, flag = 'FFTW_ESTIMATE')
-        self.sys1 = vpd
+        self.sys1 = vdp
         self.sys2 = vis
 
     def tearDown(self):
@@ -195,20 +195,26 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertTrue(np.allclose(t1nl2_time[cross_i1], t2nl2_time[cross_i1]))
         self.assertTrue(np.allclose(t1nl2_time[cross_i2], t2nl2_time[cross_i2]))
 
-        # extra test for matrix function
-        curve3 = func2curve(uc3.x, 33)
-        curve4 = np.ones_like(curve3)
-        traj3 = Trajectory(my_rfft(curve3))
-        traj4 = Trajectory(my_rfft(curve4))
-        plan_t3 = FFTPlans(curve3.shape, flag = 'FFTW_ESTIMATE')
-        t3_lor_jac = traj_funcs.traj_response2(traj3, traj4, plan_t3, lorenz.jac_conv)
-        t3_lor_jac_true = np.zeros([traj3.shape[0], 3], dtype = complex)
-        t3_lor_jac_true[0, 1] = lorenz.parameters['rho'] - 1
-        t3_lor_jac_true[0, 2] = -lorenz.parameters['beta']
-        t3_lor_jac_true[1, 1] = -0.5
-        t3_lor_jac_true[1, 2] = 0.5*(1 + 1j)
-        t3_lor_jac_true = Trajectory(t3_lor_jac_true)
-        self.assertAlmostEqual(t3_lor_jac, t3_lor_jac_true)
+    def test_traj_response2(self):
+        # test for lorenz
+        curve5 = func2curve(uc3.x, 33)
+        curve6 = np.tile(np.random.rand(curve5.shape[1]), [curve5.shape[0], 1])
+        traj5 = Trajectory(my_rfft(curve5))
+        traj6 = Trajectory(my_rfft(curve6))
+        plan_t5 = FFTPlans(curve5.shape, flag = 'FFTW_ESTIMATE')
+        t5_lor_jac = traj_funcs.traj_response2(traj5, traj6, plan_t5, lorenz.jac_conv)
+        t5_lor_jac_true = np.zeros([traj5.shape[0], 3], dtype = complex)
+        # t5_lor_jac_true[0, 1] = lorenz.parameters['rho'] - 1
+        # t5_lor_jac_true[0, 2] = -lorenz.parameters['beta']
+        # t5_lor_jac_true[1, 1] = -0.5
+        # t5_lor_jac_true[1, 2] = 0.5*(1 + 1j)
+        t5_lor_jac_true[0, 0] = lorenz.parameters['sigma']*(curve6[0, 1] - curve6[0, 0])
+        t5_lor_jac_true[0, 1] = (lorenz.parameters['rho']*curve6[0, 0]) - curve6[0, 1]
+        t5_lor_jac_true[0, 2] = -lorenz.parameters['beta']*curve6[0, 2]
+        t5_lor_jac_true[1, 1] = -0.5*curve6[0, 2]
+        t5_lor_jac_true[1, 2] = 0.5*(curve6[0, 1] + curve6[0,0]*1j)
+        t5_lor_jac_true = Trajectory(t5_lor_jac_true)
+        self.assertAlmostEqual(t5_lor_jac, t5_lor_jac_true)
 
 
 if __name__ == "__main__":

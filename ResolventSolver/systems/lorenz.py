@@ -59,12 +59,28 @@ def jac_conv(x, r, defaults = parameters):
     beta = defaults['beta']
     sigma = defaults['sigma']
 
-    # assign response
+    # initialise response
     response = np.zeros_like(x)
 
     # compute response
-    response[:, 0] = -(sigma*r[:, 0]) + (sigma*r[:, 1])
-    response[:, 1] = ((rho - x[:, 2])*r[:, 0]) - r[:, 1] - (x[:, 0]*r[:, 2])
-    response[:, 2] = (x[:, 1]*r[:, 0]) + (x[:, 0]*r[:, 1]) - (beta*r[:, 2])
+    response[:, 0] = -sigma*r[:, 0] + sigma*r[:, 1]
+    response[:, 1] = (rho - x[:, 2])*r[:, 0] - r[:, 1] - x[:, 0]*r[:, 2]
+    response[:, 2] = x[:, 1]*r[:, 0] + x[:, 0]*r[:, 1] - beta*r[:, 2]
+
+    return response
+
+def jac_conv_adj(x, r, defaults = parameters):
+    # unpack defaults
+    rho = defaults['rho']
+    beta = defaults['beta']
+    sigma = defaults['sigma']
+
+    # initialise response
+    response = np.zeros_like(x)
+
+    # compute response
+    response[:, 0] = -sigma*r[:, 0] + (rho - x[:, 2])*r[:, 1] + x[:, 1]*r[:, 2]
+    response[:, 1] = sigma*r[:, 0] - r[:, 1] + x[:, 0]*r[:, 2]
+    response[:, 2] = -x[:, 0]*r[:, 1] - beta*r[:, 2]
 
     return response

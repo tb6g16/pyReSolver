@@ -64,6 +64,7 @@ def traj_irfft_dep(traj):
     """
     return my_irfft(traj.modes)
 
+# TODO: Can these be done without copying arrays?
 def traj_rfft(array, fftplans):
     fftplans.tmp_t = np.copy(array)
     fftplans.fft()

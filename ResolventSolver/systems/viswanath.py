@@ -7,7 +7,6 @@ import numpy as np
 parameters = {'mu': 0, 'r': 1}
 
 def response(x, parameters = parameters):
-    
     # unpack parameters
     mu = parameters['mu']
     rlim = parameters['r']
@@ -22,7 +21,6 @@ def response(x, parameters = parameters):
     return response
 
 def jacobian(x, parameters = parameters):
-    
     # unpack parameters
     mu = parameters['mu']
     rlim = parameters['r']
@@ -40,7 +38,6 @@ def jacobian(x, parameters = parameters):
     return np.squeeze(jacobian)
 
 def nl_factor(x, parameters = parameters):
-    
     # unpack parameters
     mu = parameters['mu']
 
@@ -53,3 +50,33 @@ def nl_factor(x, parameters = parameters):
     nl_vector[:, 1] = mu*x[:, 1]*r
 
     return nl_vector
+
+def jac_conv(x, r, parameters = parameters):
+    # unpack defaults
+    mu = parameters['mu']
+    rlim = parameters['r']
+
+    # initialise response
+    response = np.zeros_like(x)
+
+    # compute response
+    r = np.sqrt((x[0]**2) + (x[1]**2))
+    response[:, 0] = (mu*(rlim - (2*(x[:, 0]**2) + (x[:, 1]**2))/r))*r[:, 0] + (1 - (mu*x[:, 0]*x[:, 1])/r)*r[:, 1]
+    response[:, 1] = (-1 - (mu*x[:, 0]*x[:, 1])/r)*r[:, 0] + (mu*(rlim - ((x[:, 0]**2) + 2*(x[:, 1]**2))/r))*r[:, 1]
+
+    return response
+
+def jac_conv_adj(x, r, parameters = parameters):
+    # unpack defaults
+    mu = parameters['mu']
+    rlim = parameters['r']
+
+    # initialise response
+    response = np.zeros_like(x)
+
+    # compute response
+    r = np.sqrt((x[0]**2) + (x[1]**2))
+    response[:, 0] = (mu*(rlim - (2*(x[:, 0]**2) + (x[:, 1]**2))/r))*r[:, 0] + (-1 - (mu*x[:, 0]*x[:, 1])/r)*r[:, 0]
+    response[:, 1] = (1 - (mu*x[:, 0]*x[:, 1])/r)*r[:, 1] + (mu*(rlim - ((x[:, 0]**2) + 2*(x[:, 1]**2))/r))*r[:, 1]
+
+    return response
