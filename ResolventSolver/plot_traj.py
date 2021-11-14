@@ -1,11 +1,16 @@
 # This file will contian the definitions for an easy to use plotting wrapper
 # for the trajectory object.
 
+import warnings
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 from ResolventSolver.TrajPlotObject import TrajPlotObject
+
+# catch warnings as if they are errors
+warnings.filterwarnings('error')
 
 def plot_single_traj(plot_object, ax = None, proj = None, show = False):
     """
@@ -118,11 +123,14 @@ def plot_traj(*args, **kwargs):
         plot_object = TrajPlotObject(arg, disc = discs[index], mean = means[index])
         plot_single_traj(plot_object, ax = ax, proj = proj)
 
-    # show the plot
+    # show the plot or save it
     if save is not None:
         plt.savefig(save)
     else:
-        plt.show()
+        try:
+            plt.show()
+        except UserWarning:
+            plt.savefig('./temp.png')
 
 def plot_along_s(*args, **kwargs):
     """

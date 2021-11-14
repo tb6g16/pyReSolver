@@ -29,7 +29,7 @@ class TestTraj2Vec(unittest.TestCase):
         dofs = (2*self.traj.shape[1]*(self.traj.shape[0] - 2))
         self.assertEqual(np.shape(self.vec), (dofs,))
 
-        # corrent values
+        # correct values
         a = 0
         b = (self.traj.shape[0] - 2)*self.traj.shape[1]
         for i in range(self.traj.shape[0] - 2):
