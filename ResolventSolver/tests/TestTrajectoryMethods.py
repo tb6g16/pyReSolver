@@ -33,10 +33,10 @@ class TestTrajectoryMethods(unittest.TestCase):
     def test_add_sub(self):
         rand_factor1 = rand.uniform(0, 10)
         rand_factor2 = rand.uniform(0, 10)
-        self.assertTrue(np.alltrue(self.traj1 + Trajectory(rand_factor1*self.rand_array1) ==
-                        self.rand_array1 + rand_factor1*self.rand_array1))
-        self.assertTrue(np.alltrue(self.traj1 + Trajectory(rand_factor2*self.rand_array1) ==
-                        self.rand_array1 + rand_factor2*self.rand_array1))
+        self.assertEqual(self.traj1 + Trajectory(rand_factor1*self.rand_array1),
+                            self.rand_array1 + rand_factor1*self.rand_array1)
+        self.assertEqual(self.traj1 + Trajectory(rand_factor2*self.rand_array1),
+                            self.rand_array1 + rand_factor2*self.rand_array1)
 
     def test_mul_float(self):
         # random numbers to multiply by
@@ -53,8 +53,8 @@ class TestTrajectoryMethods(unittest.TestCase):
                 self.assertTrue(np.array_equal(float_mul2[i], self.traj2[i]*rand2))
         
         # check commutativity (__rmul__)
-        self.assertTrue(np.alltrue(float_mul1 == self.traj1*rand1))
-        self.assertTrue(np.alltrue(float_mul2 == self.traj2*rand2))
+        self.assertEqual(float_mul1, self.traj1*rand1)
+        self.assertEqual(float_mul2, self.traj2*rand2)
 
     def test_matmul_array(self):
         # random matrices to multiple by
@@ -90,7 +90,7 @@ class TestTrajectoryMethods(unittest.TestCase):
 
         # correct values
         for i in range(no_modes):
-            self.assertTrue(np.allclose(traj_mult[i], np.matmul(rand_traj[i], self.traj1[i])))
+            self.assertEqual(traj_mult[i], np.matmul(rand_traj[i], self.traj1[i]))
 
     def test_getitem(self):
         rand_mode = rand.randint(0, self.modes - 1)
@@ -103,7 +103,7 @@ class TestTrajectoryMethods(unittest.TestCase):
         self.assertTrue(np.array_equal(self.traj2[rand_mode, rand_el2, :], self.rand_array2[rand_mode][rand_el2, :]))
         self.assertTrue(np.array_equal(self.traj2[rand_mode, :, rand_el3], self.rand_array2[rand_mode][:, rand_el3]))
 
-    def est_round(self):
+    def test_round(self):
         rand_mode = rand.randint(0, self.modes - 1)
         rand_el1 = rand.randint(0, self.dim1 - 1)
         rand_el2 = rand.randint(0, self.dim2 - 1)

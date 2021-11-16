@@ -31,14 +31,14 @@ class Trajectory(np.ndarray):
         else:
             return Trajectory(np.squeeze(np.matmul(other, np.reshape(self, (*self.shape, 1)))))
 
-    # def __eq__(self, other_traj, rtol = 1e-5, atol = 1e-8):
-    #     """Evaluate (approximate) equality of trajectory and current instance."""
-    #     return np.allclose(self.modes, other_traj.modes, rtol = rtol, atol = atol)
+    def __eq__(self, other_traj, rtol = 1e-5, atol = 1e-8):
+        """Evaluate (approximate) equality of trajectory and current instance."""
+        return np.allclose(self, other_traj, rtol = rtol, atol = atol)
 
-    # def __round__(self, decimals = 6):
-    #     """Return a new trajectory with rounded modes."""
-    #     return Trajectory(np.around(self.modes, decimals = decimals))
+    def __round__(self, decimals = 6):
+        """Return a new trajectory with rounded modes."""
+        return Trajectory(np.around(self, decimals = decimals))
 
-    # def __abs__(self):
-    #     """Define the behaviour of the in-built absolute function."""
-    #     return np.linalg.norm(self.modes)
+    def __abs__(self):
+        """Define the behaviour of the in-built absolute function."""
+        return np.linalg.norm(self)
