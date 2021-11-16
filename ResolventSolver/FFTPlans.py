@@ -3,6 +3,7 @@
 # trajectory.
 
 import pyfftw
+import numpy as np
 
 class FFTPlans:
 
@@ -14,8 +15,12 @@ class FFTPlans:
         self.fftplan = pyfftw.FFTW(self.tmp_t, self.tmp_f, axes = (0,), direction = 'FFTW_FORWARD', flags = (flag,))
         self.ifftplan = pyfftw.FFTW(self.tmp_f, self.tmp_t, axes = (0,), direction = 'FFTW_BACKWARD', flags = (flag,))
 
-    def fft(self):
-        self.tmp_f = self.fftplan(self.tmp_t)/self.tmp_t.shape[0]
+    def fft(self, freq, time):
+        np.copyto(self.tmp_t, time)
+        self.fftplan()
+        np.copyto(freq, self.tmp_f/self.tmp_t.shape[0])
 
-    def ifft(self):
-        self.tmp_t = self.ifftplan(self.tmp_f)*self.tmp_t.shape[0]
+    def ifft(self, freq, time):
+        np.copyto(self.tmp_f, freq*self.tmp_t.shape[0])
+        self.ifftplan()
+        np.copyto(time, self.tmp_t)

@@ -39,50 +39,48 @@ class TestFFTPlans(unittest.TestCase):
         if self.shape[0] % 2 == 0:
             randf[-1] = np.real(randf[-1])
         plans = FFTPlans(self.shape, flag = self.flag)
-        plans.tmp_t = np.copy(randt)
-        plans.fft()
-        self.assertTrue(np.allclose(plans.tmp_f, np.fft.rfft(randt, axis = 0)/randt.shape[0]))
-        plans.tmp_f = np.copy(randf)
-        plans.ifft()
+        plans.fft(randf, randt)
+        self.assertTrue(np.allclose(randf, np.fft.rfft(randt, axis = 0)/randt.shape[0]))
+        plans.ifft(randf, randt)
         if self.shape[0] % 2 == 0:
-            self.assertTrue(np.allclose(plans.tmp_t, np.fft.irfft(randf*2*(randf.shape[0] - 1), axis = 0)))
+            self.assertTrue(np.allclose(randt, np.fft.irfft(randf*2*(randf.shape[0] - 1), axis = 0)))
         else:
-            self.assertTrue(np.allclose(plans.tmp_t, np.fft.irfft(randf*(2*randf.shape[0] - 1), 2*randf.shape[0] - 1, axis = 0)))
-        plans.tmp_t = np.copy(randt)
-        plans.fft()
-        plans.ifft()
-        self.assertTrue(np.allclose(plans.tmp_t, randt))
-        plans.tmp_f = np.copy(randf)
-        plans.ifft()
-        plans.fft()
-        self.assertTrue(np.allclose(plans.tmp_f, randf))
+            self.assertTrue(np.allclose(randt, np.fft.irfft(randf*(2*randf.shape[0] - 1), 2*randf.shape[0] - 1, axis = 0)))
+        tmp_t = np.zeros_like(randt)
+        plans.fft(randf, randt)
+        plans.ifft(randf, tmp_t)
+        self.assertTrue(np.allclose(tmp_t, randt))
+        tmp_f = np.zeros_like(randf)
+        plans.ifft(randf, randt)
+        plans.fft(tmp_f, randt)
+        self.assertTrue(np.allclose(tmp_f, randf))
 
     def test_trig(self):
         uc_t = func2curve(uc.x, self.shape[0], if_freq = False)
         uc_f_true = np.zeros([self.shapef[0], 2], dtype = complex)
+        uc_f = np.zeros_like(uc_f_true)
         uc_f_true[1, 0] = 0.5
         uc_f_true[1, 1] = 1j*0.5
         plans = FFTPlans([self.shape[0], 2], flag = self.flag)
-        plans.tmp_t = np.copy(uc_t)
-        plans.fft()
-        self.assertTrue(np.allclose(plans.tmp_f, uc_f_true))
-        plans.tmp_t = np.zeros_like(plans.tmp_t)
-        plans.ifft()
-        self.assertTrue(np.allclose(plans.tmp_t, uc_t))
+        plans.fft(uc_f, uc_t)
+        self.assertTrue(np.allclose(uc_f, uc_f_true))
+        tmp_t = np.zeros_like(uc_t)
+        plans.ifft(uc_f, tmp_t)
+        self.assertTrue(np.allclose(tmp_t, uc_t))
 
     def test_delta(self):
         delta_t = np.zeros(self.shape)
         delta_t[0, 0] = 1.0
         delta_t[1, 1] = 1.0
         delta_t[2, 2] = 1.0
-        delta_f = np.fft.rfft(delta_t, axis = 0)/delta_t.shape[0]
+        delta_f_true = np.fft.rfft(delta_t, axis = 0)/delta_t.shape[0]
+        delta_f = np.zeros_like(delta_f_true)
         plans = FFTPlans(self.shape, flag = self.flag)
-        plans.tmp_t = np.copy(delta_t)
-        plans.fft()
-        self.assertTrue(np.allclose(plans.tmp_f, delta_f))
-        plans.tmp_f = np.copy(delta_f)
-        plans.ifft()
-        self.assertTrue(np.allclose(plans.tmp_t, delta_t))
+        plans.fft(delta_f, delta_t)
+        self.assertTrue(np.allclose(delta_f, delta_f_true))
+        tmp_t = np.zeros_like(delta_t)
+        plans.ifft(delta_f, tmp_t)
+        self.assertTrue(np.allclose(tmp_t, delta_t))
 
 
 if __name__ == '__main__':
