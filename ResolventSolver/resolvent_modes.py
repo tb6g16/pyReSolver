@@ -1,8 +1,6 @@
 # This file contains the definitions required to compute the singular value
 # decomposition of the resolvent operator.
 
-# TODO: get rid of conditional in resolvent() function
-
 import numpy as np
 
 from ResolventSolver.Trajectory import Trajectory
@@ -32,18 +30,11 @@ def resolvent(freq, n, jac_at_mean, B = None):
     # evaluate the number of dimensions using the size of the jacobian
     dim = np.shape(jac_at_mean)[0]
 
-    # is B given as an input
-    if type(B) != np.ndarray:
-        B = np.eye(dim)
-
     # calculate single resolvent matrix if n is an integer
-    if type(n) == int:
-        H_n = np.linalg.inv(1j*n*freq*np.eye(dim) - jac_at_mean) @ B
-    elif type(n) == range:
-        shape = np.shape(np.zeros([dim, dim]) @ B)
-        H_n = Trajectory(np.zeros([n[-1] + 1, *shape], dtype = complex))
-        for i in n:
-            H_n[i] = np.linalg.inv(1j*i*freq*np.eye(dim) - jac_at_mean) @ B
+    shape = np.shape(np.zeros([dim, dim]) @ B)
+    H_n = Trajectory(np.zeros([n[-1] + 1, *shape], dtype = complex))
+    for i in n:
+        H_n[i] = np.linalg.inv(1j*i*freq*np.eye(dim) - jac_at_mean) @ B
 
     return H_n
 
