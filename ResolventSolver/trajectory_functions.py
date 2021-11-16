@@ -44,7 +44,6 @@ def traj_irfft(traj, fftplans):
     fftplans.ifft()
     return fftplans.tmp_t
 
-# TODO: Check if this is where the last mode problem is
 def traj_grad(traj):
     """
         Return the gradient of a trajectory.
@@ -62,9 +61,6 @@ def traj_grad(traj):
 
     # multiply element-wise
     new_modes = modifiers*traj
-
-    # force end mode to be zero to preserve symmetry
-    new_modes[-1] = 0
 
     return Trajectory(new_modes)
 

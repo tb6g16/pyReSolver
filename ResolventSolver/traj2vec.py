@@ -23,7 +23,7 @@ def traj2vec(traj):
             1D array containing data of float type.
     """
     # convert trajectory array to vector and append frequency
-    return np.hstack((np.reshape(traj[1:-1].real, -1), np.reshape(traj[1:-1].imag, -1)))
+    return np.hstack((np.reshape(traj[1:].real, -1), np.reshape(traj[1:].imag, -1)))
 
 def vec2traj(opt_vector, dim):
     """
@@ -56,7 +56,6 @@ def vec2traj(opt_vector, dim):
 
     # combine and pad zero and end modes
     traj = real_comps + 1j*imag_comps
-    traj = np.insert(traj, np.shape(traj)[0], 0, axis = 0)
     traj = np.insert(traj, 0, 0, axis = 0)
 
     return Trajectory(traj)

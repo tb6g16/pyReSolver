@@ -26,12 +26,12 @@ class TestTraj2Vec(unittest.TestCase):
 
     def test_traj2vec(self):
         # correct size
-        dofs = (2*self.traj.shape[1]*(self.traj.shape[0] - 2))
+        dofs = (2*self.traj.shape[1]*(self.traj.shape[0] - 1))
         self.assertEqual(np.shape(self.vec), (dofs,))
 
         # correct values
         a = 0
-        b = (self.traj.shape[0] - 2)*self.traj.shape[1]
+        b = (self.traj.shape[0] - 1)*self.traj.shape[1]
         for i in range(self.traj.shape[0] - 2):
             for j in range(self.traj.shape[1]):
                 self.assertEqual(self.vec[a], self.traj[i + 1, j].real)
