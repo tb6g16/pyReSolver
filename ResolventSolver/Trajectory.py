@@ -20,16 +20,16 @@ class Trajectory(np.ndarray):
 
     def matmul_left_const(self, factor):
         """Left multiply current instance by constant array."""
-        return Trajectory(np.transpose(np.matmul(factor, np.transpose(self))))
+        return np.transpose(np.matmul(factor, np.transpose(self)))
 
     def matmul_left_traj(self, other):
         """Left multiply current instance by another trajectory instance."""
         if len(self.shape) == 2 and len(other.shape) == 2:
-            return Trajectory(np.diag(np.inner(other, self)))
+            return np.diag(np.inner(other, self))
         elif len(self.shape) == 3 and len(other.shape) == 3:
-            return Trajectory(np.matmul(other, self))
+            return np.matmul(other, self)
         else:
-            return Trajectory(np.squeeze(np.matmul(other, np.reshape(self, (*self.shape, 1)))))
+            return np.squeeze(np.matmul(other, np.reshape(self, (*self.shape, 1))))
 
     def __eq__(self, other_traj, rtol = 1e-5, atol = 1e-8):
         """Evaluate (approximate) equality of trajectory and current instance."""
@@ -37,7 +37,7 @@ class Trajectory(np.ndarray):
 
     def __round__(self, decimals = 6):
         """Return a new trajectory with rounded modes."""
-        return Trajectory(np.around(self, decimals = decimals))
+        return np.around(self, decimals = decimals)
 
     def __abs__(self):
         """Define the behaviour of the in-built absolute function."""

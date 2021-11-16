@@ -17,7 +17,7 @@ def transpose(traj):
         -------
         Trajectory
     """
-    return Trajectory(np.transpose(traj, axes = [0, *range(1, traj.ndim)[::-1][0:]]))
+    return np.transpose(traj, axes = [0, *range(1, traj.ndim)[::-1][0:]])
 
 def conj(traj):
     """
@@ -31,7 +31,7 @@ def conj(traj):
         -------
         Trajectory
     """
-    return Trajectory(np.conj(traj))
+    return np.conj(traj)
 
 # FIXME: the copy function is avoid strange assignment behaviour
 def traj_rfft(array, fftplans):
@@ -62,7 +62,7 @@ def traj_grad(traj):
     # multiply element-wise
     new_modes = modifiers*traj
 
-    return Trajectory(new_modes)
+    return new_modes
 
 def traj_response(traj, fftplans, func):
     """

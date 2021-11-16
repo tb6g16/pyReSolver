@@ -123,4 +123,4 @@ def resolvent_modes_inv(res_inv, cut = 0):
             phi[i] = phi[i][:, :-cut]
 
     # initialise as trajectory instances and return
-    return Trajectory(psi), Trajectory(sig), Trajectory(phi)
+    return psi, Trajectory(sig), phi
