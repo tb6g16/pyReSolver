@@ -5,7 +5,6 @@
 
 import numpy as np
 
-from ResolventSolver.traj_util import list2array, array2list
 from ResolventSolver.Trajectory import Trajectory
 from ResolventSolver.trajectory_functions import transpose, conj
 
@@ -64,7 +63,7 @@ def resolvent_modes(resolvent, cut = 0):
         psi, sig, phi : Trajectory
     """
     # perform full svd
-    psi, sig_vec, phi = np.linalg.svd(resolvent.modes, full_matrices = False)
+    psi, sig_vec, phi = np.linalg.svd(resolvent, full_matrices = False)
 
     # diagonalize singular value matrix and convert all to lists
     sig = np.zeros([resolvent.shape[0], sig_vec.shape[1], sig_vec.shape[1]], dtype = float)
@@ -77,7 +76,7 @@ def resolvent_modes(resolvent, cut = 0):
         psi = psi[:, :, :-cut]
         phi = phi[:, :-cut, :]
 
-    return Trajectory(psi), Trajectory(sig), conj(transpose(Trajectory(phi)))
+    return psi, Trajectory(sig), conj(transpose(phi))
 
 def resolvent_modes_inv(res_inv, cut = 0):
     """

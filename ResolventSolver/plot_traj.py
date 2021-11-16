@@ -28,7 +28,7 @@ def plot_single_traj(plot_object, ax = None, proj = None, show = False):
             Boolean for whether the resulting plot should be shown.
     """
     # pad with zeros to increase resolution
-    temp = plot_object.traj.modes
+    temp = np.copy(plot_object.traj)
     if plot_object.disc != None:
         tot_modes = int(plot_object.disc/2) + 1
         pad_len = tot_modes - plot_object.traj.shape[0]
@@ -157,7 +157,7 @@ def plot_along_s(*args, **kwargs):
 
     # loop over given trajectories to plot
     for arg in args:
-        traj_time = np.fft.irfft(arg.modes*2*(np.shape(arg.modes)[0] - 1), axis = 0)
+        traj_time = np.fft.irfft(arg*2*(np.shape(arg)[0] - 1), axis = 0)
         s = np.linspace(0, 2*np.pi, np.shape(traj_time)[0] + 1)
         for i in range(np.shape(traj_time)[1]):
             if labels != None:

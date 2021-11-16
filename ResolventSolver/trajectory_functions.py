@@ -17,7 +17,7 @@ def transpose(traj):
         -------
         Trajectory
     """
-    return Trajectory(np.transpose(traj.modes, axes = [0, *range(1, traj.modes.ndim)[::-1][0:]]))
+    return Trajectory(np.transpose(traj, axes = [0, *range(1, traj.ndim)[::-1][0:]]))
 
 def conj(traj):
     """
@@ -31,7 +31,7 @@ def conj(traj):
         -------
         Trajectory
     """
-    return Trajectory(np.conj(traj.modes))
+    return Trajectory(np.conj(traj))
 
 # FIXME: the copy function is avoid strange assignment behaviour
 def traj_rfft(array, fftplans):
@@ -40,10 +40,11 @@ def traj_rfft(array, fftplans):
     return Trajectory(np.copy(fftplans.tmp_f))
 
 def traj_irfft(traj, fftplans):
-    np.copyto(fftplans.tmp_f, traj.modes)
+    np.copyto(fftplans.tmp_f, traj)
     fftplans.ifft()
     return fftplans.tmp_t
 
+# TODO: Check if this is where the last mode problem is
 def traj_grad(traj):
     """
         Return the gradient of a trajectory.
@@ -60,10 +61,10 @@ def traj_grad(traj):
     modifiers = np.transpose(np.tile(1j*np.arange(traj.shape[0]), (traj.shape[1], 1)))
 
     # multiply element-wise
-    new_modes = modifiers*traj.modes
+    new_modes = modifiers*traj
 
     # force end mode to be zero to preserve symmetry
-    new_modes[-1][:] = 0
+    new_modes[-1] = 0
 
     return Trajectory(new_modes)
 

@@ -115,17 +115,9 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertEqual(self.traj1.shape, traj1_grad.shape)
         self.assertEqual(self.traj2.shape, traj2_grad.shape)
 
-        # outputs are complex numbers
-        temp = True
-        if traj1_grad.modes.dtype != np.complex128:
-            temp = False
-        if traj2_grad.modes.dtype != np.complex128:
-            temp = False
-        self.assertTrue(temp)
-
         # correct values
-        traj1_grad_true = Trajectory(np.zeros_like(traj1_grad.modes))
-        traj2_grad_true = Trajectory(np.zeros_like(traj2_grad.modes))
+        traj1_grad_true = Trajectory(np.zeros_like(traj1_grad))
+        traj2_grad_true = Trajectory(np.zeros_like(traj2_grad))
         traj1_grad_true[1, 0] = 0.5*1j
         traj1_grad_true[1, 1] = -0.5
         traj2_grad_true[1, 0] = 1j
@@ -153,28 +145,6 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertIsInstance(traj1_nl2, Trajectory)
         self.assertIsInstance(traj2_nl1, Trajectory)
         self.assertIsInstance(traj2_nl2, Trajectory)
-
-        # outputs are complex numbers
-        temp1 = True
-        if traj1_response1.modes.dtype != np.complex128:
-            temp1 = False
-        if traj1_response2.modes.dtype != np.complex128:
-            temp1 = False
-        if traj2_response1.modes.dtype != np.complex128:
-            temp1 = False
-        if traj2_response2.modes.dtype != np.complex128:
-            temp1 = False
-        temp2 = True
-        if traj1_nl1.modes.dtype != np.complex128:
-            temp2 = False
-        if traj1_nl2.modes.dtype != np.complex128:
-            temp2 = False
-        if traj2_nl1.modes.dtype != np.complex128:
-            temp2 = False
-        if traj2_nl2.modes.dtype != np.complex128:
-            temp2 = False
-        self.assertTrue(temp1)
-        self.assertTrue(temp2)
 
         # same response for trajectories at crossing points in time domain
         t1r1_time = traj_funcs.traj_irfft(traj1_response1, self.plans_t1)

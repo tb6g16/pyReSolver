@@ -78,9 +78,9 @@ class TestResolventModes(unittest.TestCase):
         psi, sig, phi = resolvent_modes(H)
 
         # generate true singular modes values
-        psi_true = Trajectory(np.zeros_like(psi.modes))
-        sig_true = Trajectory(np.zeros_like(sig.modes))
-        phi_true = Trajectory(np.zeros_like(phi.modes))
+        psi_true = np.zeros_like(psi)
+        sig_true = np.zeros_like(sig)
+        phi_true = np.zeros_like(phi)
         for n in range(H.shape[0]):
             D_n = ((1j*n*freq) + sigma)*((1j*n*freq) + 1) + sigma*(z_mean - rho)
             alpha_n = -sigma/D_n
@@ -117,12 +117,12 @@ class TestResolventModes(unittest.TestCase):
                 self.assertTrue(sig[i, j, j] >= sig[i, j + 1, j + 1])
 
         # take inverse of array at each mode
-        array_inv_true = Trajectory(np.zeros_like(self.array.modes))
+        array_inv_true = np.zeros_like(self.array)
         for i in range(self.no_modes):
             array_inv_true[i] = np.linalg.inv(self.array[i])
 
         # invert singular values matrix
-        sig_inv = Trajectory(np.zeros_like(sig.modes))
+        sig_inv = np.zeros_like(sig)
         for i in range(self.no_modes):
             sig_inv[i] = np.linalg.inv(sig[i])
 
@@ -136,7 +136,7 @@ class TestResolventModes(unittest.TestCase):
         # do the same for the inverse arrays
         self.assertEqual(array_inv_true, array_inv_recon)
 
-    def est_resolvent_modes_truncated(self):
+    def test_resolvent_modes_truncated(self):
         # perform truncated svd
         cut = rand.randint(0, self.dim - 1)
         psi, sig, phi = resolvent_modes(self.array, cut = cut)

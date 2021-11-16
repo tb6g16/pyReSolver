@@ -99,14 +99,6 @@ class TestResidualFunctions(unittest.TestCase):
         self.assertEqual(lr_traj1_sys1.shape, self.traj1.shape)
         self.assertEqual(lr_traj2_sys1.shape, self.traj2.shape)
 
-        # outputs are numbers
-        temp = True
-        if lr_traj1_sys1.modes.dtype != np.complex128:
-            temp = False
-        if lr_traj2_sys1.modes.dtype != np.complex128:
-            temp = False
-        self.assertTrue(temp)
-
         # correct values
         lr_traj1_sys1_true = np.zeros_like(traj_funcs.traj_irfft(self.traj1, self.plans_t1))
         lr_traj2_sys1_true = np.zeros_like(traj_funcs.traj_irfft(self.traj2, self.plans_t2))
@@ -144,14 +136,6 @@ class TestResidualFunctions(unittest.TestCase):
         gr_traj1_sys1 = res_funcs.global_residual(lr_t1s1)
         gr_traj2_sys1 = res_funcs.global_residual(lr_t2s1)
 
-        # output is a positive number
-        temp = True
-        if type(gr_traj1_sys1) != np.int64 and type(gr_traj1_sys1) != np.float64:
-            temp = False
-        if type(gr_traj2_sys1) != np.int64 and type(gr_traj2_sys1) != np.float64:
-            temp = False
-        self.assertTrue(temp)
-
         # correct values
         gr_traj1_sys1_true = ((5*(mu1**2))/32) + (((freq1 - 1)**2)/2)
         gr_traj2_sys1_true = (1/4)*((((2*freq2) - 1)**2) + ((2 - freq2)**2) + mu1**2)
@@ -187,17 +171,11 @@ class TestResidualFunctions(unittest.TestCase):
         gr_grad_freq_t2s1 = res_funcs.gr_freq_grad(self.traj2, lr_t2s1)
 
         # outputs are numbers
-        temp_traj = True
         temp_freq = True
-        if gr_grad_traj_t1s1.modes.dtype != np.complex128:
-            temp_traj = False
-        if gr_grad_traj_t2s1.modes.dtype != np.complex128:
-            temp_traj = False
         if type(gr_grad_freq_t1s1) != np.float64 and type(gr_grad_freq_t1s1) != float:
             temp_freq = False
         if type(gr_grad_freq_t2s1) != np.float64 and type(gr_grad_freq_t2s1) != float:
             temp_freq = False
-        self.assertTrue(temp_traj)
         self.assertTrue(temp_freq)
 
         # correct values (compared with FD approximation)
