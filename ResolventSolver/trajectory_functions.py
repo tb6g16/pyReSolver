@@ -5,6 +5,7 @@ import numpy as np
 
 from ResolventSolver.Trajectory import Trajectory
 
+# TODO: memory optimisation here!!!!!!!!!!!!!!!!!!!!!!
 def transpose(traj):
     """
         Return the transpose of a trajectory.

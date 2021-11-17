@@ -7,11 +7,12 @@ from scipy.optimize import minimize
 
 from ResolventSolver.Trajectory import Trajectory
 from ResolventSolver.FFTPlans import FFTPlans
-from ResolventSolver.traj2vec import traj2vec, vec2traj
+from ResolventSolver.traj2vec import traj2vec, vec2traj, init_comp_vec
 import ResolventSolver.residual_functions as res_funcs
 from ResolventSolver.trajectory_functions import transpose, conj
 
-def init_opt_funcs(no_modes, freq, fftplans, sys, dim, mean, psi = None):
+# TODO: somehow account for the psi better? get rid of conditionals in functions called alot
+def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
     """
         Return the functions to allow the calculation of the global residual
         and its associated gradients with a vector derived from a trajectory
@@ -40,7 +41,14 @@ def init_opt_funcs(no_modes, freq, fftplans, sys, dim, mean, psi = None):
             respectively.
     """
     # initialise resolvent
-    H_n_inv = res_funcs.resolvent_inv(no_modes, freq, sys.jacobian(mean))
+    H_n_inv = res_funcs.resolvent_inv(traj.shape[0], freq, sys.jacobian(mean))
+
+    # initialise vector and trajectory to modified in-place
+    if psi is not None:
+        tmp_traj = np.zeros_like(traj.matmul_left_traj(psi))
+    else:
+        tmp_traj = np.zeros_like(traj)
+    opt_vector = init_comp_vec(traj)
 
     def traj_global_res(opt_vector):
         """
@@ -56,15 +64,20 @@ def init_opt_funcs(no_modes, freq, fftplans, sys, dim, mean, psi = None):
             -------
             float
         """
+        nonlocal traj
+        nonlocal tmp_traj
+
         # unpack trajectory
-        traj = vec2traj(opt_vector, dim)
+        vec2traj(traj, opt_vector)
 
         # convert to full space if singular matrix is provided
         if psi is not None:
-            traj = traj.matmul_left_traj(psi)
+            np.copyto(tmp_traj, traj.matmul_left_traj(psi))
+        else:
+            np.copyto(tmp_traj, traj)
 
         # calculate global residual and return
-        return res_funcs.global_residual(res_funcs.local_residual(traj, sys, mean, H_n_inv, fftplans))
+        return res_funcs.global_residual(res_funcs.local_residual(tmp_traj, sys, mean, H_n_inv, fftplans))
 
     def traj_global_res_jac(opt_vector):
         """
@@ -84,24 +97,30 @@ def init_opt_funcs(no_modes, freq, fftplans, sys, dim, mean, psi = None):
             traj_global_res_jac : float
                 Gradient of the global residual with respect to the frequency.
         """
+        nonlocal traj
+        nonlocal tmp_traj
+
         # unpack trajectory
-        traj = vec2traj(opt_vector, dim)
+        vec2traj(traj, opt_vector)
 
         # convert to full space if singular matrix is provided
         if psi is not None:
-            traj = traj.matmul_left_traj(psi)
+            np.copyto(tmp_traj, traj.matmul_left_traj(psi))
+        else:
+            np.copyto(tmp_traj, traj)
 
         # calculate global residual gradients
-        local_res = res_funcs.local_residual(traj, sys, mean, H_n_inv, fftplans)
-        gr_traj_grad = res_funcs.gr_traj_grad(traj, sys, freq, mean, local_res, fftplans)
-        gr_freq_grad = res_funcs.gr_freq_grad(traj, local_res)
+        local_res = res_funcs.local_residual(tmp_traj, sys, mean, H_n_inv, fftplans)
+        gr_traj_grad = res_funcs.gr_traj_grad(tmp_traj, sys, freq, mean, local_res, fftplans)
 
         # convert gradient w.r.t modes to reduced space
         if psi is not None:
             gr_traj_grad = gr_traj_grad.matmul_left_traj(transpose(conj(psi)))
 
         # convert back to vector and return
-        return traj2vec(gr_traj_grad)
+        traj2vec(gr_traj_grad, opt_vector)
+
+        return opt_vector
 
     return traj_global_res, traj_global_res_jac
 
@@ -166,31 +185,34 @@ def my_min(traj, freq, sys, mean, **kwargs):
         traj = traj.matmul_left_traj(transpose(conj(psi)))
 
     # setup the problem
-    no_modes = traj.shape[0]
     dim = traj.shape[1]
     if not hasattr(res_func, '__call__') and not hasattr(jac_func, '__call__'):
-        res_func, jac_func = init_opt_funcs(no_modes, freq, plans, sys, dim, mean, psi = psi)
+        res_func, jac_func = init_opt_funcs(traj, freq, plans, sys, mean, psi = psi)
     elif not hasattr(res_func, '__call__'):
-        res_func, _ = init_opt_funcs(no_modes, freq, plans, sys, dim, mean, psi = psi)
+        res_func, _ = init_opt_funcs(traj, freq, plans, sys, mean, psi = psi)
     elif not hasattr(jac_func, '__call__'):
-        _, jac_func = init_opt_funcs(no_modes, freq, plans, sys, dim, mean, psi = psi)
+        _, jac_func = init_opt_funcs(traj, freq, plans, sys, mean, psi = psi)
 
     # define varaibles to be tracked using callback
     if traces == None:
         traces = {'traj': []}
 
     # define callback function
+    cur_traj = np.zeros_like(traj)
+    cur_traj2 = np.zeros_like(traj.matmul_left_traj(psi))
     def callback(x):
-        cur_traj = vec2traj(x, dim)
+        nonlocal cur_traj
+        vec2traj(cur_traj, x)
 
         # convert to full space if singular matrix is provided
         if psi is not None:
-            cur_traj = cur_traj.matmul_left_traj(psi)
+            cur_traj2 = cur_traj.matmul_left_traj(psi)
 
-        traces['traj'].append(cur_traj)
+        traces['traj'].append(cur_traj2)
 
     # convert trajectory to vector of optimisation variables
-    traj_vec = traj2vec(traj)
+    traj_vec = init_comp_vec(traj)
+    traj2vec(traj, traj_vec)
 
     # initialise options
     options = {}
@@ -212,8 +234,9 @@ def my_min(traj, freq, sys, mean, **kwargs):
         sol = minimize(res_func, traj_vec, method = my_method, callback = callback, options = options)
 
     # unpack trajectory from solution
+    op_traj = np.zeros_like(traj)
     op_vec = sol.x
-    op_traj = vec2traj(op_vec, dim)
+    vec2traj(op_traj, op_vec)
 
     # convert to full space if singular matrix is provided
     if psi is not None:
