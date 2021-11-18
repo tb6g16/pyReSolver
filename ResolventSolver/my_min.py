@@ -11,7 +11,6 @@ from ResolventSolver.traj2vec import traj2vec, vec2traj, init_comp_vec
 import ResolventSolver.residual_functions as res_funcs
 from ResolventSolver.trajectory_functions import transpose, conj
 
-# TODO: somehow account for the psi better? get rid of conditionals in functions called alot
 def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
     """
         Return the functions to allow the calculation of the global residual
@@ -46,75 +45,117 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
     # initialise vector and trajectory to modified in-place
     if psi is not None:
         tmp_traj = np.zeros_like(traj.matmul_left_traj(psi))
-    else:
-        tmp_traj = np.zeros_like(traj)
     opt_vector = init_comp_vec(traj)
 
-    def traj_global_res(opt_vector, traj = traj, tmp_traj = tmp_traj):
-        """
-            Return the global residual of a trajectory frequency pair given as
-            a vector.
+    if psi is not None:
+        def traj_global_res(opt_vector, traj = traj, tmp_traj = tmp_traj):
+            """
+                Return the global residual of a trajectory frequency pair given as
+                a vector.
 
-            Parameters
-            ----------
-            opt_vector : ndarray
-                1D array containing data of float type.
+                Parameters
+                ----------
+                opt_vector : ndarray
+                    1D array containing data of float type.
 
-            Returns
-            -------
-            float
-        """
-        # unpack trajectory
-        vec2traj(traj, opt_vector)
+                Returns
+                -------
+                float
+            """
+            # unpack trajectory
+            vec2traj(traj, opt_vector)
 
-        # convert to full space if singular matrix is provided
-        if psi is not None:
+            # convert to full space if singular matrix is provided
             np.copyto(tmp_traj, traj.matmul_left_traj(psi))
-        else:
-            np.copyto(tmp_traj, traj)
 
-        # calculate global residual and return
-        return res_funcs.global_residual(res_funcs.local_residual(tmp_traj, sys, mean, H_n_inv, fftplans))
+            # calculate global residual and return
+            return res_funcs.global_residual(res_funcs.local_residual(tmp_traj, sys, mean, H_n_inv, fftplans))
 
-    def traj_global_res_jac(opt_vector, traj = traj, tmp_traj = tmp_traj):
-        """
-            Return the gradient of the global residual with respect to the
-            trajectory and frequency from a trajectory frequency pair given as
-            a vector.
+        def traj_global_res_jac(opt_vector, traj = traj, tmp_traj = tmp_traj):
+            """
+                Return the gradient of the global residual with respect to the
+                trajectory and frequency from a trajectory frequency pair given as
+                a vector.
 
-            Parameters
-            ----------
-            opt_vector : ndarray
-                1D array containing data of float type.
+                Parameters
+                ----------
+                opt_vector : ndarray
+                    1D array containing data of float type.
 
-            Returns
-            -------
-            traj_global_res : Trajectory
-                Gradient of the global residual with respect to the trajectory.
-            traj_global_res_jac : float
-                Gradient of the global residual with respect to the frequency.
-        """
-        # unpack trajectory
-        vec2traj(traj, opt_vector)
+                Returns
+                -------
+                traj_global_res : Trajectory
+                    Gradient of the global residual with respect to the trajectory.
+                traj_global_res_jac : float
+                    Gradient of the global residual with respect to the frequency.
+            """
+            # unpack trajectory
+            vec2traj(traj, opt_vector)
 
-        # convert to full space if singular matrix is provided
-        if psi is not None:
+            # convert to full space if singular matrix is provided
             np.copyto(tmp_traj, traj.matmul_left_traj(psi))
-        else:
-            np.copyto(tmp_traj, traj)
 
-        # calculate global residual gradients
-        local_res = res_funcs.local_residual(tmp_traj, sys, mean, H_n_inv, fftplans)
-        gr_traj_grad = res_funcs.gr_traj_grad(tmp_traj, sys, freq, mean, local_res, fftplans)
+            # calculate global residual gradients
+            local_res = res_funcs.local_residual(tmp_traj, sys, mean, H_n_inv, fftplans)
+            gr_traj_grad = res_funcs.gr_traj_grad(tmp_traj, sys, freq, mean, local_res, fftplans)
 
-        # convert gradient w.r.t modes to reduced space
-        if psi is not None:
+            # convert gradient w.r.t modes to reduced space
             gr_traj_grad = gr_traj_grad.matmul_left_traj(transpose(conj(psi)))
 
-        # convert back to vector and return
-        traj2vec(gr_traj_grad, opt_vector)
+            # convert back to vector and return
+            traj2vec(gr_traj_grad, opt_vector)
 
-        return opt_vector
+            return opt_vector
+    else:
+        def traj_global_res(opt_vector, traj = traj):
+            """
+                Return the global residual of a trajectory frequency pair given as
+                a vector.
+
+                Parameters
+                ----------
+                opt_vector : ndarray
+                    1D array containing data of float type.
+
+                Returns
+                -------
+                float
+            """
+            # unpack trajectory
+            vec2traj(traj, opt_vector)
+
+            # calculate global residual and return
+            return res_funcs.global_residual(res_funcs.local_residual(traj, sys, mean, H_n_inv, fftplans))
+
+        def traj_global_res_jac(opt_vector, traj = traj):
+            """
+                Return the gradient of the global residual with respect to the
+                trajectory and frequency from a trajectory frequency pair given as
+                a vector.
+
+                Parameters
+                ----------
+                opt_vector : ndarray
+                    1D array containing data of float type.
+
+                Returns
+                -------
+                traj_global_res : Trajectory
+                    Gradient of the global residual with respect to the trajectory.
+                traj_global_res_jac : float
+                    Gradient of the global residual with respect to the frequency.
+            """
+            # unpack trajectory
+            vec2traj(traj, opt_vector)
+
+            # calculate global residual gradients
+            local_res = res_funcs.local_residual(traj, sys, mean, H_n_inv, fftplans)
+            gr_traj_grad = res_funcs.gr_traj_grad(traj, sys, freq, mean, local_res, fftplans)
+
+            # convert back to vector and return
+            traj2vec(gr_traj_grad, opt_vector)
+
+            return opt_vector
 
     return traj_global_res, traj_global_res_jac
 
