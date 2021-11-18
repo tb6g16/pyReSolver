@@ -56,25 +56,6 @@ class TestTrajectoryMethods(unittest.TestCase):
         self.assertEqual(float_mul1, self.traj1*rand1)
         self.assertEqual(float_mul2, self.traj2*rand2)
 
-    def test_matmul_array(self):
-        # random matrices to multiple by
-        rand_row = rand.randint(1, 5)
-        rand1 = np.random.rand(rand_row, self.dim1) + 1j*np.random.rand(rand_row, self.dim1)
-        rand2 = np.random.rand(self.dim1) + 1j*np.random.rand(self.dim1)
-
-        # perform multiplication
-        mat_mul1 = self.traj1.matmul_left_const(rand1)
-        mat_mul2 = self.traj1.matmul_left_const(rand2)
-
-        # correct size
-        self.assertEqual(mat_mul1.shape, (self.modes, rand_row))
-        self.assertEqual(mat_mul2.shape, (self.modes,))
-
-        # correct elements
-        for i in range(self.traj1.shape[0]):
-            self.assertTrue(np.allclose(mat_mul1[i], rand1 @ self.traj1[i]))
-            self.assertTrue(np.allclose(mat_mul2[i], rand2 @ self.traj1[i]))
-
     def test_matmul_traj(self):
         # random trajectory to left multiply
         no_modes = self.traj1.shape[0]

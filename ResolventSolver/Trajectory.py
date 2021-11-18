@@ -18,10 +18,6 @@ class Trajectory(np.ndarray):
     def __new__(subtype, input_array):
         return input_array.view(subtype)
 
-    def matmul_left_const(self, factor):
-        """Left multiply current instance by constant array."""
-        return np.transpose(np.matmul(factor, np.transpose(self)))
-
     def traj_inner(self, other):
         """Inner product of current instance and another trajectory instances."""
         return np.einsum('ik,ik->i', self, other)
