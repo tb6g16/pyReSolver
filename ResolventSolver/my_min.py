@@ -50,7 +50,7 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
         tmp_traj = np.zeros_like(traj)
     opt_vector = init_comp_vec(traj)
 
-    def traj_global_res(opt_vector):
+    def traj_global_res(opt_vector, traj = traj, tmp_traj = tmp_traj):
         """
             Return the global residual of a trajectory frequency pair given as
             a vector.
@@ -64,9 +64,6 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
             -------
             float
         """
-        nonlocal traj
-        nonlocal tmp_traj
-
         # unpack trajectory
         vec2traj(traj, opt_vector)
 
@@ -79,7 +76,7 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
         # calculate global residual and return
         return res_funcs.global_residual(res_funcs.local_residual(tmp_traj, sys, mean, H_n_inv, fftplans))
 
-    def traj_global_res_jac(opt_vector):
+    def traj_global_res_jac(opt_vector, traj = traj, tmp_traj = tmp_traj):
         """
             Return the gradient of the global residual with respect to the
             trajectory and frequency from a trajectory frequency pair given as
@@ -97,9 +94,6 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
             traj_global_res_jac : float
                 Gradient of the global residual with respect to the frequency.
         """
-        nonlocal traj
-        nonlocal tmp_traj
-
         # unpack trajectory
         vec2traj(traj, opt_vector)
 
