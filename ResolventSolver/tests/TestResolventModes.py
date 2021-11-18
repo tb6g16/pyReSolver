@@ -126,9 +126,12 @@ class TestResolventModes(unittest.TestCase):
         for i in range(self.no_modes):
             sig_inv[i] = np.linalg.inv(sig[i])
 
+        def traj_matmul_tmp(traj1, traj2):
+            return np.einsum('ikl,ilj->ikj', traj1, traj2)
+
         # multiply singular matrices together to get array and its inverse
-        array_recon = (transpose(conj(phi)).matmul_left_traj(sig)).matmul_left_traj(psi)
-        array_inv_recon = (transpose(conj(psi)).matmul_left_traj(sig_inv)).matmul_left_traj(phi)
+        array_recon = traj_matmul_tmp(psi, traj_matmul_tmp(sig, transpose(conj(phi))))
+        array_inv_recon = traj_matmul_tmp(phi, traj_matmul_tmp(sig_inv, transpose(conj(psi))))
 
         # compare arrays and reconstructed arrays
         self.assertEqual(self.array, array_recon)

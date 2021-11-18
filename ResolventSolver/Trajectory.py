@@ -22,14 +22,13 @@ class Trajectory(np.ndarray):
         """Left multiply current instance by constant array."""
         return np.transpose(np.matmul(factor, np.transpose(self)))
 
+    def traj_inner(self, other):
+        """Inner product of current instance and another trajectory instances."""
+        return np.einsum('ik,ik->i', self, other)
+
     def matmul_left_traj(self, other):
         """Left multiply current instance by another trajectory instance."""
-        if len(self.shape) == 2 and len(other.shape) == 2:
-            return np.diag(np.inner(other, self))
-        elif len(self.shape) == 3 and len(other.shape) == 3:
-            return np.matmul(other, self)
-        else:
-            return np.squeeze(np.matmul(other, np.reshape(self, (*self.shape, 1))))
+        return Trajectory(np.einsum('ikl,il->ik', other, self))
 
     def __eq__(self, other_traj, rtol = 1e-5, atol = 1e-8):
         """Evaluate (approximate) equality of trajectory and current instance."""

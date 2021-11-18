@@ -122,6 +122,11 @@ class TestOptimise(unittest.TestCase):
         vec2traj(gr_traj_t1s1_true, tmp1)
         vec2traj(gr_traj_t2s1_true, tmp2)
         vec2traj(gr_traj_t3s2_true, tmp3)
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        gr_traj_t1s1_true[0] = 0
+        gr_traj_t2s1_true[0] = 0
+        gr_traj_t3s2_true[0] = 0
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         self.assertEqual(gr_traj_t1s1, gr_traj_t1s1_true)
         self.assertEqual(gr_traj_t2s1, gr_traj_t2s1_true)
         self.assertEqual(gr_traj_t3s2, gr_traj_t3s2_true)

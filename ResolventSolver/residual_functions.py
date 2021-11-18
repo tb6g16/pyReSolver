@@ -80,7 +80,7 @@ def global_residual(local_res):
         float
     """
     # evaluate inner product of local residuals
-    gr_sum = np.copy((traj_funcs.conj(local_res).matmul_left_traj(local_res)))
+    gr_sum = traj_funcs.conj(local_res).traj_inner(local_res)
 
     # scale zero modes
     gr_sum[0] = 0.5*gr_sum[0]
@@ -140,7 +140,7 @@ def gr_freq_grad(traj, local_res):
         float
     """
     # take imaginary part of inner product of trajectory and local residual
-    grad_sum = np.imag(np.copy(traj_funcs.conj(traj).matmul_left_traj(local_res)))
+    grad_sum = np.imag(traj_funcs.conj(traj).traj_inner(local_res))
 
     # scale by two times the mode number
     grad_sum = 2*np.arange(traj.shape[0])*grad_sum
