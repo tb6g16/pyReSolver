@@ -20,7 +20,7 @@ class Trajectory(np.ndarray):
 
     def traj_inner(self, other):
         """Inner product of current instance and another trajectory instances."""
-        return np.einsum('ik,ik->i', self, other)
+        return np.einsum('ik,ik->i', self, other, optimize=False)
 
     def matmul_left_traj(self, other):
         """Left multiply current instance by another trajectory instance."""
