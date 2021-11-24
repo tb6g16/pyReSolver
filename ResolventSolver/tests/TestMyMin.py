@@ -14,7 +14,7 @@ import ResolventSolver.residual_functions as res_funcs
 from ResolventSolver.systems import van_der_pol as vpd
 from ResolventSolver.systems import lorenz
 
-class TestOptimise(unittest.TestCase):
+class TestMyMin(unittest.TestCase):
 
     def setUp(self):
         modes = rand.randint(3, 65)
