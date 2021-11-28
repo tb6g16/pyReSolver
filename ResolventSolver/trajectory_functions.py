@@ -76,19 +76,13 @@ def traj_response(traj, fftplans, func, new_traj, new_curve):
     # convert back to frequency domain and return
     traj_rfft(new_traj, new_curve, fftplans)
 
-# TODO: in-place here
-def traj_response2(traj1, traj2, fftplans, func):
-    curve1 = np.zeros_like(fftplans.tmp_t)
-    curve2 = np.zeros_like(fftplans.tmp_t)
-    new_traj = np.zeros_like(traj1)
-
+def traj_response2(traj1, traj2, fftplans, func, new_traj, new_curve, tmp_curve):
     # convert trajectories to time domain
-    traj_irfft(traj1, curve1, fftplans)
-    traj_irfft(traj2, curve2, fftplans)
+    traj_irfft(traj1, tmp_curve, fftplans)
+    traj_irfft(traj2, fftplans.tmp_t, fftplans)
 
     # evaluate response in time domain
-    new_curve = func(curve1, curve2)
+    func(tmp_curve, fftplans.tmp_t, new_curve)
 
     # convert back to frequency domain and return
     traj_rfft(new_traj, new_curve, fftplans)
-    return new_traj

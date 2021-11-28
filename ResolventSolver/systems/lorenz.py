@@ -34,24 +34,14 @@ def nl_factor(x, out, defaults = parameters):
     np.copyto(out[:, 1], -x[:, 0]*x[:, 2])
     np.copyto(out[:, 2], x[:, 0]*x[:, 1])
 
-def jac_conv(x, r, defaults = parameters):
-    # initialise response
-    response = np.zeros_like(x)
-
+def jac_conv(x, r, out, defaults = parameters):
     # compute response
-    response[:, 0] = -defaults['sigma']*r[:, 0] + defaults['sigma']*r[:, 1]
-    response[:, 1] = (defaults['rho'] - x[:, 2])*r[:, 0] - r[:, 1] - x[:, 0]*r[:, 2]
-    response[:, 2] = x[:, 1]*r[:, 0] + x[:, 0]*r[:, 1] - defaults['beta']*r[:, 2]
+    np.copyto(out[:, 0], -defaults['sigma']*r[:, 0] + defaults['sigma']*r[:, 1])
+    np.copyto(out[:, 1],(defaults['rho'] - x[:, 2])*r[:, 0] - r[:, 1] - x[:, 0]*r[:, 2])
+    np.copyto(out[:, 2], x[:, 1]*r[:, 0] + x[:, 0]*r[:, 1] - defaults['beta']*r[:, 2])
 
-    return response
-
-def jac_conv_adj(x, r, defaults = parameters):
-    # initialise response
-    response = np.zeros_like(x)
-
+def jac_conv_adj(x, r, out, defaults = parameters):
     # compute response
-    response[:, 0] = -defaults['sigma']*r[:, 0] + (defaults['rho']- x[:, 2])*r[:, 1] + x[:, 1]*r[:, 2]
-    response[:, 1] = defaults['sigma']*r[:, 0] - r[:, 1] + x[:, 0]*r[:, 2]
-    response[:, 2] = -x[:, 0]*r[:, 1] - defaults['beta']*r[:, 2]
-
-    return response
+    np.copyto(out[:, 0], -defaults['sigma']*r[:, 0] + (defaults['rho']- x[:, 2])*r[:, 1] + x[:, 1]*r[:, 2])
+    np.copyto(out[:, 1], defaults['sigma']*r[:, 0] - r[:, 1] + x[:, 0]*r[:, 2])
+    np.copyto(out[:, 2], -x[:, 0]*r[:, 1] - defaults['beta']*r[:, 2])

@@ -189,8 +189,14 @@ class TestResidualFunctions(unittest.TestCase):
         lr_t2s1 = res_funcs.local_residual(self.traj2, self.sys1, mean, H_n_inv_t2s1, self.plans_t2, resp_t2s1, resp_mean, tmp_curve2)
 
         # calculate global residual gradients
-        gr_grad_traj_t1s1 = res_funcs.gr_traj_grad(self.traj1, self.sys1, freq1, mean, lr_t1s1, self.plans_t1)
-        gr_grad_traj_t2s1 = res_funcs.gr_traj_grad(self.traj2, self.sys1, freq2, mean, lr_t2s1, self.plans_t2)
+        jac_res_conv_t1 = np.zeros_like(self.traj1)
+        jac_res_conv_t2 = np.zeros_like(self.traj2)
+        curve_jac_res_conv_t1 = np.zeros_like(self.plans_t1.tmp_t)
+        curve_jac_res_conv_t2 = np.zeros_like(self.plans_t2.tmp_t)
+        tmp_curve1 = np.zeros_like(self.plans_t1.tmp_t)
+        tmp_curve2 = np.zeros_like(self.plans_t2.tmp_t)
+        gr_grad_traj_t1s1 = res_funcs.gr_traj_grad(self.traj1, self.sys1, freq1, mean, lr_t1s1, self.plans_t1, jac_res_conv_t1, curve_jac_res_conv_t1, tmp_curve1)
+        gr_grad_traj_t2s1 = res_funcs.gr_traj_grad(self.traj2, self.sys1, freq2, mean, lr_t2s1, self.plans_t2, jac_res_conv_t2, curve_jac_res_conv_t2, tmp_curve2)
         gr_grad_freq_t1s1 = res_funcs.gr_freq_grad(self.traj1, lr_t1s1)
         gr_grad_freq_t2s1 = res_funcs.gr_freq_grad(self.traj2, lr_t2s1)
 

@@ -28,22 +28,12 @@ def nl_factor(x, out, parameters = parameters):
     out[:, 0] = 0
     np.copyto(out[:, 1], -parameters['mu']*(x[:, 0]**2)*x[:, 1])
 
-def jac_conv(x, r, parameters = parameters):
-    # initialise response
-    response = np.zeros_like(x)
-
+def jac_conv(x, r, out, parameters = parameters):
     # compute response
-    response[:, 0] = r[:, 1]
-    response[:, 1] = (-(2*parameters['mu']*x[:, 0]*x[:, 1]) - 1)*r[:, 0] + (parameters['mu']*(1 - (x[:, 0]**2)))*r[:, 1]
+    np.copyto(out[:, 0], r[:, 1])
+    np.copyto(out[:, 1], (-(2*parameters['mu']*x[:, 0]*x[:, 1]) - 1)*r[:, 0] + (parameters['mu']*(1 - (x[:, 0]**2)))*r[:, 1])
 
-    return response
-
-def jac_conv_adj(x, r, parameters = parameters):
-    # initialise response
-    response = np.zeros_like(x)
-
+def jac_conv_adj(x, r, out, parameters = parameters):
     # compute response
-    response[:, 0] = (-(2*parameters['mu']*x[:, 0]*x[:, 1]) - 1)*r[:, 1]
-    response[:, 1] = r[:, 0] + (parameters['mu']*(1 - (x[:, 0]**2)))*r[:, 1]
-
-    return response
+    np.copyto(out[:, 0], (-(2*parameters['mu']*x[:, 0]*x[:, 1]) - 1)*r[:, 1])
+    np.copyto(out[:, 1], r[:, 0] + (parameters['mu']*(1 - (x[:, 0]**2)))*r[:, 1])

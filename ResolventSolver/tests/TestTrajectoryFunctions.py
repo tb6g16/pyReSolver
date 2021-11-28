@@ -198,7 +198,10 @@ class TestTrajectoryFunctions(unittest.TestCase):
         traj6 = Trajectory(np.zeros_like(plan_t5.tmp_f))
         traj_funcs.traj_rfft(traj5, curve5, plan_t5)
         traj_funcs.traj_rfft(traj6, curve6, plan_t5)
-        t5_lor_jac = traj_funcs.traj_response2(traj5, traj6, plan_t5, lorenz.jac_conv)
+        t5_lor_jac = np.zeros_like(traj5)
+        c5_lor_jac = np.zeros_like(plan_t5.tmp_t)
+        tmp_curve = np.zeros_like(plan_t5.tmp_t)
+        traj_funcs.traj_response2(traj5, traj6, plan_t5, lorenz.jac_conv, t5_lor_jac, c5_lor_jac, tmp_curve)
         t5_lor_jac_true = np.zeros([traj5.shape[0], 3], dtype = complex)
         t5_lor_jac_true[0, 0] = lorenz.parameters['sigma']*(curve6[0, 1] - curve6[0, 0])
         t5_lor_jac_true[0, 1] = (lorenz.parameters['rho']*curve6[0, 0]) - curve6[0, 1]

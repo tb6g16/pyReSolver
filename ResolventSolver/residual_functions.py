@@ -88,7 +88,7 @@ def global_residual(local_res):
     # sum and return real part
     return np.real(np.sum(gr_sum))
 
-def gr_traj_grad(traj, sys, freq, mean, local_res, fftplans):
+def gr_traj_grad(traj, sys, freq, mean, local_res, fftplans, jac_res_conv, curve_jac_res_conv, tmp_curve):
     """
         Return the gradient of the global residual with respect to a trajectory
         in state-space.
@@ -114,7 +114,7 @@ def gr_traj_grad(traj, sys, freq, mean, local_res, fftplans):
 
     # calculate jacobian residual convolution
     traj[0] = mean
-    jac_res_conv = traj_funcs.traj_response2(traj, local_res, fftplans, sys.jac_conv_adj)
+    traj_funcs.traj_response2(traj, local_res, fftplans, sys.jac_conv_adj, jac_res_conv, curve_jac_res_conv, tmp_curve)
     traj[0] = 0
 
     # calculate and return gradients w.r.t trajectory and frequency respectively
