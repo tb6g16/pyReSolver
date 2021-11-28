@@ -94,8 +94,10 @@ class TestResidualFunctions(unittest.TestCase):
         resp_t2s1 = np.zeros_like(self.traj2)
         resp_mean = np.zeros([1, 2])
         self.sys1.response(np.zeros([1, 2]), resp_mean)
-        lr_traj1_sys1 = res_funcs.local_residual(self.traj1, self.sys1, np.zeros([1, 2]), H_n_inv_t1s1, self.plans_t1, resp_t1s1, resp_mean)
-        lr_traj2_sys1 = res_funcs.local_residual(self.traj2, self.sys1, np.zeros([1, 2]), H_n_inv_t2s1, self.plans_t2, resp_t2s1, resp_mean)
+        tmp_curve1 = np.zeros_like(self.plans_t1.tmp_t)
+        tmp_curve2 = np.zeros_like(self.plans_t2.tmp_t)
+        lr_traj1_sys1 = res_funcs.local_residual(self.traj1, self.sys1, np.zeros([1, 2]), H_n_inv_t1s1, self.plans_t1, resp_t1s1, resp_mean, tmp_curve1)
+        lr_traj2_sys1 = res_funcs.local_residual(self.traj2, self.sys1, np.zeros([1, 2]), H_n_inv_t2s1, self.plans_t2, resp_t2s1, resp_mean, tmp_curve2)
 
         # output is of Trajectory class
         self.assertIsInstance(lr_traj1_sys1, Trajectory)
@@ -145,8 +147,10 @@ class TestResidualFunctions(unittest.TestCase):
         resp_t2s1 = np.zeros_like(self.traj2)
         resp_mean = np.zeros([1, 2])
         self.sys1.response(np.zeros([1, 2]), resp_mean)
-        lr_t1s1 = res_funcs.local_residual(self.traj1, self.sys1, np.zeros([1, 2]), H_n_inv_t1s1, self.plans_t1, resp_t1s1, resp_mean)
-        lr_t2s1 = res_funcs.local_residual(self.traj2, self.sys1, np.zeros([1, 2]), H_n_inv_t2s1, self.plans_t2, resp_t2s1, resp_mean)
+        tmp_curve1 = np.zeros_like(self.plans_t1.tmp_t)
+        tmp_curve2 = np.zeros_like(self.plans_t2.tmp_t)
+        lr_t1s1 = res_funcs.local_residual(self.traj1, self.sys1, np.zeros([1, 2]), H_n_inv_t1s1, self.plans_t1, resp_t1s1, resp_mean, tmp_curve1)
+        lr_t2s1 = res_funcs.local_residual(self.traj2, self.sys1, np.zeros([1, 2]), H_n_inv_t2s1, self.plans_t2, resp_t2s1, resp_mean, tmp_curve2)
         gr_traj1_sys1 = res_funcs.global_residual(lr_t1s1)
         gr_traj2_sys1 = res_funcs.global_residual(lr_t2s1)
 
@@ -179,8 +183,10 @@ class TestResidualFunctions(unittest.TestCase):
         resp_t2s1 = np.zeros_like(self.traj2)
         resp_mean = np.zeros([1, 2])
         self.sys1.response(np.zeros([1, 2]), resp_mean)
-        lr_t1s1 = res_funcs.local_residual(self.traj1, self.sys1, mean, H_n_inv_t1s1, self.plans_t1, resp_t1s1, resp_mean)
-        lr_t2s1 = res_funcs.local_residual(self.traj2, self.sys1, mean, H_n_inv_t2s1, self.plans_t2, resp_t2s1, resp_mean)
+        tmp_curve1 = np.zeros_like(self.plans_t1.tmp_t)
+        tmp_curve2 = np.zeros_like(self.plans_t2.tmp_t)
+        lr_t1s1 = res_funcs.local_residual(self.traj1, self.sys1, mean, H_n_inv_t1s1, self.plans_t1, resp_t1s1, resp_mean, tmp_curve1)
+        lr_t2s1 = res_funcs.local_residual(self.traj2, self.sys1, mean, H_n_inv_t2s1, self.plans_t2, resp_t2s1, resp_mean, tmp_curve2)
 
         # calculate global residual gradients
         gr_grad_traj_t1s1 = res_funcs.gr_traj_grad(self.traj1, self.sys1, freq1, mean, lr_t1s1, self.plans_t1)
@@ -231,6 +237,7 @@ class TestResidualFunctions(unittest.TestCase):
         lr_resp = np.zeros_like(traj)
         resp_mean = np.zeros_like(mean)
         sys.response(mean, resp_mean)
+        tmp_curve = np.zeros_like(fftplans.tmp_t)
 
         # generate resolvent trajectory
         H_n_inv = res_funcs.init_H_n_inv(traj, sys, freq, mean)
@@ -247,11 +254,11 @@ class TestResidualFunctions(unittest.TestCase):
                         step2 = step
                     traj_for = traj
                     traj_for[i, j] = traj[i, j] + step2
-                    lr_traj_for = res_funcs.local_residual(traj_for, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean)
+                    lr_traj_for = res_funcs.local_residual(traj_for, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean, tmp_curve)
                     gr_traj_for = res_funcs.global_residual(lr_traj_for)
                     traj_back = traj
                     traj_back[i, j] = traj[i, j] - step2
-                    lr_traj_back = res_funcs.local_residual(traj_back, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean)
+                    lr_traj_back = res_funcs.local_residual(traj_back, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean, tmp_curve)
                     gr_traj_back = res_funcs.global_residual(lr_traj_back)
                     if k == 0:
                         gr_grad_FD_traj_real[i, j] = (gr_traj_for - gr_traj_back)/(2*step)

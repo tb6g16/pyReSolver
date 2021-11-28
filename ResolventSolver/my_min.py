@@ -49,9 +49,10 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
 
     resp_mean = np.zeros_like(mean)
     sys.response(mean, resp_mean)
+    tmp_curve = np.zeros_like(fftplans.tmp_t)
 
     if psi is not None:
-        def traj_global_res(opt_vector, traj = traj, tmp_traj = tmp_traj, lr_resp=np.zeros_like(tmp_traj), resp_mean=resp_mean):
+        def traj_global_res(opt_vector, traj = traj, tmp_traj = tmp_traj, lr_resp=np.zeros_like(tmp_traj), resp_mean=resp_mean, tmp_curve=tmp_curve):
             """
                 Return the global residual of a trajectory frequency pair given as
                 a vector.
@@ -72,9 +73,9 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
             np.copyto(tmp_traj, traj.matmul_left_traj(psi))
 
             # calculate global residual and return
-            return res_funcs.global_residual(res_funcs.local_residual(tmp_traj, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean))
+            return res_funcs.global_residual(res_funcs.local_residual(tmp_traj, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean, tmp_curve))
 
-        def traj_global_res_jac(opt_vector, traj = traj, tmp_traj = tmp_traj, lr_resp=np.zeros_like(tmp_traj), resp_mean=resp_mean):
+        def traj_global_res_jac(opt_vector, traj = traj, tmp_traj = tmp_traj, lr_resp=np.zeros_like(tmp_traj), resp_mean=resp_mean, tmp_curve=tmp_curve):
             """
                 Return the gradient of the global residual with respect to the
                 trajectory and frequency from a trajectory frequency pair given as
@@ -99,7 +100,7 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
             np.copyto(tmp_traj, traj.matmul_left_traj(psi))
 
             # calculate global residual gradients
-            local_res = res_funcs.local_residual(tmp_traj, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean)
+            local_res = res_funcs.local_residual(tmp_traj, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean, tmp_curve)
             gr_traj_grad = res_funcs.gr_traj_grad(tmp_traj, sys, freq, mean, local_res, fftplans)
 
             # convert gradient w.r.t modes to reduced space
@@ -110,7 +111,7 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
 
             return opt_vector
     else:
-        def traj_global_res(opt_vector, traj = traj, lr_resp=np.zeros_like(traj), resp_mean=resp_mean):
+        def traj_global_res(opt_vector, traj = traj, lr_resp=np.zeros_like(traj), resp_mean=resp_mean, tmp_curve=tmp_curve):
             """
                 Return the global residual of a trajectory frequency pair given as
                 a vector.
@@ -128,9 +129,9 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
             vec2traj(traj, opt_vector)
 
             # calculate global residual and return
-            return res_funcs.global_residual(res_funcs.local_residual(traj, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean))
+            return res_funcs.global_residual(res_funcs.local_residual(traj, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean, tmp_curve))
 
-        def traj_global_res_jac(opt_vector, traj = traj, lr_resp=np.zeros_like(traj), resp_mean=resp_mean):
+        def traj_global_res_jac(opt_vector, traj = traj, lr_resp=np.zeros_like(traj), resp_mean=resp_mean, tmp_curve=tmp_curve):
             """
                 Return the gradient of the global residual with respect to the
                 trajectory and frequency from a trajectory frequency pair given as
@@ -152,7 +153,7 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
             vec2traj(traj, opt_vector)
 
             # calculate global residual gradients
-            local_res = res_funcs.local_residual(traj, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean)
+            local_res = res_funcs.local_residual(traj, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean, tmp_curve)
             gr_traj_grad = res_funcs.gr_traj_grad(traj, sys, freq, mean, local_res, fftplans)
 
             # convert back to vector and return

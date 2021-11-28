@@ -18,6 +18,7 @@ class Trajectory(np.ndarray):
     def __new__(subtype, input_array):
         return input_array.view(subtype)
 
+    # TODO: use out argument in einsums
     def traj_inner(self, other):
         """Inner product of current instance and another trajectory instances."""
         return np.einsum('ik,ik->i', self, other, optimize=False)

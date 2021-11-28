@@ -54,7 +54,7 @@ def traj_grad(traj):
     """
     return np.transpose(np.tile(1j*np.arange(traj.shape[0]), (traj.shape[1], 1)))*traj
 
-def traj_response(traj, fftplans, func, new_traj):
+def traj_response(traj, fftplans, func, new_traj, new_curve):
     """
         Return the response of a trajectory over its length due to a function.
 
@@ -71,7 +71,6 @@ def traj_response(traj, fftplans, func, new_traj):
     traj_irfft(traj, fftplans.tmp_t, fftplans)
 
     # evaluate response in time domain
-    new_curve = np.zeros_like(fftplans.tmp_t)
     func(fftplans.tmp_t, new_curve)
 
     # convert back to frequency domain and return
