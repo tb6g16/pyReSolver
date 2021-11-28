@@ -13,14 +13,14 @@ from ResolventSolver.systems import lorenz
 from ResolventSolver.traj_hdf5 import write_traj, read_traj
 
 def get_opt(T, filename = 'hess_traj.hdf5'):
-    if exists('./' + filename):
+    if exists('./ResolventSolver/tests/' + filename):
         traj, freq = read_traj(filename)
     else:
         traj = gen_rand_traj(3, 10*T)
         freq = (2*np.pi)/T
         mean = np.array([[0, 0, 23.64]])
         traj, _, _ = my_min(traj, freq, lorenz, mean, method = 'CG')
-        write_traj(filename, traj, freq)
+        write_traj('./ResolventSolver/tests/' + filename, traj, freq)
 
     return traj, freq
 
