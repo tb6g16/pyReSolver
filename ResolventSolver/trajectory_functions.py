@@ -5,7 +5,6 @@ import numpy as np
 
 from ResolventSolver.Trajectory import Trajectory
 
-# TODO: memory optimisation here!!!!!!!!!!!!!!!!!!!!!!
 def transpose(traj):
     """
         Return the transpose of a trajectory.
@@ -20,6 +19,7 @@ def transpose(traj):
     """
     return np.transpose(traj, axes = [0, *range(1, traj.ndim)[::-1][0:]])
 
+# TODO: in-place here?
 def conj(traj):
     """
         Return the complex conjugate of a trajectory.
@@ -52,15 +52,9 @@ def traj_grad(traj):
         -------
         Trajectory
     """
-    # initialise array of mode modifiers to be multiplied
-    modifiers = np.transpose(np.tile(1j*np.arange(traj.shape[0]), (traj.shape[1], 1)))
+    return np.transpose(np.tile(1j*np.arange(traj.shape[0]), (traj.shape[1], 1)))*traj
 
-    # multiply element-wise
-    new_modes = modifiers*traj
-
-    return new_modes
-
-def traj_response(traj, fftplans, func):
+def traj_response(traj, fftplans, func, new_traj):
     """
         Return the response of a trajectory over its length due to a function.
 
@@ -73,24 +67,18 @@ def traj_response(traj, fftplans, func):
         -------
         Trajectory
     """
-    # FIXME: THESE NEED TO BE GIVEN AS INPUTS TO THE FUNCTION
-    curve = np.zeros_like(fftplans.tmp_t)
-    new_traj = np.zeros_like(traj)
-
     # convert trajectory to time domain
-    traj_irfft(traj, curve, fftplans)
+    traj_irfft(traj, fftplans.tmp_t, fftplans)
 
     # evaluate response in time domain
-    new_curve = func(curve)
+    new_curve = np.zeros_like(fftplans.tmp_t)
+    func(fftplans.tmp_t, new_curve)
 
     # convert back to frequency domain and return
     traj_rfft(new_traj, new_curve, fftplans)
-    return new_traj
 
-# NOTE: this function is here just for the jacobian function with multiple trajectory
-#       trajectory inputs (avoiding python loops at all costs)
+# TODO: in-place here
 def traj_response2(traj1, traj2, fftplans, func):
-    # FIXME: THESE NEED TO BE GIVEN AS INPUTS TO THE FUNCTION
     curve1 = np.zeros_like(fftplans.tmp_t)
     curve2 = np.zeros_like(fftplans.tmp_t)
     new_traj = np.zeros_like(traj1)

@@ -7,18 +7,13 @@ import numpy as np
 # define optional arguments
 parameters = {'mu': 0}
 
-def response(x, parameters = parameters):
+def response(x, out, parameters = parameters):
     # unpack defaults
     mu = parameters['mu']
 
-    # initialise response vector
-    response = np.zeros(np.shape(x))
-
     # assign response
-    response[:, 0] = x[:, 1]
-    response[:, 1] = (mu*(1 - (x[:, 0]**2))*x[:, 1]) - x[:, 0]
-
-    return response
+    np.copyto(out[:, 0], x[:, 1])
+    np.copyto(out[:, 1], (mu*(1 - (x[:, 0]**2))*x[:, 1]) - x[:, 0])
 
 def jacobian(x, parameters = parameters):
     # unpack defaults
@@ -34,17 +29,13 @@ def jacobian(x, parameters = parameters):
 
     return np.squeeze(jacobian_matrix)
 
-def nl_factor(x, parameters = parameters):
+def nl_factor(x, out, parameters = parameters):
     # unpack defualts
     mu = parameters['mu']
 
-    # initialise output vector
-    nl_vector = np.zeros(np.shape(x))
-
     # assign values to vector
-    nl_vector[:, 1] = -mu*(x[:, 0]**2)*x[:, 1]
-
-    return nl_vector
+    out[:, 0] = 0
+    np.copyto(out[:, 1], -mu*(x[:, 0]**2)*x[:, 1])
 
 def jac_conv(x, r, parameters = parameters):
     # unpack defaults

@@ -126,15 +126,25 @@ class TestTrajectoryFunctions(unittest.TestCase):
         self.assertAlmostEqual(traj2_grad_true, traj2_grad)
 
     def test_traj_response(self):
+        # initialise arrays to be modified in-place
+        traj1_response1 = np.zeros_like(self.traj1)
+        traj1_response2 = np.zeros_like(self.traj1)
+        traj2_response1 = np.zeros_like(self.traj2)
+        traj2_response2 = np.zeros_like(self.traj2)
+        traj1_nl1 = np.zeros_like(self.traj1)
+        traj1_nl2 = np.zeros_like(self.traj1)
+        traj2_nl1 = np.zeros_like(self.traj2)
+        traj2_nl2 = np.zeros_like(self.traj2)
+
         # response to full system
-        traj1_response1 = traj_funcs.traj_response(self.traj1, self.plans_t1, self.sys1.response)
-        traj1_response2 = traj_funcs.traj_response(self.traj1, self.plans_t1, self.sys2.response)
-        traj2_response1 = traj_funcs.traj_response(self.traj2, self.plans_t2, self.sys1.response)
-        traj2_response2 = traj_funcs.traj_response(self.traj2, self.plans_t2, self.sys2.response)
-        traj1_nl1 = traj_funcs.traj_response(self.traj1, self.plans_t1, self.sys1.nl_factor)
-        traj1_nl2 = traj_funcs.traj_response(self.traj1, self.plans_t1, self.sys2.nl_factor)
-        traj2_nl1 = traj_funcs.traj_response(self.traj2, self.plans_t2, self.sys1.nl_factor)
-        traj2_nl2 = traj_funcs.traj_response(self.traj2, self.plans_t2, self.sys2.nl_factor)
+        traj_funcs.traj_response(self.traj1, self.plans_t1, self.sys1.response, traj1_response1)
+        traj_funcs.traj_response(self.traj1, self.plans_t1, self.sys2.response, traj1_response2)
+        traj_funcs.traj_response(self.traj2, self.plans_t2, self.sys1.response, traj2_response1)
+        traj_funcs.traj_response(self.traj2, self.plans_t2, self.sys2.response, traj2_response2)
+        traj_funcs.traj_response(self.traj1, self.plans_t1, self.sys1.nl_factor, traj1_nl1)
+        traj_funcs.traj_response(self.traj1, self.plans_t1, self.sys2.nl_factor, traj1_nl2)
+        traj_funcs.traj_response(self.traj2, self.plans_t2, self.sys1.nl_factor, traj2_nl1)
+        traj_funcs.traj_response(self.traj2, self.plans_t2, self.sys2.nl_factor, traj2_nl2)
         
         # output is of the Trajectory class
         self.assertIsInstance(traj1_response1, Trajectory)

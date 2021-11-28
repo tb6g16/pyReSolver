@@ -37,7 +37,7 @@ def init_H_n_inv(traj, sys, freq, mean):
     jac_at_mean = sys.jacobian(mean)
     return resolvent_inv(traj.shape[0], freq, jac_at_mean)
 
-def local_residual(traj, sys, mean, H_n_inv, fftplans):
+def local_residual(traj, sys, mean, H_n_inv, fftplans, resp_traj, resp_mean):
     """
         Return the local residual of a trajectory in a state-space.
 
@@ -56,13 +56,13 @@ def local_residual(traj, sys, mean, H_n_inv, fftplans):
         local_res : Trajectory
     """
     # evaluate response and multiply by resolvent at every mode
-    resp = traj_funcs.traj_response(traj, fftplans, sys.nl_factor)
+    traj_funcs.traj_response(traj, fftplans, sys.nl_factor, resp_traj)
 
     # evaluate local residual trajectory for all modes
-    local_res = traj.matmul_left_traj(H_n_inv) - resp
+    local_res = traj.matmul_left_traj(H_n_inv) - resp_traj
 
     # reassign the mean mode to the second constraint
-    local_res[0] = -sys.response(mean) - resp[0]
+    local_res[0] = -resp_mean - resp_traj[0]
 
     return local_res
 

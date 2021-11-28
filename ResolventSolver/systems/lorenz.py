@@ -6,21 +6,17 @@ import numpy as np
 # define parameters
 parameters = {'rho': 28, 'beta': 8/3, 'sigma': 10}
 
-def response(x, defaults = parameters):
+def response(x, out, defaults = parameters):
     # unpack defaults
+    # TODO: does unpacking slow this down?
     rho = defaults['rho']
     beta = defaults['beta']
     sigma = defaults['sigma']
 
-    # intialise response vector
-    response = np.zeros(np.shape(x))
-
     # assign response
-    response[:, 0] = sigma*(x[:, 1] - x[:, 0])
-    response[:, 1] = (rho*x[:, 0]) - x[:, 1] - (x[:, 0]*x[:, 2])
-    response[:, 2] = (x[:, 0]*x[:, 1]) - (beta*x[:, 2])
-
-    return response
+    np.copyto(out[:, 0], sigma*(x[:, 1] - x[:, 0]))
+    np.copyto(out[:, 1], (rho*x[:, 0]) - x[:, 1] - (x[:, 0]*x[:, 2]))
+    np.copyto(out[:, 2], (x[:, 0]*x[:, 1]) - (beta*x[:, 2]))
 
 def jacobian(x, defaults = parameters):
     # unpack defaults
@@ -43,15 +39,11 @@ def jacobian(x, defaults = parameters):
 
     return np.squeeze(jacobian)
 
-def nl_factor(x, defaults = parameters):
-    # initialise output vector
-    nl_vector = np.zeros(np.shape(x))
-
+def nl_factor(x, out, defaults = parameters):
     # assign values
-    nl_vector[:, 1] = -x[:, 0]*x[:, 2]
-    nl_vector[:, 2] = x[:, 0]*x[:, 1]
-
-    return nl_vector
+    out[:, 0] = 0
+    np.copyto(out[:, 1], -x[:, 0]*x[:, 2])
+    np.copyto(out[:, 2], x[:, 0]*x[:, 1])
 
 def jac_conv(x, r, defaults = parameters):
     # unpack defaults
