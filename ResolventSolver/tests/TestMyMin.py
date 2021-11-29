@@ -14,6 +14,10 @@ import ResolventSolver.residual_functions as res_funcs
 from ResolventSolver.systems import van_der_pol as vpd
 from ResolventSolver.systems import lorenz
 
+def init_H_n_inv(traj, sys, freq, mean):
+    jac_at_mean = sys.jacobian(mean)
+    return res_funcs.resolvent_inv(traj.shape[0], freq, jac_at_mean)
+
 class TestMyMin(unittest.TestCase):
 
     def setUp(self):
@@ -78,9 +82,9 @@ class TestMyMin(unittest.TestCase):
         gr_t3s2 = res_func_t3s2(self.traj3_vec)
 
         # correct value
-        H_n_inv_t1s1 = res_funcs.init_H_n_inv(self.traj1, self.sys1, self.freq1, self.mean1)
-        H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, self.freq2, self.mean1)
-        H_n_inv_t3s2 = res_funcs.init_H_n_inv(self.traj3, self.sys2, self.freq3, self.mean2)
+        H_n_inv_t1s1 = init_H_n_inv(self.traj1, self.sys1, self.freq1, self.mean1)
+        H_n_inv_t2s1 = init_H_n_inv(self.traj2, self.sys1, self.freq2, self.mean1)
+        H_n_inv_t3s2 = init_H_n_inv(self.traj3, self.sys2, self.freq3, self.mean2)
         resp_mean_s1 = np.zeros_like(self.mean1)
         resp_mean_s2 = np.zeros_like(self.mean2)
         self.sys1.response(self.mean1, resp_mean_s1)
@@ -110,9 +114,9 @@ class TestMyMin(unittest.TestCase):
         vec2traj(gr_traj_t3s2, res_grad_func_t3s2(self.traj3_vec))
 
         # correct values
-        H_n_inv_t1s1 = res_funcs.init_H_n_inv(self.traj1, self.sys1, self.freq1, self.mean1)
-        H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, self.freq2, self.mean1)
-        H_n_inv_t3s2 = res_funcs.init_H_n_inv(self.traj3, self.sys2, self.freq3, self.mean2)
+        H_n_inv_t1s1 = init_H_n_inv(self.traj1, self.sys1, self.freq1, self.mean1)
+        H_n_inv_t2s1 = init_H_n_inv(self.traj2, self.sys1, self.freq2, self.mean1)
+        H_n_inv_t3s2 = init_H_n_inv(self.traj3, self.sys2, self.freq3, self.mean2)
         resp_mean_s1 = np.zeros_like(self.mean1)
         resp_mean_s2 = np.zeros_like(self.mean2)
         self.sys1.response(self.mean1, resp_mean_s1)

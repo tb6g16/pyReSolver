@@ -20,6 +20,10 @@ from ResolventSolver.systems import van_der_pol as vdp
 from ResolventSolver.systems import viswanath as vis
 from ResolventSolver.systems import lorenz
 
+def init_H_n_inv(traj, sys, freq, mean):
+    jac_at_mean = sys.jacobian(mean)
+    return res_funcs.resolvent_inv(traj.shape[0], freq, jac_at_mean)
+
 class TestResidualFunctions(unittest.TestCase):
 
     def setUp(self):
@@ -86,8 +90,8 @@ class TestResidualFunctions(unittest.TestCase):
         self.sys2.parameters['r'] = r
 
         # generate inverse resolvent matrices
-        H_n_inv_t1s1 = res_funcs.init_H_n_inv(self.traj1, self.sys1, freq1, np.zeros([1, 2]))
-        H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, freq2, np.zeros([1, 2]))
+        H_n_inv_t1s1 = init_H_n_inv(self.traj1, self.sys1, freq1, np.zeros([1, 2]))
+        H_n_inv_t2s1 = init_H_n_inv(self.traj2, self.sys1, freq2, np.zeros([1, 2]))
 
         # generate local residual trajectories
         resp_t1s1 = np.zeros_like(self.traj1)
@@ -141,8 +145,8 @@ class TestResidualFunctions(unittest.TestCase):
         self.sys2.parameters['r'] = r
 
         # calculate global residuals
-        H_n_inv_t1s1 = res_funcs.init_H_n_inv(self.traj1, self.sys1, freq1, np.zeros([1, 2]))
-        H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, freq2, np.zeros([1, 2]))
+        H_n_inv_t1s1 = init_H_n_inv(self.traj1, self.sys1, freq1, np.zeros([1, 2]))
+        H_n_inv_t2s1 = init_H_n_inv(self.traj2, self.sys1, freq2, np.zeros([1, 2]))
         resp_t1s1 = np.zeros_like(self.traj1)
         resp_t2s1 = np.zeros_like(self.traj2)
         resp_mean = np.zeros([1, 2])
@@ -177,8 +181,8 @@ class TestResidualFunctions(unittest.TestCase):
         self.sys2.parameters['r'] = r
 
         # calculate local residuals
-        H_n_inv_t1s1 = res_funcs.init_H_n_inv(self.traj1, self.sys1, freq1, mean)
-        H_n_inv_t2s1 = res_funcs.init_H_n_inv(self.traj2, self.sys1, freq2, mean)
+        H_n_inv_t1s1 = init_H_n_inv(self.traj1, self.sys1, freq1, mean)
+        H_n_inv_t2s1 = init_H_n_inv(self.traj2, self.sys1, freq2, mean)
         resp_t1s1 = np.zeros_like(self.traj1)
         resp_t2s1 = np.zeros_like(self.traj2)
         resp_mean = np.zeros([1, 2])
@@ -246,9 +250,9 @@ class TestResidualFunctions(unittest.TestCase):
         tmp_curve = np.zeros_like(fftplans.tmp_t)
 
         # generate resolvent trajectory
-        H_n_inv = res_funcs.init_H_n_inv(traj, sys, freq, mean)
-        H_n_inv_freq_for = res_funcs.init_H_n_inv(traj, sys, freq + step, mean)
-        H_n_inv_freq_back = res_funcs.init_H_n_inv(traj, sys, freq - step, mean)
+        H_n_inv = init_H_n_inv(traj, sys, freq, mean)
+        H_n_inv_freq_for = init_H_n_inv(traj, sys, freq + step, mean)
+        H_n_inv_freq_back = init_H_n_inv(traj, sys, freq - step, mean)
 
         # loop over trajectory DoFs and use CD scheme
         for i in range(traj.shape[0]):

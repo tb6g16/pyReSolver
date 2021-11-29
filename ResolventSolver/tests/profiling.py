@@ -25,8 +25,8 @@ def do_op():
     # plot_traj(op_traj, discs = [10000], means = [mean])
 
 def main():
-    cProfile.run('do_op()', 'restats.prof')
-    subprocess.run(['snakeviz', 'restats.prof'])
+    cProfile.run('do_op()', './ResolventSolver/tests/restats.prof')
+    subprocess.run(['snakeviz', './ResolventSolver/tests/restats.prof'])
 
 if __name__ == '__main__':
     main()

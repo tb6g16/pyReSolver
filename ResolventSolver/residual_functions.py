@@ -33,10 +33,6 @@ def resolvent_inv(no_modes, freq, jac_at_mean):
 
     return resolvent_inv
 
-def init_H_n_inv(traj, sys, freq, mean):
-    jac_at_mean = sys.jacobian(mean)
-    return resolvent_inv(traj.shape[0], freq, jac_at_mean)
-
 def local_residual(traj, sys, mean, H_n_inv, fftplans, resp_traj, resp_mean, tmp_curve):
     """
         Return the local residual of a trajectory in a state-space.
