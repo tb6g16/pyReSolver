@@ -108,8 +108,10 @@ class TestTrajectoryFunctions(unittest.TestCase):
                         self.assertEqual(traj3[i, j, k, l], np.conj(traj3_conj[i, j, k, l]))
 
     def test_traj_grad(self):
-        traj1_grad = traj_funcs.traj_grad(self.traj1)
-        traj2_grad = traj_funcs.traj_grad(self.traj2)
+        traj1_grad = Trajectory(np.zeros_like(self.traj1))
+        traj2_grad = Trajectory(np.zeros_like(self.traj2))
+        traj_funcs.traj_grad(self.traj1, traj1_grad)
+        traj_funcs.traj_grad(self.traj2, traj2_grad)
 
         # same shape as original trajectories
         self.assertEqual(self.traj1.shape, traj1_grad.shape)

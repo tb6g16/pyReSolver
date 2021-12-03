@@ -34,7 +34,7 @@ def resolvent_inv(no_modes, freq, jac_at_mean):
 
     return resolvent_inv
 
-def local_residual(traj, sys, mean, H_n_inv, fftplans, resp_traj, resp_mean, tmp_curve):
+def local_residual(cache, sys, H_n_inv, fftplans, resp_mean):
     """
         Return the local residual of a trajectory in a state-space.
 
@@ -53,17 +53,17 @@ def local_residual(traj, sys, mean, H_n_inv, fftplans, resp_traj, resp_mean, tmp
         local_res : Trajectory
     """
     # evaluate response and multiply by resolvent at every mode
-    traj_funcs.traj_response(traj, fftplans, sys.nl_factor, resp_traj, tmp_curve)
+    traj_funcs.traj_response(cache.traj, fftplans, sys.nl_factor, cache.f, cache.tmp_t1)
 
     # evaluate local residual trajectory for all modes
-    local_res = traj.matmul_left_traj(H_n_inv) - resp_traj
+    np.copyto(cache.lr, cache.traj.matmul_left_traj(H_n_inv) - cache.f)
 
     # reassign the mean mode to the second constraint
-    local_res[0] = -resp_mean - resp_traj[0]
+    cache.lr[0] = -resp_mean - cache.f[0]
 
-    return local_res
+    return cache.lr
 
-def global_residual(local_res):
+def global_residual(cache):
     """
         Return the global residual of a trajectory in a state-space.
 
@@ -77,15 +77,15 @@ def global_residual(local_res):
         float
     """
     # evaluate inner product of local residuals
-    gr_sum = traj_funcs.conj(local_res).traj_inner(local_res)
+    np.copyto(cache.tmp_inner, traj_funcs.conj(cache.lr).traj_inner(cache.lr))
 
     # scale zero modes
-    gr_sum[0] = 0.5*gr_sum[0]
+    cache.tmp_inner[0] = 0.5*cache.tmp_inner[0]
 
     # sum and return real part
-    return np.real(np.sum(gr_sum))
+    return np.real(np.sum(cache.tmp_inner))
 
-def gr_traj_grad(traj, sys, freq, mean, local_res, fftplans, jac_res_conv, curve_jac_res_conv, tmp_curve):
+def gr_traj_grad(cache, sys, freq, mean, fftplans):
     """
         Return the gradient of the global residual with respect to a trajectory
         in state-space.
@@ -107,15 +107,15 @@ def gr_traj_grad(traj, sys, freq, mean, local_res, fftplans, jac_res_conv, curve
         Trajectory
     """
     # calculate trajectory gradients
-    res_grad = traj_funcs.traj_grad(local_res)
+    traj_funcs.traj_grad(cache.lr, cache.lr_grad)
 
     # calculate jacobian residual convolution
-    traj[0] = mean
-    traj_funcs.traj_response2(traj, local_res, fftplans, sys.jac_conv_adj, jac_res_conv, curve_jac_res_conv, tmp_curve)
-    traj[0] = 0
+    cache.traj[0] = mean
+    traj_funcs.traj_response2(cache.traj, cache.lr, fftplans, sys.jac_conv_adj, cache.tmp_conv, cache.tmp_t1, cache.tmp_t2)
+    cache.traj[0] = 0
 
     # calculate and return gradients w.r.t trajectory and frequency respectively
-    return -freq*res_grad - jac_res_conv
+    return -freq*cache.lr_grad - cache.tmp_conv
 
 def gr_freq_grad(traj, local_res):
     """

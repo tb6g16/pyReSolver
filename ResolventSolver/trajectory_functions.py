@@ -19,7 +19,6 @@ def transpose(traj):
     """
     return np.transpose(traj, axes = [0, *range(1, traj.ndim)[::-1][0:]])
 
-# TODO: in-place here?
 def conj(traj):
     """
         Return the complex conjugate of a trajectory.
@@ -40,7 +39,7 @@ def traj_rfft(traj_f, traj_t, fftplans):
 def traj_irfft(traj_f, traj_t, fftplans):
     fftplans.ifft(traj_f, traj_t)
 
-def traj_grad(traj):
+def traj_grad(traj, out):
     """
         Return the gradient of a trajectory.
 
@@ -52,9 +51,9 @@ def traj_grad(traj):
         -------
         Trajectory
     """
-    return np.transpose(np.tile(1j*np.arange(traj.shape[0]), (traj.shape[1], 1)))*traj
+    np.copyto(out, np.transpose(np.tile(1j*np.arange(traj.shape[0]), (traj.shape[1], 1)))*traj)
 
-def traj_response(traj, fftplans, func, new_traj, new_curve):
+def traj_response(traj, fftplans, func, new_traj, tmp_curve):
     """
         Return the response of a trajectory over its length due to a function.
 
@@ -71,10 +70,10 @@ def traj_response(traj, fftplans, func, new_traj, new_curve):
     traj_irfft(traj, fftplans.tmp_t, fftplans)
 
     # evaluate response in time domain
-    func(fftplans.tmp_t, new_curve)
+    func(fftplans.tmp_t, tmp_curve)
 
     # convert back to frequency domain and return
-    traj_rfft(new_traj, new_curve, fftplans)
+    traj_rfft(new_traj, tmp_curve, fftplans)
 
 def traj_response2(traj1, traj2, fftplans, func, new_traj, new_curve, tmp_curve):
     # convert trajectories to time domain

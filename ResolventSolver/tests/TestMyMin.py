@@ -6,6 +6,7 @@ import random as rand
 
 import numpy as np
 
+from ResolventSolver.Cache import Cache
 from ResolventSolver.FFTPlans import FFTPlans
 from ResolventSolver.Trajectory import Trajectory
 from ResolventSolver.traj2vec import traj2vec, vec2traj, init_comp_vec
@@ -31,6 +32,7 @@ class TestMyMin(unittest.TestCase):
         self.freq1 = rand.uniform(0, 10)
         self.traj1_vec = init_comp_vec(self.traj1)
         traj2vec(self.traj1, self.traj1_vec)
+        self.cache1 = Cache(self.traj1, self.plan_t1)
 
         temp2 = np.random.rand(modes, 2) + 1j*np.random.rand(modes, 2)
         temp2[0] = 0
@@ -40,6 +42,7 @@ class TestMyMin(unittest.TestCase):
         self.freq2 = rand.uniform(0, 10)
         self.traj2_vec = init_comp_vec(self.traj2)
         traj2vec(self.traj2, self.traj2_vec)
+        self.cache2 = Cache(self.traj2, self.plan_t2)
 
         temp3 = np.random.rand(modes, 3) + 1j*np.random.rand(modes, 3)
         temp3[0] = 0
@@ -49,6 +52,7 @@ class TestMyMin(unittest.TestCase):
         self.freq3 = rand.uniform(0, 10)
         self.traj3_vec = init_comp_vec(self.traj3)
         traj2vec(self.traj3, self.traj3_vec)
+        self.cache3 = Cache(self.traj3, self.plan_t3)
 
         self.sys1 = vpd
         self.mean1 = np.random.rand(1, 2)
@@ -60,23 +64,26 @@ class TestMyMin(unittest.TestCase):
         del self.plan_t1
         del self.freq1
         del self.traj1_vec
+        del self.cache1
         del self.traj2
         del self.plan_t2
         del self.freq2
         del self.traj2_vec
+        del self.cache2
         del self.traj3
         del self.plan_t3
         del self.freq3
         del self.traj3_vec
+        del self.cache3
         del self.sys1
         del self.mean1
         del self.sys2
         del self.mean2
 
     def test_traj_global_res(self):
-        res_func_t1s1, _ = init_opt_funcs(self.traj1, self.freq1, self.plan_t1, self.sys1, self.mean1)
-        res_func_t2s1, _ = init_opt_funcs(self.traj2, self.freq2, self.plan_t2, self.sys1, self.mean1)
-        res_func_t3s2, _ = init_opt_funcs(self.traj3, self.freq3, self.plan_t3, self.sys2, self.mean2)
+        res_func_t1s1, _ = init_opt_funcs(self.cache1, self.freq1, self.plan_t1, self.sys1, self.mean1)
+        res_func_t2s1, _ = init_opt_funcs(self.cache2, self.freq2, self.plan_t2, self.sys1, self.mean1)
+        res_func_t3s2, _ = init_opt_funcs(self.cache3, self.freq3, self.plan_t3, self.sys2, self.mean2)
         gr_t1s1 = res_func_t1s1(self.traj1_vec)
         gr_t2s1 = res_func_t2s1(self.traj2_vec)
         gr_t3s2 = res_func_t3s2(self.traj3_vec)
@@ -92,23 +99,26 @@ class TestMyMin(unittest.TestCase):
         tmp_curve1 = np.zeros_like(self.plan_t1.tmp_t)
         tmp_curve2 = np.zeros_like(self.plan_t2.tmp_t)
         tmp_curve3 = np.zeros_like(self.plan_t3.tmp_t)
-        lr_t1s1_true = res_funcs.local_residual(self.traj1, self.sys1, self.mean1, H_n_inv_t1s1, self.plan_t1, np.zeros_like(self.traj1), resp_mean_s1, tmp_curve1)
-        lr_t2s1_true = res_funcs.local_residual(self.traj2, self.sys1, self.mean1, H_n_inv_t2s1, self.plan_t2, np.zeros_like(self.traj2), resp_mean_s1, tmp_curve2)
-        lr_t3s2_true = res_funcs.local_residual(self.traj3, self.sys2, self.mean2, H_n_inv_t3s2, self.plan_t3, np.zeros_like(self.traj3), resp_mean_s2, tmp_curve3)
-        gr_t1s1_true = res_funcs.global_residual(lr_t1s1_true)
-        gr_t2s1_true = res_funcs.global_residual(lr_t2s1_true)
-        gr_t3s2_true = res_funcs.global_residual(lr_t3s2_true)
+        res_funcs.local_residual(self.cache1, self.sys1, H_n_inv_t1s1, self.plan_t1, resp_mean_s1)
+        res_funcs.local_residual(self.cache2, self.sys1, H_n_inv_t2s1, self.plan_t2, resp_mean_s1)
+        res_funcs.local_residual(self.cache3, self.sys2, H_n_inv_t3s2, self.plan_t3, resp_mean_s2)
+        gr_t1s1_true = res_funcs.global_residual(self.cache1)
+        gr_t2s1_true = res_funcs.global_residual(self.cache2)
+        gr_t3s2_true = res_funcs.global_residual(self.cache3)
         self.assertEqual(gr_t1s1, gr_t1s1_true)
         self.assertEqual(gr_t2s1, gr_t2s1_true)
         self.assertEqual(gr_t3s2, gr_t3s2_true)
 
     def test_traj_global_res_jac(self):
-        tmp_fun1, res_grad_func_t1s1 = init_opt_funcs(self.traj1, self.freq1, self.plan_t1, self.sys1, self.mean1)
-        tmp_fun2, res_grad_func_t2s1 = init_opt_funcs(self.traj2, self.freq2, self.plan_t2, self.sys1, self.mean1)
-        tmp_fun3, res_grad_func_t3s2 = init_opt_funcs(self.traj3, self.freq3, self.plan_t3, self.sys2, self.mean2)
+        tmp_fun1, res_grad_func_t1s1 = init_opt_funcs(self.cache1, self.freq1, self.plan_t1, self.sys1, self.mean1)
+        tmp_fun2, res_grad_func_t2s1 = init_opt_funcs(self.cache2, self.freq2, self.plan_t2, self.sys1, self.mean1)
+        tmp_fun3, res_grad_func_t3s2 = init_opt_funcs(self.cache3, self.freq3, self.plan_t3, self.sys2, self.mean2)
         gr_traj_t1s1 = np.zeros_like(self.traj1)
         gr_traj_t2s1 = np.zeros_like(self.traj2)
         gr_traj_t3s2 = np.zeros_like(self.traj3)
+        tmp_fun1(self.traj1_vec)
+        tmp_fun2(self.traj2_vec)
+        tmp_fun3(self.traj3_vec)
         vec2traj(gr_traj_t1s1, res_grad_func_t1s1(self.traj1_vec))
         vec2traj(gr_traj_t2s1, res_grad_func_t2s1(self.traj2_vec))
         vec2traj(gr_traj_t3s2, res_grad_func_t3s2(self.traj3_vec))
@@ -124,18 +134,12 @@ class TestMyMin(unittest.TestCase):
         tmp_curve1 = np.zeros_like(self.plan_t1.tmp_t)
         tmp_curve2 = np.zeros_like(self.plan_t2.tmp_t)
         tmp_curve3 = np.zeros_like(self.plan_t3.tmp_t)
-        lr_t1s1_true = res_funcs.local_residual(self.traj1, self.sys1, self.mean1, H_n_inv_t1s1, self.plan_t1, np.zeros_like(self.traj1), resp_mean_s1, tmp_curve1)
-        lr_t2s1_true = res_funcs.local_residual(self.traj2, self.sys1, self.mean1, H_n_inv_t2s1, self.plan_t2, np.zeros_like(self.traj2), resp_mean_s1, tmp_curve2)
-        lr_t3s2_true = res_funcs.local_residual(self.traj3, self.sys2, self.mean2, H_n_inv_t3s2, self.plan_t3, np.zeros_like(self.traj3), resp_mean_s2, tmp_curve3)
-        jac_res_conv_t1 = np.zeros_like(self.traj1)
-        jac_res_conv_t2 = np.zeros_like(self.traj2)
-        jac_res_conv_t3 = np.zeros_like(self.traj3)
-        curve_jac_res_conv_t1 = np.zeros_like(self.plan_t1.tmp_t)
-        curve_jac_res_conv_t2 = np.zeros_like(self.plan_t2.tmp_t)
-        curve_jac_res_conv_t3 = np.zeros_like(self.plan_t3.tmp_t)
-        gr_traj_t1s1_true = res_funcs.gr_traj_grad(self.traj1, self.sys1, self.freq1, self.mean1, lr_t1s1_true, self.plan_t1, jac_res_conv_t1, curve_jac_res_conv_t1, tmp_curve1)
-        gr_traj_t2s1_true = res_funcs.gr_traj_grad(self.traj2, self.sys1, self.freq2, self.mean1, lr_t2s1_true, self.plan_t2, jac_res_conv_t2, curve_jac_res_conv_t2, tmp_curve2)
-        gr_traj_t3s2_true = res_funcs.gr_traj_grad(self.traj3, self.sys2, self.freq3, self.mean2, lr_t3s2_true, self.plan_t3, jac_res_conv_t3, curve_jac_res_conv_t3, tmp_curve3)
+        res_funcs.local_residual(self.cache1, self.sys1, H_n_inv_t1s1, self.plan_t1, resp_mean_s1)
+        res_funcs.local_residual(self.cache2, self.sys1, H_n_inv_t2s1, self.plan_t2, resp_mean_s1)
+        res_funcs.local_residual(self.cache3, self.sys2, H_n_inv_t3s2, self.plan_t3, resp_mean_s2)
+        gr_traj_t1s1_true = res_funcs.gr_traj_grad(self.cache1, self.sys1, self.freq1, self.mean1, self.plan_t1)
+        gr_traj_t2s1_true = res_funcs.gr_traj_grad(self.cache2, self.sys1, self.freq2, self.mean1, self.plan_t2)
+        gr_traj_t3s2_true = res_funcs.gr_traj_grad(self.cache3, self.sys2, self.freq3, self.mean2, self.plan_t3)
         tmp1 = init_comp_vec(self.traj1)
         tmp2 = init_comp_vec(self.traj2)
         tmp3 = init_comp_vec(self.traj3)

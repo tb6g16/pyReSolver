@@ -5,13 +5,14 @@
 import numpy as np
 from scipy.optimize import minimize
 
+from ResolventSolver.Cache import Cache
 from ResolventSolver.Trajectory import Trajectory
 from ResolventSolver.FFTPlans import FFTPlans
 from ResolventSolver.traj2vec import traj2vec, vec2traj, init_comp_vec
 import ResolventSolver.residual_functions as res_funcs
 from ResolventSolver.trajectory_functions import transpose, conj
 
-def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
+def init_opt_funcs(cache, freq, fftplans, sys, mean, psi = None):
     """
         Return the functions to allow the calculation of the global residual
         and its associated gradients with a vector derived from a trajectory
@@ -39,21 +40,13 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
             The global residual and global residual gradient functions
             respectively.
     """
-    # initialise resolvent
-    H_n_inv = res_funcs.resolvent_inv(traj.shape[0], freq, sys.jacobian(mean))
-
-    # initialise vector and trajectory to modified in-place
-    if psi is not None:
-        tmp_traj = np.zeros_like(traj.matmul_left_traj(psi))
-    opt_vector = init_comp_vec(traj)
-
+    # initialise stuff
+    H_n_inv = res_funcs.resolvent_inv(cache.traj.shape[0], freq, sys.jacobian(mean))
     resp_mean = np.zeros_like(mean)
     sys.response(mean, resp_mean)
-    tmp_curve = np.zeros_like(fftplans.tmp_t)
-    curve_jac_res_conv = np.zeros_like(fftplans.tmp_t)
 
     if psi is not None:
-        def traj_global_res(opt_vector, traj = traj, tmp_traj = tmp_traj, lr_resp=np.zeros_like(tmp_traj), resp_mean=resp_mean, tmp_curve=tmp_curve):
+        def traj_global_res(opt_vector, resp_mean=resp_mean):
             """
                 Return the global residual of a trajectory frequency pair given as
                 a vector.
@@ -68,15 +61,16 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
                 float
             """
             # unpack trajectory
-            vec2traj(traj, opt_vector)
+            vec2traj(cache.red_traj, opt_vector)
 
             # convert to full space if singular matrix is provided
-            np.copyto(tmp_traj, traj.matmul_left_traj(psi))
+            np.copyto(cache.traj, cache.red_traj.matmul_left_traj(psi))
 
             # calculate global residual and return
-            return res_funcs.global_residual(res_funcs.local_residual(tmp_traj, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean, tmp_curve))
+            res_funcs.local_residual(cache, sys, H_n_inv, fftplans, resp_mean)
+            return res_funcs.global_residual(cache)
 
-        def traj_global_res_jac(opt_vector, traj = traj, tmp_traj = tmp_traj, lr_resp=np.zeros_like(tmp_traj), resp_mean=resp_mean, tmp_curve=tmp_curve, jac_res_conv=np.zeros_like(tmp_traj), curve_jac_res_conv=curve_jac_res_conv):
+        def traj_global_res_jac(opt_vector, resp_mean=resp_mean):
             """
                 Return the gradient of the global residual with respect to the
                 trajectory and frequency from a trajectory frequency pair given as
@@ -95,14 +89,14 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
                     Gradient of the global residual with respect to the frequency.
             """
             # unpack trajectory
-            vec2traj(traj, opt_vector)
+            vec2traj(cache.red_traj, opt_vector)
 
             # convert to full space if singular matrix is provided
-            np.copyto(tmp_traj, traj.matmul_left_traj(psi))
+            np.copyto(cache.traj, cache.red_traj.matmul_left_traj(psi))
 
             # calculate global residual gradients
-            local_res = res_funcs.local_residual(tmp_traj, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean, tmp_curve)
-            gr_traj_grad = res_funcs.gr_traj_grad(tmp_traj, sys, freq, mean, local_res, fftplans, jac_res_conv, curve_jac_res_conv, tmp_curve)
+            # res_funcs.local_residual(cache, sys, H_n_inv, fftplans, resp_mean)
+            gr_traj_grad = res_funcs.gr_traj_grad(cache, sys, freq, mean, fftplans)
 
             # convert gradient w.r.t modes to reduced space
             gr_traj_grad = gr_traj_grad.matmul_left_traj(transpose(conj(psi)))
@@ -112,7 +106,7 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
 
             return opt_vector
     else:
-        def traj_global_res(opt_vector, traj = traj, lr_resp=np.zeros_like(traj), resp_mean=resp_mean, tmp_curve=tmp_curve):
+        def traj_global_res(opt_vector, resp_mean=resp_mean):
             """
                 Return the global residual of a trajectory frequency pair given as
                 a vector.
@@ -127,12 +121,13 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
                 float
             """
             # unpack trajectory
-            vec2traj(traj, opt_vector)
+            vec2traj(cache.traj, opt_vector)
 
             # calculate global residual and return
-            return res_funcs.global_residual(res_funcs.local_residual(traj, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean, tmp_curve))
+            res_funcs.local_residual(cache, sys, H_n_inv, fftplans, resp_mean)
+            return res_funcs.global_residual(cache)
 
-        def traj_global_res_jac(opt_vector, traj = traj, lr_resp=np.zeros_like(traj), resp_mean=resp_mean, tmp_curve=tmp_curve, jac_res_conv=np.zeros_like(traj), curve_jac_res_conv=curve_jac_res_conv):
+        def traj_global_res_jac(opt_vector, resp_mean=resp_mean):
             """
                 Return the gradient of the global residual with respect to the
                 trajectory and frequency from a trajectory frequency pair given as
@@ -151,11 +146,10 @@ def init_opt_funcs(traj, freq, fftplans, sys, mean, psi = None):
                     Gradient of the global residual with respect to the frequency.
             """
             # unpack trajectory
-            vec2traj(traj, opt_vector)
+            vec2traj(cache.traj, opt_vector)
 
             # calculate global residual gradients
-            local_res = res_funcs.local_residual(traj, sys, mean, H_n_inv, fftplans, lr_resp, resp_mean, tmp_curve)
-            gr_traj_grad = res_funcs.gr_traj_grad(traj, sys, freq, mean, local_res, fftplans, jac_res_conv, curve_jac_res_conv, tmp_curve)
+            gr_traj_grad = res_funcs.gr_traj_grad(cache, sys, freq, mean, fftplans)
 
             # convert back to vector and return
             traj2vec(gr_traj_grad, opt_vector)
@@ -220,6 +214,9 @@ def my_min(traj, freq, sys, mean, **kwargs):
     traces = kwargs.get('traces', None)
     psi = kwargs.get('psi', None)
 
+    # initialise cache
+    cache = Cache(traj, plans, psi)
+
     # convert to reduced space if singular matrix is provided
     if psi is not None:
         traj = traj.matmul_left_traj(transpose(conj(psi)))
@@ -227,11 +224,11 @@ def my_min(traj, freq, sys, mean, **kwargs):
     # setup the problem
     dim = traj.shape[1]
     if not hasattr(res_func, '__call__') and not hasattr(jac_func, '__call__'):
-        res_func, jac_func = init_opt_funcs(traj, freq, plans, sys, mean, psi = psi)
+        res_func, jac_func = init_opt_funcs(cache, freq, plans, sys, mean, psi = psi)
     elif not hasattr(res_func, '__call__'):
-        res_func, _ = init_opt_funcs(traj, freq, plans, sys, mean, psi = psi)
+        res_func, _ = init_opt_funcs(cache, freq, plans, sys, mean, psi = psi)
     elif not hasattr(jac_func, '__call__'):
-        _, jac_func = init_opt_funcs(traj, freq, plans, sys, mean, psi = psi)
+        _, jac_func = init_opt_funcs(cache, freq, plans, sys, mean, psi = psi)
 
     # define varaibles to be tracked using callback
     if traces == None:
@@ -239,14 +236,14 @@ def my_min(traj, freq, sys, mean, **kwargs):
 
     # define callback function
     cur_traj = np.zeros_like(traj)
-    cur_traj2 = np.zeros_like(traj.matmul_left_traj(psi))
-    def callback(x):
-        nonlocal cur_traj
+    def callback(x, cur_traj=cur_traj):
         vec2traj(cur_traj, x)
 
         # convert to full space if singular matrix is provided
         if psi is not None:
             cur_traj2 = cur_traj.matmul_left_traj(psi)
+        else:
+            cur_traj2 = cur_traj
 
         traces['traj'].append(cur_traj2)
 
