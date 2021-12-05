@@ -7,33 +7,6 @@ from ResolventSolver.Trajectory import Trajectory
 import ResolventSolver.trajectory_functions as traj_funcs
 from ResolventSolver.Cache import Cache
 
-def resolvent_inv(no_modes, freq, jac_at_mean):
-    """
-        Return the inverse resolvent array at a given number of modes.
-
-        Parameters
-        ----------
-        no_modes : positive integer
-            The number of modes at which to evaluate the resolvent.
-        freq : float
-        jac_at_mean : ndarray
-            2D array containing data of float type.
-        
-        Returns
-        -------
-        Trajectory
-    """
-    # evaluate the number of dimensions using the size of the jacobian
-    dim = np.shape(jac_at_mean)[0]
-
-    # evaluate resolvent arrays (including zero)
-    resolvent_inv = Trajectory((1j*freq*np.tile(np.arange(no_modes), (dim, dim, 1)).transpose())*np.identity(dim) - jac_at_mean)
-
-    # set zero mode to zero
-    resolvent_inv[0] = 0
-
-    return resolvent_inv
-
 def local_residual(cache, sys, H_n_inv, fftplans):
     """
         Return the local residual of a trajectory in a state-space.

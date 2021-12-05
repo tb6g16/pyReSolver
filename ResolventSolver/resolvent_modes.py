@@ -6,6 +6,33 @@ import numpy as np
 from ResolventSolver.Trajectory import Trajectory
 from ResolventSolver.trajectory_functions import transpose, conj
 
+def resolvent_inv(no_modes, freq, jac_at_mean):
+    """
+        Return the inverse resolvent array at a given number of modes.
+
+        Parameters
+        ----------
+        no_modes : positive integer
+            The number of modes at which to evaluate the resolvent.
+        freq : float
+        jac_at_mean : ndarray
+            2D array containing data of float type.
+        
+        Returns
+        -------
+        Trajectory
+    """
+    # evaluate the number of dimensions using the size of the jacobian
+    dim = np.shape(jac_at_mean)[0]
+
+    # evaluate resolvent arrays (including zero)
+    resolvent_inv = Trajectory((1j*freq*np.tile(np.arange(no_modes), (dim, dim, 1)).transpose())*np.identity(dim) - jac_at_mean)
+
+    # set zero mode to zero
+    resolvent_inv[0] = 0
+
+    return resolvent_inv
+
 def resolvent(freq, n, jac_at_mean, B = None):
     """
         Return the resolvent matrix for a given modenumber n.

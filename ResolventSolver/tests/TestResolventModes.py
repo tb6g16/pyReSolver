@@ -8,7 +8,7 @@ import numpy as np
 
 from ResolventSolver.Trajectory import Trajectory
 from ResolventSolver.trajectory_functions import transpose, conj
-from ResolventSolver.resolvent_modes import resolvent, resolvent_modes
+from ResolventSolver.resolvent_modes import resolvent_inv, resolvent, resolvent_modes
 from ResolventSolver.systems import lorenz
 
 class TestResolventModes(unittest.TestCase):
@@ -24,6 +24,28 @@ class TestResolventModes(unittest.TestCase):
         del self.dim
         del self.array
         del self.sys
+
+    def test_resolvent_inv(self):
+            rho = rand.uniform(0, 30)
+            beta = rand.uniform(0, 10)
+            sigma = rand.uniform(0, 30)
+            z_mean = rand.uniform(0, 50)
+            freq = rand.uniform(0, 10)
+            self.sys.parameters['sigma'] = sigma
+            self.sys.parameters['beta'] = beta
+            self.sys.parameters['rho'] = rho
+            jac_at_mean_sys3 = self.sys.jacobian(np.array([[0, 0, z_mean]]))
+            H_sys3 = resolvent_inv(self.array.shape[0], freq, jac_at_mean_sys3)
+            resolvent_true = Trajectory(np.zeros([self.array.shape[0], 3, 3], dtype = complex))
+            for n in range(1, self.array.shape[0]):
+                D_n = ((1j*n*freq) + sigma)*((1j*n*freq) + 1) + sigma*(z_mean - rho)
+                resolvent_true[n, 0, 0] = ((1j*n*freq) + 1)/D_n
+                resolvent_true[n, 1, 0] = (rho - z_mean)/D_n
+                resolvent_true[n, 0, 1] = sigma/D_n
+                resolvent_true[n, 1, 1] = ((1j*n*freq) + sigma)/D_n
+                resolvent_true[n, 2, 2] = 1/((1j*n*freq) + beta)
+                resolvent_true[n] = np.linalg.inv(np.copy(resolvent_true[n]))
+            self.assertEqual(H_sys3, resolvent_true)
 
     def test_resolvent(self):
         # define parameters

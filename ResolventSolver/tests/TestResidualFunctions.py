@@ -13,6 +13,7 @@ from ResolventSolver.traj_util import func2curve
 from ResolventSolver.Trajectory import Trajectory
 import ResolventSolver.trajectory_functions as traj_funcs
 import ResolventSolver.residual_functions as res_funcs
+from ResolventSolver.resolvent_modes import resolvent_inv
 from ResolventSolver.trajectory_definitions import unit_circle as uc
 from ResolventSolver.trajectory_definitions import ellipse as elps
 from ResolventSolver.trajectory_definitions import unit_circle_3d as uc3
@@ -22,7 +23,7 @@ from ResolventSolver.systems import lorenz
 
 def init_H_n_inv(traj, sys, freq, mean):
     jac_at_mean = sys.jacobian(mean)
-    return res_funcs.resolvent_inv(traj.shape[0], freq, jac_at_mean)
+    return resolvent_inv(traj.shape[0], freq, jac_at_mean)
 
 class TestResidualFunctions(unittest.TestCase):
 
@@ -46,7 +47,6 @@ class TestResidualFunctions(unittest.TestCase):
         self.sys3 = lorenz
         self.cache1 = Cache(self.traj1, self.mean1, self.sys1, self.plans_t1)
         self.cache2 = Cache(self.traj2, self.mean2, self.sys2, self.plans_t2)
-        # self.cache3 = Cache(self.traj3, self.sys3, self.plans_t3)
 
     def tearDown(self):
         del self.traj1
@@ -62,29 +62,6 @@ class TestResidualFunctions(unittest.TestCase):
         del self.sys3
         del self.cache1
         del self.cache2
-        # del self.cache3
-
-    def test_resolvent_inv(self):
-        rho = rand.uniform(0, 30)
-        beta = rand.uniform(0, 10)
-        sigma = rand.uniform(0, 30)
-        z_mean = rand.uniform(0, 50)
-        freq = rand.uniform(0, 10)
-        self.sys3.parameters['sigma'] = sigma
-        self.sys3.parameters['beta'] = beta
-        self.sys3.parameters['rho'] = rho
-        jac_at_mean_sys3 = self.sys3.jacobian(np.array([[0, 0, z_mean]]))
-        H_sys3 = res_funcs.resolvent_inv(self.traj3.shape[0], freq, jac_at_mean_sys3)
-        resolvent_true = Trajectory(np.zeros([self.traj3.shape[0], 3, 3], dtype = complex))
-        for n in range(1, self.traj3.shape[0]):
-            D_n = ((1j*n*freq) + sigma)*((1j*n*freq) + 1) + sigma*(z_mean - rho)
-            resolvent_true[n, 0, 0] = ((1j*n*freq) + 1)/D_n
-            resolvent_true[n, 1, 0] = (rho - z_mean)/D_n
-            resolvent_true[n, 0, 1] = sigma/D_n
-            resolvent_true[n, 1, 1] = ((1j*n*freq) + sigma)/D_n
-            resolvent_true[n, 2, 2] = 1/((1j*n*freq) + beta)
-            resolvent_true[n] = np.linalg.inv(np.copy(resolvent_true[n]))
-        self.assertEqual(H_sys3, resolvent_true)
 
     def test_local_residual(self):
         # generating random frequencies and system parameters
@@ -104,8 +81,6 @@ class TestResidualFunctions(unittest.TestCase):
         H_n_inv_t2s1 = init_H_n_inv(self.traj2, self.sys1, freq2, self.mean2)
 
         # generate local residual trajectories
-        resp_mean = np.zeros([1, 2])
-        self.sys1.response(np.zeros([1, 2]), resp_mean)
         lr_traj1_sys1 = res_funcs.local_residual(self.cache1, self.sys1, H_n_inv_t1s1, self.plans_t1)
         lr_traj2_sys1 = res_funcs.local_residual(self.cache2, self.sys1, H_n_inv_t2s1, self.plans_t2)
 
@@ -153,8 +128,6 @@ class TestResidualFunctions(unittest.TestCase):
         # calculate global residuals
         H_n_inv_t1s1 = init_H_n_inv(self.traj1, self.sys1, freq1, self.mean1)
         H_n_inv_t2s1 = init_H_n_inv(self.traj2, self.sys1, freq2, self.mean2)
-        resp_mean = np.zeros([1, 2])
-        self.sys1.response(np.zeros([1, 2]), resp_mean)
         lr_t1s1 = res_funcs.local_residual(self.cache1, self.sys1, H_n_inv_t1s1, self.plans_t1)
         lr_t2s1 = res_funcs.local_residual(self.cache2, self.sys1, H_n_inv_t2s1, self.plans_t2)
         gr_traj1_sys1 = res_funcs.global_residual(self.cache1)
@@ -182,10 +155,6 @@ class TestResidualFunctions(unittest.TestCase):
         # calculate local residuals
         H_n_inv_t1s1 = init_H_n_inv(self.traj1, self.sys1, freq1, self.mean1)
         H_n_inv_t2s1 = init_H_n_inv(self.traj2, self.sys1, freq2, self.mean2)
-        resp_t1s1 = np.zeros_like(self.traj1)
-        resp_t2s1 = np.zeros_like(self.traj2)
-        resp_mean = np.zeros([1, 2])
-        self.sys1.response(np.zeros([1, 2]), resp_mean)
         tmp_curve1 = np.zeros_like(self.plans_t1.tmp_t)
         tmp_curve2 = np.zeros_like(self.plans_t2.tmp_t)
         lr_t1s1 = res_funcs.local_residual(self.cache1, self.sys1, H_n_inv_t1s1, self.plans_t1)

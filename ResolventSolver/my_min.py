@@ -10,6 +10,7 @@ from ResolventSolver.Trajectory import Trajectory
 from ResolventSolver.FFTPlans import FFTPlans
 from ResolventSolver.traj2vec import traj2vec, vec2traj, init_comp_vec
 import ResolventSolver.residual_functions as res_funcs
+from ResolventSolver.resolvent_modes import resolvent_inv
 from ResolventSolver.trajectory_functions import transpose, conj
 
 def init_opt_funcs(cache, freq, fftplans, sys, mean, psi = None):
@@ -41,7 +42,7 @@ def init_opt_funcs(cache, freq, fftplans, sys, mean, psi = None):
             respectively.
     """
     # initialise stuff
-    H_n_inv = res_funcs.resolvent_inv(cache.traj.shape[0], freq, sys.jacobian(mean))
+    H_n_inv = resolvent_inv(cache.traj.shape[0], freq, sys.jacobian(mean))
 
     if psi is not None:
         def traj_global_res(opt_vector):

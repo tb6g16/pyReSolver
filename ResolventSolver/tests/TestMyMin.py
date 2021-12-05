@@ -12,12 +12,13 @@ from ResolventSolver.Trajectory import Trajectory
 from ResolventSolver.traj2vec import traj2vec, vec2traj, init_comp_vec
 from ResolventSolver.my_min import init_opt_funcs
 import ResolventSolver.residual_functions as res_funcs
+from ResolventSolver.resolvent_modes import resolvent_inv
 from ResolventSolver.systems import van_der_pol as vpd
 from ResolventSolver.systems import lorenz
 
 def init_H_n_inv(traj, sys, freq, mean):
     jac_at_mean = sys.jacobian(mean)
-    return res_funcs.resolvent_inv(traj.shape[0], freq, jac_at_mean)
+    return resolvent_inv(traj.shape[0], freq, jac_at_mean)
 
 class TestMyMin(unittest.TestCase):
 
