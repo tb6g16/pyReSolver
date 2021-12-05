@@ -12,9 +12,9 @@ from ResolventSolver.trajectory_functions import transpose, conj
 class Cache:
 
     __slots__ = ['traj', 'traj_grad', 'lr', 'lr_grad', 'f', 'tmp_conv',
-                'red_traj', 'tmp_t1', 'tmp_t2', 'tmp_inner']
+                'red_traj', 'tmp_t1', 'tmp_t2', 'tmp_inner', 'resp_mean']
 
-    def __init__(self, traj, fftplans, psi = None):
+    def __init__(self, traj, mean, sys, fftplans, psi = None):
         self.traj = traj
         self.tmp_inner = Trajectory(np.einsum('ij,ij->i', traj, traj))
         self.traj_grad = np.zeros_like(self.traj)
@@ -28,3 +28,5 @@ class Cache:
             self.red_traj = Trajectory(np.zeros_like(np.einsum('ikl,il->ik', transpose(conj(psi)), self.traj)))
         else:
             self.red_traj = None
+        self.resp_mean = np.zeros_like(mean)
+        sys.response(mean, self.resp_mean)

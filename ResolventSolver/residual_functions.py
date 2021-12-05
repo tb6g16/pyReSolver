@@ -34,7 +34,7 @@ def resolvent_inv(no_modes, freq, jac_at_mean):
 
     return resolvent_inv
 
-def local_residual(cache, sys, H_n_inv, fftplans, resp_mean):
+def local_residual(cache, sys, H_n_inv, fftplans):
     """
         Return the local residual of a trajectory in a state-space.
 
@@ -59,7 +59,7 @@ def local_residual(cache, sys, H_n_inv, fftplans, resp_mean):
     np.copyto(cache.lr, cache.traj.matmul_left_traj(H_n_inv) - cache.f)
 
     # reassign the mean mode to the second constraint
-    cache.lr[0] = -resp_mean - cache.f[0]
+    cache.lr[0] = -cache.resp_mean - cache.f[0]
 
     return cache.lr
 
