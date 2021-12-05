@@ -10,7 +10,7 @@ from ResolventSolver.Cache import Cache
 from ResolventSolver.FFTPlans import FFTPlans
 from ResolventSolver.Trajectory import Trajectory
 from ResolventSolver.traj2vec import traj2vec, vec2traj, init_comp_vec
-from ResolventSolver.my_min import init_opt_funcs
+from ResolventSolver.init_opt_funcs import init_opt_funcs
 import ResolventSolver.residual_functions as res_funcs
 from ResolventSolver.resolvent_modes import resolvent_inv
 from ResolventSolver.systems import van_der_pol as vpd
@@ -20,7 +20,7 @@ def init_H_n_inv(traj, sys, freq, mean):
     jac_at_mean = sys.jacobian(mean)
     return resolvent_inv(traj.shape[0], freq, jac_at_mean)
 
-class TestMyMin(unittest.TestCase):
+class TestInitOptFuncs(unittest.TestCase):
 
     def setUp(self):
         self.sys1 = vpd

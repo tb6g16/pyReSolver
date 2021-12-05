@@ -14,7 +14,7 @@ def main():
     period = 3.1
     mean = np.array([[0, 0, 23.64]])
     init_traj = gen_rand_traj(3, 10*period)
-    plans = FFTPlans([(init_traj.shape[0] - 1) << 1, init_traj.shape[1]])
+    plans = FFTPlans([(init_traj.shape[0] - 1) << 1, init_traj.shape[1]], flag='FFTW_ESTIMATE')
 
     jac_at_mean = lorenz.jacobian(mean)
     B = np.array([[0, 0], [-1, 0], [0, 1]])

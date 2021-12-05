@@ -2,7 +2,7 @@ import unittest
 
 from ResolventSolver.tests.TestFFTPlans import TestFFTPlans
 # from ResolventSolver.tests.TestHessian import TestHessian
-from ResolventSolver.tests.TestMyMin import TestMyMin
+from ResolventSolver.tests.TestInitOptFuncs import TestInitOptFuncs
 from ResolventSolver.tests.TestResidualFunctions import TestResidualFunctions
 from ResolventSolver.tests.TestResolventModes import TestResolventModes
 from ResolventSolver.tests.TestSparseLinalgEigs import TestSparseLinalgEigs
