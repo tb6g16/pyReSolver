@@ -6,21 +6,21 @@ import unittest
 
 import numpy as np
 
-from ResolventSolver.HessianOperator import HessianOperator
-from ResolventSolver.gen_rand_traj import gen_rand_traj
-from ResolventSolver.my_min import my_min
-from ResolventSolver.systems import lorenz
-from ResolventSolver.traj_hdf5 import write_traj, read_traj
+from pyReSolver.HessianOperator import HessianOperator
+from pyReSolver.gen_rand_traj import gen_rand_traj
+from pyReSolver.my_min import my_min
+from pyReSolver.systems import lorenz
+from pyReSolver.traj_hdf5 import write_traj, read_traj
 
 def get_opt(T, filename = 'hess_traj.hdf5'):
-    if exists('./ResolventSolver/tests/' + filename):
+    if exists('./tests/' + filename):
         traj, freq = read_traj(filename)
     else:
         traj = gen_rand_traj(3, 10*T)
         freq = (2*np.pi)/T
         mean = np.array([[0, 0, 23.64]])
         traj, _, _ = my_min(traj, freq, lorenz, mean, method = 'CG')
-        write_traj('./ResolventSolver/tests/' + filename, traj, freq)
+        write_traj('./tests/' + filename, traj, freq)
 
     return traj, freq
 

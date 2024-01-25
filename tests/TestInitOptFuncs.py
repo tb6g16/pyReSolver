@@ -6,15 +6,15 @@ import random as rand
 
 import numpy as np
 
-from ResolventSolver.Cache import Cache
-from ResolventSolver.FFTPlans import FFTPlans
-from ResolventSolver.Trajectory import Trajectory
-from ResolventSolver.traj2vec import traj2vec, vec2traj, init_comp_vec
-from ResolventSolver.init_opt_funcs import init_opt_funcs
-import ResolventSolver.residual_functions as res_funcs
-from ResolventSolver.resolvent_modes import resolvent_inv
-from ResolventSolver.systems import van_der_pol as vpd
-from ResolventSolver.systems import lorenz
+from pyReSolver.Cache import Cache
+from pyReSolver.FFTPlans import FFTPlans
+from pyReSolver.Trajectory import Trajectory
+from pyReSolver.traj2vec import traj2vec, vec2traj, init_comp_vec
+from pyReSolver.init_opt_funcs import init_opt_funcs
+import pyReSolverresidual_functions as res_funcs
+from pyReSolver.resolvent_modes import resolvent_inv
+from pyReSolver.systems import van_der_pol as vpd
+from pyReSolver.systems import lorenz
 
 def init_H_n_inv(traj, sys, freq, mean):
     jac_at_mean = sys.jacobian(mean)

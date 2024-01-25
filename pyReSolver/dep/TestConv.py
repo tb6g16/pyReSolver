@@ -6,9 +6,9 @@ import random as rand
 
 import numpy as np
 
-from ResolventSolver.my_fft import my_rfft, my_irfft
-from ResolventSolver.conv import conv_scalar_fast, conv_vec_vec_fast, conv_mat_vec_fast, conv_mat_mat_fast, conv_scalar, conv_array
-from ResolventSolver.trajectory_definitions import ellipse as elps
+from pyReSolver.my_fft import my_rfft, my_irfft
+from pyReSolver.conv import conv_scalar_fast, conv_vec_vec_fast, conv_mat_vec_fast, conv_mat_mat_fast, conv_scalar, conv_array
+from pyReSolver.trajectory_definitions import ellipse as elps
 
 class TestConv(unittest.TestCase):
 

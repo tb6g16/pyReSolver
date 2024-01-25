@@ -5,7 +5,7 @@ import random as rand
 
 import numpy as np
 
-from ResolventSolver.Trajectory import Trajectory
+from pyReSolver.Trajectory import Trajectory
 
 def gen_rand_traj(dim, no_modes):
     """

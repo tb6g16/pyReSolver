@@ -5,10 +5,10 @@ import random as rand
 
 import numpy as np
 
-from ResolventSolver.FFTPlans import FFTPlans
-from ResolventSolver.traj_util import func2curve
-from ResolventSolver.trajectory_definitions import unit_circle as uc
-from ResolventSolver.trajectory_definitions import ellipse as elps
+from pyReSolver.FFTPlans import FFTPlans
+from pyReSolver.traj_util import func2curve
+from pyReSolver.trajectory_definitions import unit_circle as uc
+from pyReSolver.trajectory_definitions import ellipse as elps
 
 class TestFFTPlans(unittest.TestCase):
 

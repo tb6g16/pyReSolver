@@ -1,12 +1,14 @@
-from ResolventSolver.FFTPlans import FFTPlans
-from ResolventSolver.my_min import my_min
-from ResolventSolver.systems import lorenz
-from ResolventSolver.gen_rand_traj import gen_rand_traj
-from ResolventSolver.plot_traj import plot_traj
-import numpy as np
-from ResolventSolver.resolvent_modes import resolvent, resolvent_modes
 import cProfile
 import subprocess
+
+import numpy as np
+
+from pyReSolver.FFTPlans import FFTPlans
+from pyReSolver.my_min import my_min
+from pyReSolver.systems import lorenz
+from pyReSolver.gen_rand_traj import gen_rand_traj
+from pyReSolver.plot_traj import plot_traj
+from pyReSolver.resolvent_modes import resolvent, resolvent_modes
 
 T = 10
 M = int(10*T)
@@ -25,8 +27,8 @@ def do_op():
     # plot_traj(op_traj, discs = [10000], means = [mean])
 
 def main():
-    cProfile.run('do_op()', './ResolventSolver/tests/restats.prof')
-    subprocess.run(['snakeviz', './ResolventSolver/tests/restats.prof'])
+    cProfile.run('do_op()', './tests/restats.prof')
+    subprocess.run(['snakeviz', './tests/restats.prof'])
 
 if __name__ == '__main__':
     main()

@@ -5,12 +5,12 @@
 import numpy as np
 from scipy.optimize import minimize
 
-from ResolventSolver.Cache import Cache
-from ResolventSolver.FFTPlans import FFTPlans
-from ResolventSolver.traj2vec import traj2vec, vec2traj, init_comp_vec
-from ResolventSolver.init_opt_funcs import init_opt_funcs
-from ResolventSolver.resolvent_modes import resolvent_inv
-from ResolventSolver.trajectory_functions import transpose, conj
+from pyReSolver.Cache import Cache
+from pyReSolver.FFTPlans import FFTPlans
+from pyReSolver.traj2vec import traj2vec, vec2traj, init_comp_vec
+from pyReSolver.init_opt_funcs import init_opt_funcs
+from pyReSolver.resolvent_modes import resolvent_inv
+from pyReSolver.trajectory_functions import transpose, conj
 
 def my_min(traj, freq, sys, mean, **kwargs):
     """

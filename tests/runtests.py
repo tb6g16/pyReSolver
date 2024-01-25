@@ -1,15 +1,15 @@
 import unittest
 
-from ResolventSolver.tests.TestFFTPlans import TestFFTPlans
-# from ResolventSolver.tests.TestHessian import TestHessian
-from ResolventSolver.tests.TestInitOptFuncs import TestInitOptFuncs
-from ResolventSolver.tests.TestResidualFunctions import TestResidualFunctions
-from ResolventSolver.tests.TestResolventModes import TestResolventModes
-from ResolventSolver.tests.TestSparseLinalgEigs import TestSparseLinalgEigs
-from ResolventSolver.tests.TestTraj2Vec import TestTraj2Vec
-from ResolventSolver.tests.TestTrajectoryFunctions import TestTrajectoryFunctions
-from ResolventSolver.tests.TestTrajectoryMethods import TestTrajectoryMethods
-from ResolventSolver.tests.TestTrajUtil import TestTrajUtil
+from tests.TestFFTPlans import TestFFTPlans
+# from pyReSolver.tests.TestHessian import TestHessian
+from tests.TestInitOptFuncs import TestInitOptFuncs
+from tests.TestResidualFunctions import TestResidualFunctions
+from tests.TestResolventModes import TestResolventModes
+from tests.TestSparseLinalgEigs import TestSparseLinalgEigs
+from tests.TestTraj2Vec import TestTraj2Vec
+from tests.TestTrajectoryFunctions import TestTrajectoryFunctions
+from tests.TestTrajectoryMethods import TestTrajectoryMethods
+from tests.TestTrajUtil import TestTrajUtil
 
 if __name__ == '__main__':
     unittest.main()

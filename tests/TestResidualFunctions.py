@@ -7,19 +7,19 @@ import random as rand
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ResolventSolver.FFTPlans import FFTPlans
-from ResolventSolver.Cache import Cache
-from ResolventSolver.traj_util import func2curve
-from ResolventSolver.Trajectory import Trajectory
-import ResolventSolver.trajectory_functions as traj_funcs
-import ResolventSolver.residual_functions as res_funcs
-from ResolventSolver.resolvent_modes import resolvent_inv
-from ResolventSolver.trajectory_definitions import unit_circle as uc
-from ResolventSolver.trajectory_definitions import ellipse as elps
-from ResolventSolver.trajectory_definitions import unit_circle_3d as uc3
-from ResolventSolver.systems import van_der_pol as vdp
-from ResolventSolver.systems import viswanath as vis
-from ResolventSolver.systems import lorenz
+from pyReSolver.FFTPlans import FFTPlans
+from pyReSolver.Cache import Cache
+from pyReSolver.traj_util import func2curve
+from pyReSolver.Trajectory import Trajectory
+import pyReSolvertrajectory_functions as traj_funcs
+import pyReSolverresidual_functions as res_funcs
+from pyReSolver.resolvent_modes import resolvent_inv
+from pyReSolver.trajectory_definitions import unit_circle as uc
+from pyReSolver.trajectory_definitions import ellipse as elps
+from pyReSolver.trajectory_definitions import unit_circle_3d as uc3
+from pyReSolver.systems import van_der_pol as vdp
+from pyReSolver.systems import viswanath as vis
+from pyReSolver.systems import lorenz
 
 def init_H_n_inv(traj, sys, freq, mean):
     jac_at_mean = sys.jacobian(mean)

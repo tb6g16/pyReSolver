@@ -3,7 +3,7 @@
 
 import numpy as np
 
-from ResolventSolver.Trajectory import Trajectory
+from pyReSolver.Trajectory import Trajectory
 
 def init_comp_vec(traj):
     return np.zeros([2*traj.shape[1]*(traj.shape[0] - 1)])

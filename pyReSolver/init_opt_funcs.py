@@ -4,11 +4,11 @@
 
 import numpy as np
 
-from ResolventSolver.Cache import Cache
-from ResolventSolver.resolvent_modes import resolvent_inv
-import ResolventSolver.residual_functions as res_funcs
-from ResolventSolver.trajectory_functions import transpose, conj
-from ResolventSolver.traj2vec import traj2vec, vec2traj
+from pyReSolver.Cache import Cache
+from pyReSolver.resolvent_modes import resolvent_inv
+import pyReSolverresidual_functions as res_funcs
+from pyReSolver.trajectory_functions import transpose, conj
+from pyReSolver.traj2vec import traj2vec, vec2traj
 
 def init_opt_funcs(cache, freq, fftplans, sys, mean, psi = None):
     """

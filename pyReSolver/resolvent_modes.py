@@ -3,8 +3,8 @@
 
 import numpy as np
 
-from ResolventSolver.Trajectory import Trajectory
-from ResolventSolver.trajectory_functions import transpose, conj
+from pyReSolver.Trajectory import Trajectory
+from pyReSolver.trajectory_functions import transpose, conj
 
 def resolvent_inv(no_modes, freq, jac_at_mean):
     """

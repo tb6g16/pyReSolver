@@ -5,8 +5,8 @@
 import numpy as np
 from scipy.sparse.linalg import LinearOperator
 
-from ResolventSolver.traj2vec import traj2vec, vec2traj
-from ResolventSolver.my_min import init_opt_funcs
+from pyReSolver.traj2vec import traj2vec, vec2traj
+from pyReSolver.my_min import init_opt_funcs
 
 class HessianOperator(LinearOperator):
 

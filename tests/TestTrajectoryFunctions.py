@@ -6,16 +6,16 @@ import random as rand
 
 import numpy as np
 
-from ResolventSolver.FFTPlans import FFTPlans
-from ResolventSolver.traj_util import func2curve
-from ResolventSolver.Trajectory import Trajectory
-import ResolventSolver.trajectory_functions as traj_funcs
-from ResolventSolver.trajectory_definitions import unit_circle as uc
-from ResolventSolver.trajectory_definitions import ellipse as elps
-from ResolventSolver.trajectory_definitions import unit_circle_3d as uc3
-from ResolventSolver.systems import van_der_pol as vdp
-from ResolventSolver.systems import viswanath as vis
-from ResolventSolver.systems import lorenz
+from pyReSolver.FFTPlans import FFTPlans
+from pyReSolver.traj_util import func2curve
+from pyReSolver.Trajectory import Trajectory
+import pyReSolvertrajectory_functions as traj_funcs
+from pyReSolver.trajectory_definitions import unit_circle as uc
+from pyReSolver.trajectory_definitions import ellipse as elps
+from pyReSolver.trajectory_definitions import unit_circle_3d as uc3
+from pyReSolver.systems import van_der_pol as vdp
+from pyReSolver.systems import viswanath as vis
+from pyReSolver.systems import lorenz
 
 class TestTrajectoryFunctions(unittest.TestCase):
 

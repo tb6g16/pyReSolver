@@ -6,8 +6,8 @@ import random as rand
 
 import numpy as np
 
-from ResolventSolver.Trajectory import Trajectory
-import ResolventSolver.traj2vec as t2v
+from pyReSolver.Trajectory import Trajectory
+import pyReSolvertraj2vec as t2v
 
 class TestTraj2Vec(unittest.TestCase):
     

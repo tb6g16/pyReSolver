@@ -6,10 +6,10 @@ import random as rand
 
 import numpy as np
 
-from ResolventSolver.Trajectory import Trajectory
-from ResolventSolver.trajectory_functions import transpose, conj
-from ResolventSolver.resolvent_modes import resolvent_inv, resolvent, resolvent_modes
-from ResolventSolver.systems import lorenz
+from pyReSolver.Trajectory import Trajectory
+from pyReSolver.trajectory_functions import transpose, conj
+from pyReSolver.resolvent_modes import resolvent_inv, resolvent, resolvent_modes
+from pyReSolver.systems import lorenz
 
 class TestResolventModes(unittest.TestCase):
 
