@@ -15,8 +15,8 @@ class Trajectory(np.ndarray):
             Shape of the trajectory equivelent array.
     """
 
-    def __new__(subtype, input_array):
-        return input_array.view(subtype)
+    def __new__(cls, input_array):
+        return input_array.view(cls)
 
     def traj_inner(self, other):
         """Inner product of current instance and another trajectory instances."""
