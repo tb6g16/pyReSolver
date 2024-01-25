@@ -9,7 +9,7 @@ import numpy as np
 from pyReSolver.FFTPlans import FFTPlans
 from pyReSolver.traj_util import func2curve
 from pyReSolver.Trajectory import Trajectory
-import pyReSolvertrajectory_functions as traj_funcs
+import pyReSolver.trajectory_functions as traj_funcs
 from pyReSolver.trajectory_definitions import unit_circle as uc
 from pyReSolver.trajectory_definitions import ellipse as elps
 from pyReSolver.trajectory_definitions import unit_circle_3d as uc3

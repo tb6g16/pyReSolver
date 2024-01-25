@@ -11,8 +11,8 @@ from pyReSolver.FFTPlans import FFTPlans
 from pyReSolver.Cache import Cache
 from pyReSolver.traj_util import func2curve
 from pyReSolver.Trajectory import Trajectory
-import pyReSolvertrajectory_functions as traj_funcs
-import pyReSolverresidual_functions as res_funcs
+import pyReSolver.trajectory_functions as traj_funcs
+import pyReSolver.residual_functions as res_funcs
 from pyReSolver.resolvent_modes import resolvent_inv
 from pyReSolver.trajectory_definitions import unit_circle as uc
 from pyReSolver.trajectory_definitions import ellipse as elps
