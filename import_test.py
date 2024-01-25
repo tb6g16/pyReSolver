@@ -5,5 +5,4 @@ import numpy
 import scipy
 import matplotlib
 import h5py
-import snakeviz
 import pyfftw

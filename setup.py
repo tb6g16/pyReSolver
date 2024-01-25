@@ -2,13 +2,13 @@ from setuptools import setup, find_packages
 
 def main():
     setup(
-        name = 'ResolventSolver',
-        packages = find_packages(include = ['ResolventSolver', 'ResolventSolver.*']),
+        name = 'pyReSolver',
+        packages = find_packages(include = ['pyReSolver', 'pyReSolver.*']),
         install_requires = ['numpy',
                             'scipy',
                             'matplotlib',
                             'h5py',
-                            'snakeviz']
+                            'pyfftw']
     )
 
 if __name__ == '__main__':
