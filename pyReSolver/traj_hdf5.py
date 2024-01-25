@@ -5,7 +5,6 @@ import h5py
 import numpy as np
 
 from pyReSolver.Trajectory import Trajectory
-from pyReSolver.my_fft import my_rfft
 
 def write_traj(filename, traj, freq):
     """
@@ -62,7 +61,7 @@ def read_traj_davide(filename):
     """
     # open file and read data
     with h5py.File(filename, 'r') as f:
-        traj = Trajectory(my_rfft(f['X']))
+        traj = Trajectory(np.fft.rfft(f['X'], axis = 0)/np.shape(f['X'])[0])
         freq = f['ω'][()]
 
     return traj, freq
