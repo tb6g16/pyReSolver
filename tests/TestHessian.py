@@ -9,7 +9,7 @@ import numpy as np
 from pyReSolver.HessianOperator import HessianOperator
 from pyReSolver.gen_rand_traj import gen_rand_traj
 from pyReSolver.my_min import my_min
-from pyReSolver.systems import lorenz
+from pyReSolver.utils import lorenz
 from pyReSolver.traj_hdf5 import write_traj, read_traj
 
 def get_opt(T, filename = 'hess_traj.hdf5'):

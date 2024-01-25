@@ -6,9 +6,9 @@ import random as rand
 import numpy as np
 
 from pyReSolver.traj_util import func2curve
-from pyReSolver.trajectory_definitions import unit_circle as uc
-from pyReSolver.trajectory_definitions import unit_circle_3d as uc3d
-from pyReSolver.trajectory_definitions import ellipse as elps
+from pyReSolver.utils import unit_circle as uc
+from pyReSolver.utils import unit_circle_3d as uc3d
+from pyReSolver.utils import ellipse as elps
 
 class TestTrajUtil(unittest.TestCase):
 

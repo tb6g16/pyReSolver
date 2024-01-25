@@ -14,12 +14,12 @@ from pyReSolver.Trajectory import Trajectory
 import pyReSolver.trajectory_functions as traj_funcs
 import pyReSolver.residual_functions as res_funcs
 from pyReSolver.resolvent_modes import resolvent_inv
-from pyReSolver.trajectory_definitions import unit_circle as uc
-from pyReSolver.trajectory_definitions import ellipse as elps
-from pyReSolver.trajectory_definitions import unit_circle_3d as uc3
-from pyReSolver.systems import van_der_pol as vdp
-from pyReSolver.systems import viswanath as vis
-from pyReSolver.systems import lorenz
+from pyReSolver.utils import unit_circle as uc
+from pyReSolver.utils import ellipse as elps
+from pyReSolver.utils import unit_circle_3d as uc3
+from pyReSolver.utils import van_der_pol as vdp
+from pyReSolver.utils import viswanath as vis
+from pyReSolver.utils import lorenz
 
 def init_H_n_inv(traj, sys, freq, mean):
     jac_at_mean = sys.jacobian(mean)

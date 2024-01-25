@@ -10,12 +10,12 @@ from pyReSolver.FFTPlans import FFTPlans
 from pyReSolver.traj_util import func2curve
 from pyReSolver.Trajectory import Trajectory
 import pyReSolver.trajectory_functions as traj_funcs
-from pyReSolver.trajectory_definitions import unit_circle as uc
-from pyReSolver.trajectory_definitions import ellipse as elps
-from pyReSolver.trajectory_definitions import unit_circle_3d as uc3
-from pyReSolver.systems import van_der_pol as vdp
-from pyReSolver.systems import viswanath as vis
-from pyReSolver.systems import lorenz
+from pyReSolver.utils import unit_circle as uc
+from pyReSolver.utils import ellipse as elps
+from pyReSolver.utils import unit_circle_3d as uc3
+from pyReSolver.utils import van_der_pol as vdp
+from pyReSolver.utils import viswanath as vis
+from pyReSolver.utils import lorenz
 
 class TestTrajectoryFunctions(unittest.TestCase):
 

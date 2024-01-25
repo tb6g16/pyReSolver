@@ -5,7 +5,7 @@ import numpy as np
 
 from pyReSolver.FFTPlans import FFTPlans
 from pyReSolver.my_min import my_min
-from pyReSolver.systems import lorenz
+from pyReSolver.utils import lorenz
 from pyReSolver.gen_rand_traj import gen_rand_traj
 from pyReSolver.plot_traj import plot_traj
 from pyReSolver.resolvent_modes import resolvent, resolvent_modes
