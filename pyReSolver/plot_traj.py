@@ -107,7 +107,7 @@ def plot_traj(*args, **kwargs):
     # initialise figure and axis
     fig = plt.figure()
     if args[0].shape[1] == 3 and proj == None:
-        ax = fig.gca(projection = '3d')
+        ax = fig.add_subplot(projection = '3d')
     else:
         ax = fig.gca()
 
