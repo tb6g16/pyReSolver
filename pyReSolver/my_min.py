@@ -12,7 +12,7 @@ from pyReSolver.init_opt_funcs import init_opt_funcs
 from pyReSolver.resolvent_modes import resolvent_inv
 from pyReSolver.trajectory_functions import transpose, conj
 
-def my_min(traj, freq, sys, mean, **kwargs):
+def minimiseResidual(traj, freq, sys, mean, **kwargs):
     """
         Return the trajectory that minimises the global residual given the
         system defining the state-space and the mean of the trajectory.
@@ -119,9 +119,9 @@ def my_min(traj, freq, sys, mean, **kwargs):
         options['maxiter'] = maxiter
 
     # perform optimisation
-    if use_jac == True:
+    if use_jac:
         sol = minimize(res_func, traj_vec, jac = jac_func, method = my_method, callback = callback, options = options)
-    elif use_jac == False:
+    else:
         sol = minimize(res_func, traj_vec, method = my_method, callback = callback, options = options)
 
     # unpack trajectory from solution
