@@ -18,9 +18,9 @@ from pyReSolver.systems import van_der_pol as vdp
 from pyReSolver.systems import viswanath as vis
 from pyReSolver.systems import lorenz
 
-from test_trajectories import unit_circle as uc
-from test_trajectories import ellipse as elps
-from test_trajectories import unit_circle_3d as uc3
+from tests.test_trajectories import unit_circle as uc
+from tests.test_trajectories import ellipse as elps
+from tests.test_trajectories import unit_circle_3d as uc3
 
 def init_H_n_inv(traj, sys, freq, mean):
     jac_at_mean = sys.jacobian(mean)

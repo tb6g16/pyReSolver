@@ -7,9 +7,9 @@ import numpy as np
 
 from pyReSolver.traj_util import func2curve
 
-from test_trajectories import unit_circle as uc
-from test_trajectories import unit_circle_3d as uc3d
-from test_trajectories import ellipse as elps
+from tests.test_trajectories import unit_circle as uc
+from tests.test_trajectories import unit_circle_3d as uc3d
+from tests.test_trajectories import ellipse as elps
 
 class TestTrajUtil(unittest.TestCase):
 
