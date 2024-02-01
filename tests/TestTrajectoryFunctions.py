@@ -10,18 +10,19 @@ from pyReSolver.FFTPlans import FFTPlans
 from pyReSolver.traj_util import func2curve
 from pyReSolver.Trajectory import Trajectory
 import pyReSolver.trajectory_functions as traj_funcs
-from pyReSolver.utils import unit_circle as uc
-from pyReSolver.utils import ellipse as elps
-from pyReSolver.utils import unit_circle_3d as uc3
-from pyReSolver.utils import van_der_pol as vdp
-from pyReSolver.utils import viswanath as vis
-from pyReSolver.utils import lorenz
+from pyReSolver.systems import van_der_pol as vdp
+from pyReSolver.systems import viswanath as vis
+from pyReSolver.systems import lorenz
+
+from test_trajectories import unit_circle as uc
+from test_trajectories import ellipse as elps
+from test_trajectories import unit_circle_3d as uc3
 
 class TestTrajectoryFunctions(unittest.TestCase):
 
     def setUp(self):
-        curve1 = func2curve(uc.x, 33)
-        curve2 = func2curve(elps.x, 33)
+        curve1 = func2curve(uc, 33)
+        curve2 = func2curve(elps, 33)
         self.plans_t1 = FFTPlans(curve1.shape, flag = 'FFTW_ESTIMATE')
         self.plans_t2 = FFTPlans(curve2.shape, flag = 'FFTW_ESTIMATE')
         self.traj1 = Trajectory(np.fft.rfft(curve1, axis = 0)/np.shape(curve1)[0])
@@ -193,7 +194,7 @@ class TestTrajectoryFunctions(unittest.TestCase):
 
     def test_traj_response2(self):
         # test for lorenz
-        curve5 = func2curve(uc3.x, 5)
+        curve5 = func2curve(uc3, 5)
         curve6 = np.tile(np.random.rand(curve5.shape[1]), [curve5.shape[0], 1])
         plan_t5 = FFTPlans(curve5.shape, flag = 'FFTW_ESTIMATE')
         traj5 = Trajectory(np.zeros_like(plan_t5.tmp_f))

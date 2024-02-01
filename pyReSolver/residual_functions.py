@@ -3,9 +3,7 @@
 
 import numpy as np
 
-from .Trajectory import Trajectory
 from . import trajectory_functions as traj_funcs
-from .Cache import Cache
 
 def local_residual(cache, sys, H_n_inv, fftplans):
     """

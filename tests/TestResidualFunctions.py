@@ -14,12 +14,13 @@ from pyReSolver.Trajectory import Trajectory
 import pyReSolver.trajectory_functions as traj_funcs
 import pyReSolver.residual_functions as res_funcs
 from pyReSolver.resolvent_modes import resolvent_inv
-from pyReSolver.utils import unit_circle as uc
-from pyReSolver.utils import ellipse as elps
-from pyReSolver.utils import unit_circle_3d as uc3
-from pyReSolver.utils import van_der_pol as vdp
-from pyReSolver.utils import viswanath as vis
-from pyReSolver.utils import lorenz
+from pyReSolver.systems import van_der_pol as vdp
+from pyReSolver.systems import viswanath as vis
+from pyReSolver.systems import lorenz
+
+from test_trajectories import unit_circle as uc
+from test_trajectories import ellipse as elps
+from test_trajectories import unit_circle_3d as uc3
 
 def init_H_n_inv(traj, sys, freq, mean):
     jac_at_mean = sys.jacobian(mean)
@@ -28,9 +29,9 @@ def init_H_n_inv(traj, sys, freq, mean):
 class TestResidualFunctions(unittest.TestCase):
 
     def setUp(self):
-        curve1 = func2curve(uc.x, 33)
-        curve2 = func2curve(elps.x, 33)
-        curve3 = func2curve(uc3.x, 33)
+        curve1 = func2curve(uc, 33)
+        curve2 = func2curve(elps, 33)
+        curve3 = func2curve(uc3, 33)
         self.plans_t1 = FFTPlans(curve1.shape, flag = 'FFTW_ESTIMATE')
         self.plans_t2 = FFTPlans(curve2.shape, flag = 'FFTW_ESTIMATE')
         self.plans_t3 = FFTPlans(curve3.shape, flag = 'FFTW_ESTIMATE')

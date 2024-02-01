@@ -6,9 +6,10 @@ import random as rand
 import numpy as np
 
 from pyReSolver.traj_util import func2curve
-from pyReSolver.utils import unit_circle as uc
-from pyReSolver.utils import unit_circle_3d as uc3d
-from pyReSolver.utils import ellipse as elps
+
+from test_trajectories import unit_circle as uc
+from test_trajectories import unit_circle_3d as uc3d
+from test_trajectories import ellipse as elps
 
 class TestTrajUtil(unittest.TestCase):
 
@@ -16,9 +17,9 @@ class TestTrajUtil(unittest.TestCase):
         self.rand1 = rand.randint(2, 50)
         self.rand2 = rand.randint(2, 50)
         self.rand3 = rand.randint(2, 50)
-        self.array1 = func2curve(uc.x, modes = self.rand1)
-        self.array2 = func2curve(elps.x, modes = self.rand2)
-        self.array3 = func2curve(uc3d.x, modes = self.rand3)
+        self.array1 = func2curve(uc, modes = self.rand1)
+        self.array2 = func2curve(elps, modes = self.rand2)
+        self.array3 = func2curve(uc3d, modes = self.rand3)
 
     def tearDown(self):
         del self.rand1
@@ -37,13 +38,13 @@ class TestTrajUtil(unittest.TestCase):
         # correct values
         for i in range(2*(self.rand1 - 1)):
             s = (2*np.pi)/(2*(self.rand1 - 1))*i
-            self.assertTrue(np.allclose(self.array1[i], uc.x(s)))
+            self.assertTrue(np.allclose(self.array1[i], uc(s)))
         for i in range(2*(self.rand2 - 1)):
             s = (2*np.pi)/(2*(self.rand2 - 1))*i
-            self.assertTrue(np.allclose(self.array2[i], elps.x(s)))
+            self.assertTrue(np.allclose(self.array2[i], elps(s)))
         for i in range(2*(self.rand3 - 1)):
             s = (2*np.pi)/(2*(self.rand3 - 1))*i
-            self.assertTrue(np.allclose(self.array3[i], uc3d.x(s)))
+            self.assertTrue(np.allclose(self.array3[i], uc3d(s)))
 
 
 if __name__ == "__main__":

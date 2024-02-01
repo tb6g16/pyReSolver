@@ -4,7 +4,6 @@
 
 import numpy as np
 
-from .Cache import Cache
 from .resolvent_modes import resolvent_inv
 from . import residual_functions as res_funcs
 from .trajectory_functions import transpose, conj

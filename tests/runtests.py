@@ -1,7 +1,6 @@
 import unittest
 
 from TestFFTPlans import TestFFTPlans
-# from TestHessian import TestHessian
 from TestInitOptFuncs import TestInitOptFuncs
 from TestResidualFunctions import TestResidualFunctions
 from TestResolventModes import TestResolventModes

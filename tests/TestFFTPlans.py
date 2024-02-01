@@ -7,8 +7,7 @@ import numpy as np
 
 from pyReSolver.FFTPlans import FFTPlans
 from pyReSolver.traj_util import func2curve
-from pyReSolver.utils import unit_circle as uc
-from pyReSolver.utils import ellipse as elps
+from test_trajectories import unit_circle as uc
 
 class TestFFTPlans(unittest.TestCase):
 
@@ -56,7 +55,7 @@ class TestFFTPlans(unittest.TestCase):
         self.assertTrue(np.allclose(tmp_f, randf))
 
     def test_trig(self):
-        uc_t = func2curve(uc.x, self.shape[0], if_freq = False)
+        uc_t = func2curve(uc, self.shape[0], if_freq = False)
         uc_f_true = np.zeros([self.shapef[0], 2], dtype = complex)
         uc_f = np.zeros_like(uc_f_true)
         uc_f_true[1, 0] = 0.5

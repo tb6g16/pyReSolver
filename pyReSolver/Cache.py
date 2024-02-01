@@ -6,7 +6,6 @@
 import numpy as np
 
 from .Trajectory import Trajectory
-from .traj2vec import init_comp_vec
 from .trajectory_functions import transpose, conj
 
 class Cache:

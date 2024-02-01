@@ -3,8 +3,6 @@
 
 import numpy as np
 
-from .Trajectory import Trajectory
-
 def transpose(traj):
     """
         Return the transpose of a trajectory.

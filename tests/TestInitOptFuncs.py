@@ -13,8 +13,8 @@ from pyReSolver.traj2vec import traj2vec, vec2traj, init_comp_vec
 from pyReSolver.init_opt_funcs import init_opt_funcs
 import pyReSolver.residual_functions as res_funcs
 from pyReSolver.resolvent_modes import resolvent_inv
-from pyReSolver.utils import van_der_pol as vpd
-from pyReSolver.utils import lorenz
+from pyReSolver.systems import van_der_pol as vpd
+from pyReSolver.systems import lorenz
 
 def init_H_n_inv(traj, sys, freq, mean):
     jac_at_mean = sys.jacobian(mean)

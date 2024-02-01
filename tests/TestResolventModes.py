@@ -9,7 +9,7 @@ import numpy as np
 from pyReSolver.Trajectory import Trajectory
 from pyReSolver.trajectory_functions import transpose, conj
 from pyReSolver.resolvent_modes import resolvent_inv, resolvent, resolvent_modes
-from pyReSolver.utils import lorenz
+from pyReSolver.systems import lorenz
 
 class TestResolventModes(unittest.TestCase):
 

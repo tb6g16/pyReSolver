@@ -9,7 +9,6 @@ from .Cache import Cache
 from .FFTPlans import FFTPlans
 from .traj2vec import traj2vec, vec2traj, init_comp_vec
 from .init_opt_funcs import init_opt_funcs
-from .resolvent_modes import resolvent_inv
 from .trajectory_functions import transpose, conj
 
 def minimiseResidual(traj, freq, sys, mean, **kwargs):
