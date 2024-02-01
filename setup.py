@@ -7,7 +7,6 @@ def main():
         install_requires = ['numpy',
                             'scipy',
                             'matplotlib',
-                            'h5py',
                             'pyfftw']
     )
 

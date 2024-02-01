@@ -18,7 +18,7 @@ resolvents = pyReSolver.resolvent(init_freq, range(M), jac_at_mean, B)
 psi, _, _ = pyReSolver.resolvent_modes(resolvents)
 
 def do_op():
-    _, _, _ = pyReSolver.minimiseResidual(init_traj, init_freq, pyReSolver.systems.lorenz, mean, method = 'CG', plans = plans, iter = 200, psi = psi)
+    _, _, _ = pyReSolver.minimiseResidual(init_traj, init_freq, pyReSolver.systems.lorenz, mean, method = 'L-BFGS-B', plans = plans, iter = 200, psi = psi)
     # plot_traj(op_traj, discs = [10000], means = [mean])
 
 def main():

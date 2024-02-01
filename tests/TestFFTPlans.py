@@ -35,17 +35,17 @@ class TestFFTPlans(unittest.TestCase):
     def test_random(self):
         randt = np.random.rand(*self.shape)
         randf = np.random.rand(*self.shapef) + 1j*np.random.rand(*self.shapef)
-        randf[0] = np.real(randf[0])
+        randf[0] = np.real(randf[0]) # type: ignore
         if self.shape[0] % 2 == 0:
-            randf[-1] = np.real(randf[-1])
+            randf[-1] = np.real(randf[-1]) # type: ignore
         plans = FFTPlans(self.shape, flag = self.flag)
         plans.fft(randf, randt)
-        self.assertTrue(np.allclose(randf, np.fft.rfft(randt, axis = 0)/randt.shape[0]))
+        self.assertTrue(np.allclose(randf, np.fft.rfft(randt, axis = 0)/np.shape(randt)[0]))
         plans.ifft(randf, randt)
         if self.shape[0] % 2 == 0:
-            self.assertTrue(np.allclose(randt, np.fft.irfft(randf*2*(randf.shape[0] - 1), axis = 0)))
+            self.assertTrue(np.allclose(randt, np.fft.irfft(randf*2*(np.shape(randf)[0] - 1), axis = 0)))
         else:
-            self.assertTrue(np.allclose(randt, np.fft.irfft(randf*(2*randf.shape[0] - 1), 2*randf.shape[0] - 1, axis = 0)))
+            self.assertTrue(np.allclose(randt, np.fft.irfft(randf*(2*np.shape(randf)[0] - 1), 2*np.shape(randf)[0] - 1, axis = 0)))
         tmp_t = np.zeros_like(randt)
         plans.fft(randf, randt)
         plans.ifft(randf, tmp_t)

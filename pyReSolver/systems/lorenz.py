@@ -4,7 +4,7 @@
 import numpy as np
 
 # define parameters
-parameters = {'rho': 28, 'beta': 8/3, 'sigma': 10}
+parameters = {'rho': 28.0, 'beta': 8/3, 'sigma': 10.0}
 
 def response(x, out, defaults = parameters):
     # assign response

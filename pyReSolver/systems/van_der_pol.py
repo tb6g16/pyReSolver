@@ -5,7 +5,7 @@
 import numpy as np
 
 # define optional arguments
-parameters = {'mu': 0}
+parameters = {'mu': 0.0}
 
 def response(x, out, parameters = parameters):
     # assign response
