@@ -4,7 +4,7 @@
 import h5py
 import numpy as np
 
-from pyReSolver.Trajectory import Trajectory
+from .Trajectory import Trajectory
 
 def write_traj(filename, traj, freq):
     """

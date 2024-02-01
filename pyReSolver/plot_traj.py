@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-from pyReSolver.TrajPlotObject import TrajPlotObject
+from .TrajPlotObject import TrajPlotObject
 
 # catch warnings as if they are errors
 warnings.filterwarnings('error')

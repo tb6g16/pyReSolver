@@ -3,9 +3,9 @@
 
 import numpy as np
 
-from pyReSolver.Trajectory import Trajectory
-import pyReSolver.trajectory_functions as traj_funcs
-from pyReSolver.Cache import Cache
+from .Trajectory import Trajectory
+from . import trajectory_functions as traj_funcs
+from .Cache import Cache
 
 def local_residual(cache, sys, H_n_inv, fftplans):
     """

@@ -5,9 +5,9 @@
 
 import numpy as np
 
-from pyReSolver.Trajectory import Trajectory
-from pyReSolver.traj2vec import init_comp_vec
-from pyReSolver.trajectory_functions import transpose, conj
+from .Trajectory import Trajectory
+from .traj2vec import init_comp_vec
+from .trajectory_functions import transpose, conj
 
 class Cache:
 

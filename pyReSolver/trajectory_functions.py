@@ -3,7 +3,7 @@
 
 import numpy as np
 
-from pyReSolver.Trajectory import Trajectory
+from .Trajectory import Trajectory
 
 def transpose(traj):
     """
