@@ -58,6 +58,7 @@ def resolvent(freq, n, jac_at_mean, B = None):
     dim = np.shape(jac_at_mean)[0]
 
     # calculate single resolvent matrix if n is an integer
+    # TODO: fix this
     shape = np.shape(np.zeros([dim, dim]) @ B)
     H_n = Trajectory(np.zeros([n[-1] + 1, *shape], dtype = complex))
     for i in n:
