@@ -15,7 +15,7 @@ def main():
     resolvent_traj = pyReSolver.resolvent((2*np.pi)/period, range(init_traj.shape[0]), jac_at_mean, B)
     psi, _, _ = pyReSolver.resolvent_modes(resolvent_traj)
 
-    opt_traj, _, _ = pyReSolver.minimiseResidual(init_traj, (2*np.pi)/period, pyReSolver.systems.lorenz, mean, iter=1000, method="L-BFGS-B", psi=psi)
+    opt_traj, _, _ = pyReSolver.minimiseResidual(init_traj, (2*np.pi)/period, pyReSolver.systems.lorenz, mean, method="L-BFGS-B", psi=psi, options={"maxiter": 1000, "maxfun": 500})
     pyReSolver.plot_traj(opt_traj, discs = [100000], means = [mean])
 
 if __name__ == '__main__':

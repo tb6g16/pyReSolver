@@ -11,7 +11,6 @@ from .traj2vec import traj2vec, vec2traj, init_comp_vec
 from .init_opt_funcs import init_opt_funcs
 from .trajectory_functions import transpose, conj
 
-# TODO: just expose the scipy interface directly
 def minimiseResidual(traj, freq, sys, mean, **kwargs):
     """
         Return the trajectory that minimises the global residual given the
@@ -34,21 +33,18 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
             An alternative gradient function to use.
         method : str, default='L-BFGS-B'
             The optimisation algorithm to use.
-        quiet : bool, default=False
-            Whether or not to operate the optimise in quiet mode.
-        iter : positive int, default None
-            The maximum number of iterations before terminating.
         traces : dictionary, default=None
             The dictionary that keeps track of all the important information
             during the optimisation.
-        conv_method : {'fft', 'sum'}, default='fft'
-            The convolution method used.
         psi : ndarray, default=None
             2D array containing data of type float.
         plans : FFTPlans, default=from trajectory shape
             FFTW plans to perform the spectral to physical transformations.
+        flag : str, default="FFTW_EXHAUSTIVE"
+            FFTW flag to setup the default transform plans.
+        options : dict, default={}
+            Minimisation options exposed from the SciPy interface.
 
-        
         Returns
         -------
         op_traj : Trajectory
@@ -59,18 +55,15 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
             function.
     """
     # unpack keyword arguments
-    time_shape = [(traj.shape[0] - 1) << 1, traj.shape[1]]
     flag = kwargs.get('flag', 'FFTW_EXHAUSTIVE')
-    plans = kwargs.get('plans', FFTPlans(time_shape, flag = flag))
+    plans = kwargs.get('plans', FFTPlans([(traj.shape[0] - 1) << 1, traj.shape[1]], flag = flag))
     use_jac = kwargs.get('use_jac', True)
     res_func = kwargs.get('res_func', None)
     jac_func = kwargs.get('jac_func', None)
     my_method = kwargs.get('method', 'L-BFGS-B')
-    if_quiet = kwargs.get('quiet', False)
-    maxiter = kwargs.get('iter', None)
     traces = kwargs.get('traces', None)
     psi = kwargs.get('psi', None)
-    maxfun = kwargs.get("maxfun", None)
+    options = kwargs.get("options", {})
 
     # initialise cache
     cache = Cache(traj, mean, sys, plans, psi)
@@ -81,11 +74,11 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
 
     # setup the problem
     if not hasattr(res_func, '__call__') and not hasattr(jac_func, '__call__'):
-        res_func, jac_func = init_opt_funcs(cache, freq, plans, sys, mean, psi = psi)
+        res_func, jac_func = init_opt_funcs(cache, freq, plans, sys, mean, psi=psi)
     elif not hasattr(res_func, '__call__'):
-        res_func, _ = init_opt_funcs(cache, freq, plans, sys, mean, psi = psi)
+        res_func, _ = init_opt_funcs(cache, freq, plans, sys, mean, psi=psi)
     elif not hasattr(jac_func, '__call__'):
-        _, jac_func = init_opt_funcs(cache, freq, plans, sys, mean, psi = psi)
+        _, jac_func = init_opt_funcs(cache, freq, plans, sys, mean, psi=psi)
 
     # define varaibles to be tracked using callback
     if traces == None:
@@ -108,27 +101,11 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
     traj_vec = init_comp_vec(traj)
     traj2vec(traj, traj_vec)
 
-    # initialise options
-    options = {}
-
-    # if quiet
-    if if_quiet == True:
-        options['disp'] = False
-    else:
-        options['disp'] = True
-
-    # maximum number of iterations
-    if maxiter != None:
-        options['maxiter'] = maxiter
-
-    if maxfun is not None:
-        options["maxfun"] = maxfun
-
     # perform optimisation
     if use_jac:
-        sol = minimize(res_func, traj_vec, jac = jac_func, method = my_method, callback = callback, options = options)
+        sol = minimize(res_func, traj_vec, jac=jac_func, method=my_method, callback=callback, options=options)
     else:
-        sol = minimize(res_func, traj_vec, method = my_method, callback = callback, options = options)
+        sol = minimize(res_func, traj_vec, method=my_method, callback=callback, options=options)
 
     # unpack trajectory from solution
     op_traj = np.zeros_like(traj)
