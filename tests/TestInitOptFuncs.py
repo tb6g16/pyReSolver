@@ -6,34 +6,31 @@ import random as rand
 
 import numpy as np
 
+import pyReSolver
+
+from pyReSolver.traj2vec import init_comp_vec, traj2vec, vec2traj
 from pyReSolver.Cache import Cache
-from pyReSolver.FFTPlans import FFTPlans
-from pyReSolver.Trajectory import Trajectory
-from pyReSolver.traj2vec import traj2vec, vec2traj, init_comp_vec
 from pyReSolver.init_opt_funcs import init_opt_funcs
 import pyReSolver.residual_functions as res_funcs
-from pyReSolver.resolvent_modes import resolvent_inv
-from pyReSolver.systems import van_der_pol as vpd
-from pyReSolver.systems import lorenz
 
 def init_H_n_inv(traj, sys, freq, mean):
     jac_at_mean = sys.jacobian(mean)
-    return resolvent_inv(traj.shape[0], freq, jac_at_mean)
+    return pyReSolver.resolvent_inv(traj.shape[0], freq, jac_at_mean)
 
 class TestInitOptFuncs(unittest.TestCase):
 
     def setUp(self):
-        self.sys1 = vpd
-        self.sys2 = lorenz
+        self.sys1 = pyReSolver.systems.van_der_pol
+        self.sys2 = pyReSolver.systems.lorenz
 
         modes = rand.randint(3, 65)
 
         temp1 = np.random.rand(modes, 2) + 1j*np.random.rand(modes, 2)
         temp1[0] = 0
         temp1[-1] = 0
-        self.traj1 = Trajectory(temp1)
+        self.traj1 = pyReSolver.Trajectory(temp1)
         self.mean1 = np.random.rand(1, 2)
-        self.plan_t1 = FFTPlans([(self.traj1.shape[0] - 1) << 1, self.traj1.shape[1]], flag = 'FFTW_ESTIMATE')
+        self.plan_t1 = pyReSolver.FFTPlans([(self.traj1.shape[0] - 1) << 1, self.traj1.shape[1]], flag = 'FFTW_ESTIMATE')
         self.freq1 = rand.uniform(0, 10)
         self.traj1_vec = init_comp_vec(self.traj1)
         traj2vec(self.traj1, self.traj1_vec)
@@ -42,9 +39,9 @@ class TestInitOptFuncs(unittest.TestCase):
         temp2 = np.random.rand(modes, 2) + 1j*np.random.rand(modes, 2)
         temp2[0] = 0
         temp2[-1] = 0
-        self.traj2 = Trajectory(temp2)
+        self.traj2 = pyReSolver.Trajectory(temp2)
         self.mean2 = np.random.rand(1, 2)
-        self.plan_t2 = FFTPlans([(self.traj2.shape[0] - 1) << 1, self.traj2.shape[1]], flag = 'FFTW_ESTIMATE')
+        self.plan_t2 = pyReSolver.FFTPlans([(self.traj2.shape[0] - 1) << 1, self.traj2.shape[1]], flag = 'FFTW_ESTIMATE')
         self.freq2 = rand.uniform(0, 10)
         self.traj2_vec = init_comp_vec(self.traj2)
         traj2vec(self.traj2, self.traj2_vec)
@@ -53,9 +50,9 @@ class TestInitOptFuncs(unittest.TestCase):
         temp3 = np.random.rand(modes, 3) + 1j*np.random.rand(modes, 3)
         temp3[0] = 0
         temp3[-1] = 0
-        self.traj3 = Trajectory(temp3)
+        self.traj3 = pyReSolver.Trajectory(temp3)
         self.mean3 = np.random.rand(1, 3)
-        self.plan_t3 = FFTPlans([(self.traj3.shape[0] - 1) << 1, self.traj3.shape[1]], flag = 'FFTW_ESTIMATE')
+        self.plan_t3 = pyReSolver.FFTPlans([(self.traj3.shape[0] - 1) << 1, self.traj3.shape[1]], flag = 'FFTW_ESTIMATE')
         self.freq3 = rand.uniform(0, 10)
         self.traj3_vec = init_comp_vec(self.traj3)
         traj2vec(self.traj3, self.traj3_vec)

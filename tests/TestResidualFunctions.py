@@ -5,18 +5,12 @@ import unittest
 import random as rand
 
 import numpy as np
-import matplotlib.pyplot as plt
 
-from pyReSolver.FFTPlans import FFTPlans
+import pyReSolver
+
 from pyReSolver.Cache import Cache
-from pyReSolver.utils import func2curve
-from pyReSolver.Trajectory import Trajectory
 import pyReSolver.trajectory_functions as traj_funcs
 import pyReSolver.residual_functions as res_funcs
-from pyReSolver.resolvent_modes import resolvent_inv
-from pyReSolver.systems import van_der_pol as vdp
-from pyReSolver.systems import viswanath as vis
-from pyReSolver.systems import lorenz
 
 from tests.test_trajectories import unit_circle as uc
 from tests.test_trajectories import ellipse as elps
@@ -24,28 +18,28 @@ from tests.test_trajectories import unit_circle_3d as uc3
 
 def init_H_n_inv(traj, sys, freq, mean):
     jac_at_mean = sys.jacobian(mean)
-    return resolvent_inv(traj.shape[0], freq, jac_at_mean)
+    return pyReSolver.resolvent_inv(traj.shape[0], freq, jac_at_mean)
 
 class TestResidualFunctions(unittest.TestCase):
 
     def setUp(self):
-        curve1 = func2curve(uc, 33)
-        curve2 = func2curve(elps, 33)
-        curve3 = func2curve(uc3, 33)
-        self.plans_t1 = FFTPlans(curve1.shape, flag = 'FFTW_ESTIMATE')
-        self.plans_t2 = FFTPlans(curve2.shape, flag = 'FFTW_ESTIMATE')
-        self.plans_t3 = FFTPlans(curve3.shape, flag = 'FFTW_ESTIMATE')
-        self.traj1 = Trajectory(np.zeros_like(self.plans_t1.tmp_f))
-        self.traj2 = Trajectory(np.zeros_like(self.plans_t2.tmp_f))
-        self.traj3 = Trajectory(np.zeros_like(self.plans_t3.tmp_f))
+        curve1 = pyReSolver.utils.func2curve(uc, 33)
+        curve2 = pyReSolver.utils.func2curve(elps, 33)
+        curve3 = pyReSolver.utils.func2curve(uc3, 33)
+        self.plans_t1 = pyReSolver.FFTPlans(curve1.shape, flag = 'FFTW_ESTIMATE')
+        self.plans_t2 = pyReSolver.FFTPlans(curve2.shape, flag = 'FFTW_ESTIMATE')
+        self.plans_t3 = pyReSolver.FFTPlans(curve3.shape, flag = 'FFTW_ESTIMATE')
+        self.traj1 = pyReSolver.Trajectory(np.zeros_like(self.plans_t1.tmp_f))
+        self.traj2 = pyReSolver.Trajectory(np.zeros_like(self.plans_t2.tmp_f))
+        self.traj3 = pyReSolver.Trajectory(np.zeros_like(self.plans_t3.tmp_f))
         self.mean1 = np.zeros([1, 2])
         self.mean2 = np.zeros([1, 2])
         traj_funcs.traj_rfft(self.traj1, curve1, self.plans_t1)
         traj_funcs.traj_rfft(self.traj2, curve2, self.plans_t2)
         traj_funcs.traj_rfft(self.traj3, curve3, self.plans_t3)
-        self.sys1 = vdp
-        self.sys2 = vis
-        self.sys3 = lorenz
+        self.sys1 = pyReSolver.systems.van_der_pol
+        self.sys2 = pyReSolver.systems.viswanath
+        self.sys3 = pyReSolver.systems.lorenz
         self.cache1 = Cache(self.traj1, self.mean1, self.sys1, self.plans_t1)
         self.cache2 = Cache(self.traj2, self.mean2, self.sys2, self.plans_t2)
 
@@ -86,8 +80,8 @@ class TestResidualFunctions(unittest.TestCase):
         lr_traj2_sys1 = res_funcs.local_residual(self.cache2, self.sys1, H_n_inv_t2s1, self.plans_t2)
 
         # output is of Trajectory class
-        self.assertIsInstance(lr_traj1_sys1, Trajectory)
-        self.assertIsInstance(lr_traj2_sys1, Trajectory)
+        self.assertIsInstance(lr_traj1_sys1, pyReSolver.Trajectory)
+        self.assertIsInstance(lr_traj2_sys1, pyReSolver.Trajectory)
 
         # output is of correct shape
         self.assertEqual(lr_traj1_sys1.shape, self.traj1.shape)
@@ -129,8 +123,8 @@ class TestResidualFunctions(unittest.TestCase):
         # calculate global residuals
         H_n_inv_t1s1 = init_H_n_inv(self.traj1, self.sys1, freq1, self.mean1)
         H_n_inv_t2s1 = init_H_n_inv(self.traj2, self.sys1, freq2, self.mean2)
-        lr_t1s1 = res_funcs.local_residual(self.cache1, self.sys1, H_n_inv_t1s1, self.plans_t1)
-        lr_t2s1 = res_funcs.local_residual(self.cache2, self.sys1, H_n_inv_t2s1, self.plans_t2)
+        _ = res_funcs.local_residual(self.cache1, self.sys1, H_n_inv_t1s1, self.plans_t1)
+        _ = res_funcs.local_residual(self.cache2, self.sys1, H_n_inv_t2s1, self.plans_t2)
         gr_traj1_sys1 = res_funcs.global_residual(self.cache1)
         gr_traj2_sys1 = res_funcs.global_residual(self.cache2)
 
@@ -156,18 +150,10 @@ class TestResidualFunctions(unittest.TestCase):
         # calculate local residuals
         H_n_inv_t1s1 = init_H_n_inv(self.traj1, self.sys1, freq1, self.mean1)
         H_n_inv_t2s1 = init_H_n_inv(self.traj2, self.sys1, freq2, self.mean2)
-        tmp_curve1 = np.zeros_like(self.plans_t1.tmp_t)
-        tmp_curve2 = np.zeros_like(self.plans_t2.tmp_t)
         lr_t1s1 = res_funcs.local_residual(self.cache1, self.sys1, H_n_inv_t1s1, self.plans_t1)
         lr_t2s1 = res_funcs.local_residual(self.cache2, self.sys1, H_n_inv_t2s1, self.plans_t2)
 
         # calculate global residual gradients
-        jac_res_conv_t1 = np.zeros_like(self.traj1)
-        jac_res_conv_t2 = np.zeros_like(self.traj2)
-        curve_jac_res_conv_t1 = np.zeros_like(self.plans_t1.tmp_t)
-        curve_jac_res_conv_t2 = np.zeros_like(self.plans_t2.tmp_t)
-        tmp_curve1 = np.zeros_like(self.plans_t1.tmp_t)
-        tmp_curve2 = np.zeros_like(self.plans_t2.tmp_t)
         gr_grad_traj_t1s1 = res_funcs.gr_traj_grad(self.cache1, self.sys1, freq1, self.mean1, self.plans_t1)
         gr_grad_traj_t2s1 = res_funcs.gr_traj_grad(self.cache2, self.sys1, freq2, self.mean2, self.plans_t2)
         gr_grad_freq_t1s1 = res_funcs.gr_freq_grad(self.traj1, lr_t1s1)
@@ -184,21 +170,6 @@ class TestResidualFunctions(unittest.TestCase):
         # correct values (compared with FD approximation)
         gr_grad_traj_t1s1_FD = self.gen_gr_grad_FD(self.traj1, self.sys1, freq1, self.mean1, self.plans_t1)
         gr_grad_traj_t2s1_FD = self.gen_gr_grad_FD(self.traj2, self.sys1, freq2, self.mean2, self.plans_t2)
-
-        # gr_grad_traj_t1s1_array = my_irfft(self.traj1.modes)
-        # gr_grad_traj_t2s1_array = my_irfft(self.traj2.modes)
-        # gr_grad_traj_t1s1_FD_array = my_irfft(gr_grad_traj_t1s1_FD.modes)
-        # gr_grad_traj_t2s1_FD_array = my_irfft(gr_grad_traj_t2s1_FD.modes)
-        # fig, (ax1, ax2, ax3) = plt.subplots(figsize = (12, 5), nrows = 3)
-        # pos1 = ax1.matshow(np.transpose(gr_grad_traj_t1s1_array))
-        # pos2 = ax2.matshow(np.transpose(gr_grad_traj_t1s1_FD_array))
-        # pos3 = ax3.matshow(abs(np.transpose(gr_grad_traj_t1s1_array - gr_grad_traj_t1s1_FD_array)))
-        # fig.colorbar(pos1, ax = ax1)
-        # fig.colorbar(pos2, ax = ax2)
-        # fig.colorbar(pos3, ax = ax3)
-        # plt.show()
-
-        # LARGEST ERRORS AT POINTS OF EXTREMA IN MATRIX ALONG TIME DIMENSION
 
         self.assertAlmostEqual(gr_grad_traj_t1s1, gr_grad_traj_t1s1_FD, places = 3)
         self.assertAlmostEqual(gr_grad_traj_t2s1, gr_grad_traj_t2s1_FD, places = 3)
@@ -217,8 +188,6 @@ class TestResidualFunctions(unittest.TestCase):
 
         # generate resolvent trajectory
         H_n_inv = init_H_n_inv(traj, sys, freq, mean)
-        H_n_inv_freq_for = init_H_n_inv(traj, sys, freq + step, mean)
-        H_n_inv_freq_back = init_H_n_inv(traj, sys, freq - step, mean)
 
         # loop over trajectory DoFs and use CD scheme
         for i in range(traj.shape[0]):
@@ -230,19 +199,18 @@ class TestResidualFunctions(unittest.TestCase):
                         step2 = step
                     traj_for = traj
                     traj_for[i, j] = traj[i, j] + step2
-                    lr_traj_for = res_funcs.local_residual(cache, sys, H_n_inv, fftplans)
+                    _ = res_funcs.local_residual(cache, sys, H_n_inv, fftplans)
                     gr_traj_for = res_funcs.global_residual(cache)
                     traj_back = traj
                     traj_back[i, j] = traj[i, j] - step2
-                    lr_traj_back = res_funcs.local_residual(cache, sys, H_n_inv, fftplans)
+                    _ = res_funcs.local_residual(cache, sys, H_n_inv, fftplans)
                     gr_traj_back = res_funcs.global_residual(cache)
                     if k == 0:
                         gr_grad_FD_traj_real[i, j] = (gr_traj_for - gr_traj_back)/(2*step)
                     else:
                         gr_grad_FD_traj_imag[i, j] = (gr_traj_for - gr_traj_back)/(2*step)
 
-        # gr_grad_FD_traj = Trajectory(gr_grad_FD_traj_real + 1j*gr_grad_FD_traj_imag)
-        return Trajectory(gr_grad_FD_traj_real + 1j*gr_grad_FD_traj_imag)
+        return pyReSolver.Trajectory(gr_grad_FD_traj_real + 1j*gr_grad_FD_traj_imag)
 
 
 if __name__ == "__main__":

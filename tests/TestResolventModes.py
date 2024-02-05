@@ -6,18 +6,17 @@ import random as rand
 
 import numpy as np
 
-from pyReSolver.Trajectory import Trajectory
+import pyReSolver
+
 from pyReSolver.trajectory_functions import transpose, conj
-from pyReSolver.resolvent_modes import resolvent_inv, resolvent, resolvent_modes
-from pyReSolver.systems import lorenz
 
 class TestResolventModes(unittest.TestCase):
 
     def setUp(self):
         self.no_modes = rand.randint(2, 50)
         self.dim = rand.randint(2, 5)
-        self.array = Trajectory(np.random.rand(self.no_modes, self.dim, self.dim) + 1j*np.random.rand(self.no_modes, self.dim, self.dim))
-        self.sys = lorenz
+        self.array = pyReSolver.Trajectory(np.random.rand(self.no_modes, self.dim, self.dim) + 1j*np.random.rand(self.no_modes, self.dim, self.dim))
+        self.sys = pyReSolver.systems.lorenz
 
     def tearDown(self):
         del self.no_modes
@@ -35,8 +34,8 @@ class TestResolventModes(unittest.TestCase):
             self.sys.parameters['beta'] = beta
             self.sys.parameters['rho'] = rho
             jac_at_mean_sys3 = self.sys.jacobian(np.array([[0, 0, z_mean]]))
-            H_sys3 = resolvent_inv(self.array.shape[0], freq, jac_at_mean_sys3)
-            resolvent_true = Trajectory(np.zeros([self.array.shape[0], 3, 3], dtype = complex))
+            H_sys3 = pyReSolver.resolvent_inv(self.array.shape[0], freq, jac_at_mean_sys3)
+            resolvent_true = pyReSolver.Trajectory(np.zeros([self.array.shape[0], 3, 3], dtype = complex))
             for n in range(1, self.array.shape[0]):
                 D_n = ((1j*n*freq) + sigma)*((1j*n*freq) + 1) + sigma*(z_mean - rho)
                 resolvent_true[n, 0, 0] = ((1j*n*freq) + 1)/D_n
@@ -62,10 +61,10 @@ class TestResolventModes(unittest.TestCase):
         # evaluate resolvent matrices
         jac_at_mean = self.sys.jacobian(np.array([[0, 0, z_mean]]))
         B = np.array([[0, 0], [-1, 0], [0, 1]])
-        H = resolvent(freq, range(no_modes), jac_at_mean, B = B)
+        H = pyReSolver.resolvent(freq, range(no_modes), jac_at_mean, B = B)
 
         # true value
-        resolvent_true = Trajectory(np.zeros([no_modes, 3, 2], dtype = complex))
+        resolvent_true = pyReSolver.Trajectory(np.zeros([no_modes, 3, 2], dtype = complex))
         for n in range(no_modes):
             D_n = ((1j*n*freq) + sigma)*((1j*n*freq) + 1) + sigma*(z_mean - rho)
             resolvent_true[n, 0, 0] = -sigma/D_n
@@ -94,10 +93,10 @@ class TestResolventModes(unittest.TestCase):
         # evaluate resolvent matrices
         jac_at_mean = self.sys.jacobian(np.array([[0, 0, z_mean]]))
         B = np.array([[0, 0], [-1, 0], [0, 1]])
-        H = resolvent(freq, range(no_modes), jac_at_mean, B = B)
+        H = pyReSolver.resolvent(freq, range(no_modes), jac_at_mean, B = B)
 
         # perform singular value decomposition
-        psi, sig, phi = resolvent_modes(H)
+        psi, sig, phi = pyReSolver.resolvent_modes(H)
 
         # generate true singular modes values
         psi_true = np.zeros_like(psi)
@@ -131,7 +130,7 @@ class TestResolventModes(unittest.TestCase):
 
     def test_resolvent_svd_random(self):
         # perform decomposition
-        psi, sig, phi = resolvent_modes(self.array)
+        psi, sig, phi = pyReSolver.resolvent_modes(self.array)
 
         # check singular values are in correct order
         for i in range(self.no_modes):
@@ -164,7 +163,7 @@ class TestResolventModes(unittest.TestCase):
     def test_resolvent_modes_truncated(self):
         # perform truncated svd
         cut = rand.randint(0, self.dim - 1)
-        psi, sig, phi = resolvent_modes(self.array, cut = cut)
+        psi, sig, phi = pyReSolver.resolvent_modes(self.array, cut = cut)
 
         # check correct size
         self.assertEqual(psi.shape, (self.no_modes, self.dim, self.dim - cut))

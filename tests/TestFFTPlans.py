@@ -5,8 +5,7 @@ import random as rand
 
 import numpy as np
 
-from pyReSolver.FFTPlans import FFTPlans
-from pyReSolver.utils import func2curve
+import pyReSolver
 
 from tests.test_trajectories import unit_circle as uc
 
@@ -25,8 +24,8 @@ class TestFFTPlans(unittest.TestCase):
         del self.flag
 
     def test_init(self):
-        plans = FFTPlans(self.shape, flag = self.flag)
-        self.assertIsInstance(plans, FFTPlans)
+        plans = pyReSolver.FFTPlans(self.shape, flag = self.flag)
+        self.assertIsInstance(plans, pyReSolver.FFTPlans)
         self.assertEqual(plans.tmp_f.shape[0], (plans.tmp_t.shape[0] >> 1) + 1)
         self.assertEqual(plans.tmp_f.shape[1], plans.tmp_t.shape[1])
         self.assertTrue(plans.fftplan.input_array is plans.ifftplan.output_array)
@@ -38,7 +37,7 @@ class TestFFTPlans(unittest.TestCase):
         randf[0] = np.real(randf[0]) # type: ignore
         if self.shape[0] % 2 == 0:
             randf[-1] = np.real(randf[-1]) # type: ignore
-        plans = FFTPlans(self.shape, flag = self.flag)
+        plans = pyReSolver.FFTPlans(self.shape, flag = self.flag)
         plans.fft(randf, randt)
         self.assertTrue(np.allclose(randf, np.fft.rfft(randt, axis = 0)/np.shape(randt)[0]))
         plans.ifft(randf, randt)
@@ -56,12 +55,12 @@ class TestFFTPlans(unittest.TestCase):
         self.assertTrue(np.allclose(tmp_f, randf))
 
     def test_trig(self):
-        uc_t = func2curve(uc, self.shape[0], if_freq = False)
+        uc_t = pyReSolver.utils.func2curve(uc, self.shape[0], if_freq = False)
         uc_f_true = np.zeros([self.shapef[0], 2], dtype = complex)
         uc_f = np.zeros_like(uc_f_true)
         uc_f_true[1, 0] = 0.5
         uc_f_true[1, 1] = 1j*0.5
-        plans = FFTPlans([self.shape[0], 2], flag = self.flag)
+        plans = pyReSolver.FFTPlans([self.shape[0], 2], flag = self.flag)
         plans.fft(uc_f, uc_t)
         self.assertTrue(np.allclose(uc_f, uc_f_true))
         tmp_t = np.zeros_like(uc_t)
@@ -75,7 +74,7 @@ class TestFFTPlans(unittest.TestCase):
         delta_t[2, 2] = 1.0
         delta_f_true = np.fft.rfft(delta_t, axis = 0)/delta_t.shape[0]
         delta_f = np.zeros_like(delta_f_true)
-        plans = FFTPlans(self.shape, flag = self.flag)
+        plans = pyReSolver.FFTPlans(self.shape, flag = self.flag)
         plans.fft(delta_f, delta_t)
         self.assertTrue(np.allclose(delta_f, delta_f_true))
         tmp_t = np.zeros_like(delta_t)

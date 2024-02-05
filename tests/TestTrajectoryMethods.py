@@ -6,7 +6,7 @@ import random as rand
 
 import numpy as np
 
-from pyReSolver.Trajectory import Trajectory
+import pyReSolver
 
 class TestTrajectoryMethods(unittest.TestCase):
 
@@ -17,8 +17,8 @@ class TestTrajectoryMethods(unittest.TestCase):
         self.dim3 = rand.randint(1, 5)
         self.rand_array1 = np.random.rand(self.modes, self.dim1) + 1j*np.random.rand(self.modes, self.dim1)
         self.rand_array2 = np.random.rand(self.modes, self.dim2, self.dim3) + 1j*np.random.rand(self.modes, self.dim2, self.dim3)
-        self.traj1 = Trajectory(self.rand_array1)
-        self.traj2 = Trajectory(self.rand_array2)
+        self.traj1 = pyReSolver.Trajectory(self.rand_array1)
+        self.traj2 = pyReSolver.Trajectory(self.rand_array2)
 
     def tearDown(self):
         del self.modes
@@ -33,9 +33,9 @@ class TestTrajectoryMethods(unittest.TestCase):
     def test_add_sub(self):
         rand_factor1 = rand.uniform(0, 10)
         rand_factor2 = rand.uniform(0, 10)
-        self.assertEqual(self.traj1 + Trajectory(rand_factor1*self.rand_array1),
+        self.assertEqual(self.traj1 + pyReSolver.Trajectory(rand_factor1*self.rand_array1),
                             self.rand_array1 + rand_factor1*self.rand_array1)
-        self.assertEqual(self.traj1 + Trajectory(rand_factor2*self.rand_array1),
+        self.assertEqual(self.traj1 + pyReSolver.Trajectory(rand_factor2*self.rand_array1),
                             self.rand_array1 + rand_factor2*self.rand_array1)
 
     def test_mul_float(self):
@@ -61,7 +61,7 @@ class TestTrajectoryMethods(unittest.TestCase):
         no_modes = self.traj1.shape[0]
         rand_row = rand.randint(2, 5)
         rand_array = np.random.rand(no_modes, rand_row, self.dim1) + 1j*np.random.rand(no_modes, rand_row, self.dim1)
-        rand_traj = Trajectory(rand_array)
+        rand_traj = pyReSolver.Trajectory(rand_array)
 
         # perform left multiplication
         traj_mult = self.traj1.matmul_left_traj(rand_traj)

@@ -5,7 +5,7 @@ import random as rand
 
 import numpy as np
 
-from pyReSolver.utils import func2curve
+import pyReSolver
 
 from tests.test_trajectories import unit_circle as uc
 from tests.test_trajectories import unit_circle_3d as uc3d
@@ -17,9 +17,9 @@ class TestTrajUtil(unittest.TestCase):
         self.rand1 = rand.randint(2, 50)
         self.rand2 = rand.randint(2, 50)
         self.rand3 = rand.randint(2, 50)
-        self.array1 = func2curve(uc, modes = self.rand1)
-        self.array2 = func2curve(elps, modes = self.rand2)
-        self.array3 = func2curve(uc3d, modes = self.rand3)
+        self.array1 = pyReSolver.utils.func2curve(uc, modes = self.rand1)
+        self.array2 = pyReSolver.utils.func2curve(elps, modes = self.rand2)
+        self.array3 = pyReSolver.utils.func2curve(uc3d, modes = self.rand3)
 
     def tearDown(self):
         del self.rand1

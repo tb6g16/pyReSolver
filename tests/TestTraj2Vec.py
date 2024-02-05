@@ -6,7 +6,8 @@ import random as rand
 
 import numpy as np
 
-from pyReSolver.Trajectory import Trajectory
+import pyReSolver
+
 import pyReSolver.traj2vec as t2v
 
 class TestTraj2Vec(unittest.TestCase):
@@ -16,7 +17,7 @@ class TestTraj2Vec(unittest.TestCase):
         dim = rand.randint(1, 5)
         traj_array = np.random.rand(modes, dim) + 1j*np.random.rand(modes, dim)
         traj_array[0] = 0
-        self.traj = Trajectory(traj_array)
+        self.traj = pyReSolver.Trajectory(traj_array)
         self.vec = t2v.init_comp_vec(self.traj)
         t2v.traj2vec(self.traj, self.vec)
 
