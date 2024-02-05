@@ -11,6 +11,7 @@ from .traj2vec import traj2vec, vec2traj, init_comp_vec
 from .init_opt_funcs import init_opt_funcs
 from .trajectory_functions import transpose, conj
 
+# TODO: just expose the scipy interface directly
 def minimiseResidual(traj, freq, sys, mean, **kwargs):
     """
         Return the trajectory that minimises the global residual given the
@@ -44,6 +45,9 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
             The convolution method used.
         psi : ndarray, default=None
             2D array containing data of type float.
+        plans : FFTPlans, default=from trajectory shape
+            FFTW plans to perform the spectral to physical transformations.
+
         
         Returns
         -------
@@ -66,6 +70,7 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
     maxiter = kwargs.get('iter', None)
     traces = kwargs.get('traces', None)
     psi = kwargs.get('psi', None)
+    maxfun = kwargs.get("maxfun", None)
 
     # initialise cache
     cache = Cache(traj, mean, sys, plans, psi)
@@ -75,7 +80,6 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
         traj = traj.matmul_left_traj(transpose(conj(psi)))
 
     # setup the problem
-    dim = traj.shape[1]
     if not hasattr(res_func, '__call__') and not hasattr(jac_func, '__call__'):
         res_func, jac_func = init_opt_funcs(cache, freq, plans, sys, mean, psi = psi)
     elif not hasattr(res_func, '__call__'):
@@ -116,6 +120,9 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
     # maximum number of iterations
     if maxiter != None:
         options['maxiter'] = maxiter
+
+    if maxfun is not None:
+        options["maxfun"] = maxfun
 
     # perform optimisation
     if use_jac:
