@@ -6,7 +6,7 @@ import random as rand
 import numpy as np
 
 from pyReSolver.FFTPlans import FFTPlans
-from pyReSolver.traj_util import func2curve
+from pyReSolver.utils import func2curve
 
 from tests.test_trajectories import unit_circle as uc
 

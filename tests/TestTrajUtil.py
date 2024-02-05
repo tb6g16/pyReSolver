@@ -5,7 +5,7 @@ import random as rand
 
 import numpy as np
 
-from pyReSolver.traj_util import func2curve
+from pyReSolver.utils import func2curve
 
 from tests.test_trajectories import unit_circle as uc
 from tests.test_trajectories import unit_circle_3d as uc3d

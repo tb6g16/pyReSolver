@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 from pyReSolver.FFTPlans import FFTPlans
 from pyReSolver.Cache import Cache
-from pyReSolver.traj_util import func2curve
+from pyReSolver.utils import func2curve
 from pyReSolver.Trajectory import Trajectory
 import pyReSolver.trajectory_functions as traj_funcs
 import pyReSolver.residual_functions as res_funcs

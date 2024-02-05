@@ -7,7 +7,7 @@ import random as rand
 import numpy as np
 
 from pyReSolver.FFTPlans import FFTPlans
-from pyReSolver.traj_util import func2curve
+from pyReSolver.utils import func2curve
 from pyReSolver.Trajectory import Trajectory
 import pyReSolver.trajectory_functions as traj_funcs
 from pyReSolver.systems import van_der_pol as vdp
