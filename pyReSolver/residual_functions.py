@@ -54,7 +54,7 @@ def global_residual(cache):
     cache.tmp_inner[0] = 0.5*cache.tmp_inner[0]
 
     # sum and return real part
-    return np.real(np.sum(cache.tmp_inner))
+    return np.real(np.sum(cache.tmp_inner)).item()
 
 def gr_traj_grad(cache, sys, freq, mean, fftplans):
     """

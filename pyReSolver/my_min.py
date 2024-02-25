@@ -42,6 +42,8 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
             FFTW plans to perform the spectral to physical transformations.
         flag : str, default="FFTW_EXHAUSTIVE"
             FFTW flag to setup the default transform plans.
+        store_grad : bool, default=False
+            Whether or not to store the gradient norm in the trace
         options : dict, default={}
             Minimisation options exposed from the SciPy interface.
 
@@ -64,6 +66,7 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
     traces = kwargs.get('traces', None)
     psi = kwargs.get('psi', None)
     options = kwargs.get("options", {})
+    store_grad = kwargs.get("store_grad", False)
 
     # initialise cache
     cache = Cache(traj, mean, sys, plans, psi)
@@ -81,21 +84,35 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
         _, jac_func = init_opt_funcs(cache, freq, plans, sys, mean, psi=psi)
 
     # define varaibles to be tracked using callback
-    if traces == None:
-        traces = {'traj': []}
+    if traces is None:
+        traces = {"residual": [], "gradient": [], "iteration": []}
+        startIteration = 0
+    else:
+        startIteration = traces["iteration"][-1]
+        del traces["residual"][-1]
+        del traces["gradient"][-1]
+        del traces["iteration"][-1]
 
     # define callback function
-    cur_traj = np.zeros_like(traj)
-    def callback(x, cur_traj=cur_traj):
-        vec2traj(cur_traj, x)
-
-        # convert to full space if singular matrix is provided
-        if psi is not None:
-            cur_traj2 = cur_traj.matmul_left_traj(psi)
-        else:
-            cur_traj2 = cur_traj
-
-        traces['traj'].append(cur_traj2)
+    if store_grad:
+        def initCallback(currentIteration):
+            gradient = np.zeros_like(traj)
+            def callback(x):
+                nonlocal currentIteration
+                vec2traj(gradient, jac_func(x))
+                traces["residual"].append(res_func(x))
+                traces["gradient"].append(np.real(np.sum(conj(gradient).traj_inner(gradient))))
+                traces["iteration"].append(currentIteration)
+                currentIteration += 1
+            return callback
+    else:
+        def initCallback(currentIteration):
+            def callback(x):
+                nonlocal currentIteration
+                traces["residual"].append(res_func(x))
+                traces["iteration"].append(currentIteration)
+                currentIteration += 1
+            return callback
 
     # convert trajectory to vector of optimisation variables
     traj_vec = init_comp_vec(traj)
@@ -103,9 +120,9 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
 
     # perform optimisation
     if use_jac:
-        sol = minimize(res_func, traj_vec, jac=jac_func, method=my_method, callback=callback, options=options)
+        sol = minimize(res_func, traj_vec, jac=jac_func, method=my_method, callback=initCallback(startIteration), options=options)
     else:
-        sol = minimize(res_func, traj_vec, method=my_method, callback=callback, options=options)
+        sol = minimize(res_func, traj_vec, method=my_method, callback=initCallback(startIteration), options=options)
 
     # unpack trajectory from solution
     op_traj = np.zeros_like(traj)
