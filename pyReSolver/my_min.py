@@ -46,6 +46,8 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
             Whether or not to store the gradient norm in the trace
         options : dict, default={}
             Minimisation options exposed from the SciPy interface.
+        callback : callable, default=x->None
+            User-defined callback function
 
         Returns
         -------
@@ -67,6 +69,7 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
     psi = kwargs.get('psi', None)
     options = kwargs.get("options", {})
     store_grad = kwargs.get("store_grad", False)
+    user_callback = kwargs.get("callback", lambda x : None)
 
     # initialise cache
     cache = Cache(traj, mean, sys, plans, psi)
@@ -103,6 +106,7 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
                 traces["residual"].append(res_func(x))
                 traces["gradient"].append(np.real(np.sum(conj(gradient).traj_inner(gradient))))
                 traces["iteration"].append(currentIteration)
+                user_callback(x)
                 currentIteration += 1
             return callback
     else:
@@ -111,6 +115,7 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
                 nonlocal currentIteration
                 traces["residual"].append(res_func(x))
                 traces["iteration"].append(currentIteration)
+                user_callback(x)
                 currentIteration += 1
             return callback
 

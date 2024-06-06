@@ -12,7 +12,7 @@ def main():
     psi = pyReSolver.utils.initialiseModes(period, mean, pyReSolver.systems.lorenz, init_traj.shape[0])
 
     opt_traj, trace, _ = pyReSolver.minimiseResidual(init_traj, (2*np.pi)/period, pyReSolver.systems.lorenz, mean, method="L-BFGS-B", psi=psi, options={"maxiter": 1000, "disp": True})
-    pyReSolver.plot_traj(opt_traj, discs = [100000], means = [mean])
+    pyReSolver.plot_traj(opt_traj, discs = [1000], means = [mean])
 
 if __name__ == '__main__':
     main()
