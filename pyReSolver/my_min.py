@@ -106,7 +106,7 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
                 traces["residual"].append(res_func(x))
                 traces["gradient"].append(np.real(np.sum(conj(gradient).traj_inner(gradient))))
                 traces["iteration"].append(currentIteration)
-                user_callback(x, currentIteration, traces["residual"][-1], traces["gradient"][-1])
+                user_callback(x, currentIteration, psi, traces["residual"][-1], traces["gradient"][-1])
                 currentIteration += 1
             return callback
     else:
@@ -115,7 +115,7 @@ def minimiseResidual(traj, freq, sys, mean, **kwargs):
                 nonlocal currentIteration
                 traces["residual"].append(res_func(x))
                 traces["iteration"].append(currentIteration)
-                user_callback(x, currentIteration, traces["residual"][-1])
+                user_callback(x, currentIteration, psi, traces["residual"][-1])
                 currentIteration += 1
             return callback
 
